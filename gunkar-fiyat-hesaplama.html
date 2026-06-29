@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Günkar Fiyat">
+<meta name="theme-color" content="#1a3a2a">
+<title>Günkar Fiyat Hesaplama</title>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  :root {
+    --green-dark: #1a3a2a;
+    --green-mid: #2d5a40;
+    --green-accent: #3d7a56;
+    --green-light: #5a9e72;
+    --gold: #c8a84b;
+    --gold-light: #e2c97e;
+    --cream: #f8f5ee;
+    --white: #ffffff;
+    --gray-100: #f4f4f4;
+    --gray-200: #e8e8e8;
+    --gray-400: #9a9a9a;
+    --gray-700: #444;
+    --text: #1a1a1a;
+    --radius: 16px;
+    --radius-sm: 10px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.10);
+    --shadow-lg: 0 8px 40px rgba(0,0,0,0.16);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--green-dark);
+    min-height: 100vh;
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  /* APP SHELL */
+  #app {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background: var(--cream);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* HEADER */
+  .app-header {
+    background: var(--green-dark);
+    color: white;
+    padding: 52px 20px 20px;
+    text-align: center;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .app-header .logo-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .app-header .logo-icon {
+    width: 36px; height: 36px;
+    background: var(--gold);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .app-header h1 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    color: var(--white);
+  }
+  .app-header .subtitle {
+    font-size: 11px;
+    color: var(--gold-light);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .back-btn {
+    position: absolute;
+    left: 16px;
+    top: 52px;
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: white;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    display: none;
+  }
+  .back-btn.visible { display: flex; }
+
+  /* PROGRESS */
+  .progress-bar {
+    background: var(--green-mid);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .progress-step {
+    flex: 1;
+    height: 4px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+    transition: background 0.3s;
+  }
+  .progress-step.active { background: var(--gold); }
+  .progress-step.done { background: var(--green-light); }
+  .progress-label {
+    font-size: 11px;
+    color: var(--gold-light);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  /* SCREEN */
+  .screen {
+    display: none;
+    flex-direction: column;
+    flex: 1;
+    padding: 24px 20px;
+    overflow-y: auto;
+  }
+  .screen.active { display: flex; }
+
+  .screen-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--green-dark);
+    margin-bottom: 4px;
+  }
+  .screen-desc {
+    font-size: 13px;
+    color: var(--gray-400);
+    margin-bottom: 24px;
+    font-weight: 400;
+  }
+
+  /* INPUTS */
+  .input-group {
+    margin-bottom: 16px;
+  }
+  .input-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--green-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 8px;
+  }
+  .input-group input {
+    width: 100%;
+    padding: 16px 18px;
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    font-size: 18px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    color: var(--text);
+    background: white;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+  .input-group input:focus { border-color: var(--green-accent); }
+  .input-group .unit {
+    font-size: 12px;
+    color: var(--gray-400);
+    margin-top: 6px;
+    padding-left: 2px;
+  }
+
+  /* RESULT CARD */
+  .result-card {
+    background: var(--green-dark);
+    color: white;
+    border-radius: var(--radius);
+    padding: 20px;
+    margin: 8px 0 24px;
+  }
+  .result-card .rc-label {
+    font-size: 11px;
+    color: var(--gold-light);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .result-card .rc-value {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--gold);
+    line-height: 1;
+  }
+  .result-card .rc-sub {
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+    margin-top: 4px;
+  }
+
+  /* FIRM CARDS */
+  .firm-grid { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+  .firm-card {
+    background: white;
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .firm-card:active { transform: scale(0.98); }
+  .firm-card.selected { border-color: var(--green-accent); background: #f0f8f4; }
+  .firm-card .fc-name { font-size: 16px; font-weight: 700; color: var(--green-dark); }
+  .firm-card .fc-sub { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
+  .firm-card .fc-check {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--gray-200);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  .firm-card.selected .fc-check { background: var(--green-accent); border-color: var(--green-accent); color: white; }
+
+  /* QUALITY LIST */
+  .quality-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
+  .quality-item {
+    background: white;
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .quality-item:active { transform: scale(0.98); }
+  .quality-item.selected { border-color: var(--green-accent); background: #f0f8f4; }
+  .quality-item .qi-left { flex: 1; min-width: 0; }
+  .quality-item .qi-no { font-size: 10px; font-weight: 700; color: var(--gray-400); letter-spacing: 0.5px; }
+  .quality-item .qi-wave { font-size: 13px; font-weight: 700; color: var(--green-dark); }
+  .quality-item .qi-kalite { font-size: 11px; color: var(--gray-700); }
+  .quality-item .qi-price {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--green-dark);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .quality-item .qi-price span { font-size: 11px; font-weight: 400; color: var(--gray-400); }
+
+  /* FILTER BAR */
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .filter-bar::-webkit-scrollbar { display: none; }
+  .filter-chip {
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 2px solid var(--gray-200);
+    background: white;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray-700);
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  .filter-chip.active { background: var(--green-dark); border-color: var(--green-dark); color: white; }
+
+  /* PRICE SCREEN */
+  .price-summary {
+    background: white;
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+    border: 1px solid var(--gray-200);
+  }
+  .price-summary .ps-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--gray-100);
+  }
+  .price-summary .ps-row:last-child { border-bottom: none; }
+  .price-summary .ps-label { font-size: 13px; color: var(--gray-400); }
+  .price-summary .ps-val { font-size: 14px; font-weight: 600; color: var(--text); }
+
+  .margin-input-row {
+    background: white;
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+    border: 1px solid var(--gray-200);
+  }
+  .margin-input-row label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--green-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    display: block;
+    margin-bottom: 10px;
+  }
+  .margin-row { display: flex; gap: 10px; align-items: center; }
+  .margin-input {
+    flex: 1;
+    padding: 14px 16px;
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    text-align: right;
+    -webkit-appearance: none;
+  }
+  .margin-input:focus { border-color: var(--green-accent); }
+  .margin-symbol { font-size: 20px; font-weight: 700; color: var(--green-dark); }
+
+  .final-price-card {
+    background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
+    border-radius: var(--radius);
+    padding: 24px 20px;
+    margin-bottom: 20px;
+    text-align: center;
+    color: white;
+  }
+  .final-price-card .fpc-label { font-size: 12px; color: var(--gold-light); letter-spacing: 1px; text-transform: uppercase; font-weight: 600; margin-bottom: 8px; }
+  .final-price-card .fpc-price { font-size: 44px; font-weight: 800; color: var(--gold); line-height: 1; }
+  .final-price-card .fpc-sub { font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 8px; }
+
+  /* BUTTONS */
+  .btn-primary {
+    width: 100%;
+    padding: 18px;
+    background: var(--green-accent);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: auto;
+  }
+  .btn-primary:active { transform: scale(0.98); background: var(--green-mid); }
+  .btn-primary:disabled { background: var(--gray-200); color: var(--gray-400); cursor: not-allowed; }
+
+  .btn-gold {
+    background: var(--gold);
+    color: var(--green-dark);
+  }
+  .btn-gold:active { background: var(--gold-light); }
+
+  .share-buttons { display: flex; gap: 12px; margin-top: 12px; }
+  .share-btn {
+    flex: 1;
+    padding: 16px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .share-btn:active { transform: scale(0.97); }
+  .share-btn.whatsapp { background: #25D366; color: white; }
+  .share-btn.mail { background: var(--green-dark); color: white; }
+
+  /* ADMIN PANEL */
+  .admin-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 48px; height: 48px;
+    background: var(--green-dark);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    box-shadow: var(--shadow-lg);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100;
+  }
+
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-sheet {
+    background: var(--cream);
+    border-radius: 24px 24px 0 0;
+    width: 100%;
+    max-width: 480px;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 20px;
+  }
+  .modal-handle {
+    width: 40px; height: 4px;
+    background: var(--gray-200);
+    border-radius: 2px;
+    margin: 0 auto 20px;
+  }
+  .modal-title { font-size: 18px; font-weight: 800; color: var(--green-dark); margin-bottom: 4px; }
+  .modal-sub { font-size: 12px; color: var(--gray-400); margin-bottom: 20px; }
+
+  .admin-firm-tab {
+    display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .admin-firm-tab::-webkit-scrollbar { display: none; }
+  .atab {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 2px solid var(--gray-200);
+    background: white;
+    font-size: 12px; font-weight: 600;
+    cursor: pointer; white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  .atab.active { background: var(--green-dark); border-color: var(--green-dark); color: white; }
+
+  .admin-quality-list { display: flex; flex-direction: column; gap: 8px; }
+  .admin-qi {
+    background: white;
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid var(--gray-200);
+  }
+  .admin-qi .aqi-info { flex: 1; }
+  .admin-qi .aqi-wave { font-size: 12px; font-weight: 700; color: var(--green-dark); }
+  .admin-qi .aqi-kalite { font-size: 11px; color: var(--gray-400); }
+  .admin-qi input {
+    width: 90px;
+    padding: 8px 10px;
+    border: 2px solid var(--gray-200);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    text-align: right;
+    outline: none;
+    -webkit-appearance: none;
+  }
+  .admin-qi input:focus { border-color: var(--green-accent); }
+
+  .save-admin-btn {
+    width: 100%;
+    padding: 16px;
+    background: var(--green-accent);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    margin-top: 16px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .close-modal-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--gray-200);
+    color: var(--gray-700);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+
+  .tag-new {
+    background: var(--gold);
+    color: var(--green-dark);
+    font-size: 9px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  /* OFFER PREVIEW */
+  #offerPreview {
+    background: white;
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+    border: 1px solid var(--gray-200);
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--text);
+  }
+  #offerPreview .op-header { text-align: center; margin-bottom: 12px; }
+  #offerPreview .op-company { font-size: 16px; font-weight: 800; color: var(--green-dark); }
+  #offerPreview .op-slogan { font-size: 11px; color: var(--gray-400); font-style: italic; }
+  #offerPreview hr { border: none; border-top: 1px solid var(--gray-200); margin: 10px 0; }
+  #offerPreview .op-table { width: 100%; border-collapse: collapse; margin: 8px 0; }
+  #offerPreview .op-table td { padding: 6px 4px; border-bottom: 1px solid var(--gray-100); }
+  #offerPreview .op-table td:last-child { text-align: right; font-weight: 700; }
+  #offerPreview .op-total { font-size: 14px; font-weight: 800; color: var(--green-dark); }
+
+  .customer-input {
+    background: white;
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+    border: 1px solid var(--gray-200);
+  }
+  .customer-input label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--green-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    display: block;
+    margin-bottom: 8px;
+  }
+  .customer-input input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid var(--gray-200);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    -webkit-appearance: none;
+  }
+  .customer-input input:focus { border-color: var(--green-accent); }
+
+  .toast {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--green-dark);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 300;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (min-width: 480px) {
+    #app { box-shadow: var(--shadow-lg); }
+    body { display: flex; align-items: center; justify-content: center; padding: 20px; }
+    body { min-height: 100vh; }
+    .admin-toggle { right: calc(50% - 240px + 12px); bottom: 24px; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HEADER -->
+  <div class="app-header">
+    <button class="back-btn" id="backBtn" onclick="goBack()">←</button>
+    <div class="logo-row">
+      <div class="logo-icon">📦</div>
+      <h1>Günkar Fiyat Hesaplama</h1>
+    </div>
+    <div class="subtitle">Günkar Ambalaj San. ve Tic. Ltd. Şti.</div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-bar">
+    <div class="progress-step" id="ps1"></div>
+    <div class="progress-step" id="ps2"></div>
+    <div class="progress-step" id="ps3"></div>
+    <div class="progress-step" id="ps4"></div>
+    <div class="progress-step" id="ps5"></div>
+    <span class="progress-label" id="progressLabel">Adım 1 / 5</span>
+  </div>
+
+  <!-- SCREEN 1: ÖLÇÜLER -->
+  <div class="screen active" id="screen1">
+    <div class="screen-title">Kutu Ölçüleri</div>
+    <div class="screen-desc">Müşteriden alınan kutunun açık ölçülerini girin.</div>
+    <div class="input-group">
+      <label>En (mm)</label>
+      <input type="number" id="enInput" placeholder="800" inputmode="numeric" oninput="calcArea()">
+      <div class="unit">Milimetre cinsinden genişlik</div>
+    </div>
+    <div class="input-group">
+      <label>Boy (mm)</label>
+      <input type="number" id="boyInput" placeholder="2710" inputmode="numeric" oninput="calcArea()">
+      <div class="unit">Milimetre cinsinden uzunluk</div>
+    </div>
+    <div class="result-card" id="areaCard" style="display:none">
+      <div class="rc-label">Levha Alanı</div>
+      <div class="rc-value" id="areaResult">—</div>
+      <div class="rc-sub" id="areaCalcDetail">En × Boy ÷ 1.000.000</div>
+    </div>
+    <button class="btn-primary" id="nextBtn1" onclick="goTo(2)" disabled>Devam Et →</button>
+  </div>
+
+  <!-- SCREEN 2: FİRMA SEÇ -->
+  <div class="screen" id="screen2">
+    <div class="screen-title">Levha Firması</div>
+    <div class="screen-desc">Hangi firmadan levha alıyorsunuz?</div>
+    <div class="firm-grid" id="firmGrid"></div>
+    <button class="btn-primary" id="nextBtn2" onclick="goTo(3)" disabled>Devam Et →</button>
+  </div>
+
+  <!-- SCREEN 3: KALİTE SEÇ -->
+  <div class="screen" id="screen3">
+    <div class="screen-title">Kalite Seçimi</div>
+    <div class="screen-desc">Kullanmak istediğiniz levha kalitesini seçin.</div>
+    <div class="filter-bar" id="filterBar"></div>
+    <div class="quality-list" id="qualityList"></div>
+    <button class="btn-primary" id="nextBtn3" onclick="goTo(4)" disabled>Devam Et →</button>
+  </div>
+
+  <!-- SCREEN 4: FİYAT HESAPLAMA -->
+  <div class="screen" id="screen4">
+    <div class="screen-title">Fiyat Hesaplama</div>
+    <div class="screen-desc">Kâr marjınızı girerek satış fiyatını belirleyin.</div>
+    <div class="price-summary">
+      <div class="ps-row"><span class="ps-label">Levha Alanı</span><span class="ps-val" id="s4Area">—</span></div>
+      <div class="ps-row"><span class="ps-label">Levha Fiyatı (m²)</span><span class="ps-val" id="s4UnitPrice">—</span></div>
+      <div class="ps-row"><span class="ps-label">Ham Maliyet (levha)</span><span class="ps-val" id="s4RawCost">—</span></div>
+    </div>
+    <div class="margin-input-row">
+      <label>Kâr Marjı</label>
+      <div class="margin-row">
+        <input type="number" class="margin-input" id="marginInput" placeholder="20" inputmode="numeric" value="20" oninput="calcFinal()">
+        <span class="margin-symbol">%</span>
+      </div>
+    </div>
+    <div class="final-price-card">
+      <div class="fpc-label">Müşteri Satış Fiyatı (Birim Koli)</div>
+      <div class="fpc-price" id="finalPrice">—</div>
+      <div class="fpc-sub">KDV hariç · Nakliye dahil</div>
+    </div>
+    <button class="btn-primary btn-gold" onclick="goTo(5)">Teklif Oluştur →</button>
+  </div>
+
+  <!-- SCREEN 5: TEKLİF -->
+  <div class="screen" id="screen5">
+    <div class="screen-title">Fiyat Teklifi</div>
+    <div class="screen-desc">Müşteri bilgilerini girin ve paylaşın.</div>
+    <div class="customer-input">
+      <label>Müşteri Firma Adı</label>
+      <input type="text" id="customerName" placeholder="Örn: Sar Ahsen Tekstil Ltd. Şti." oninput="buildOffer()">
+    </div>
+    <div class="customer-input">
+      <label>Adet (İsteğe Bağlı)</label>
+      <input type="number" id="adetInput" placeholder="Örn: 1000" inputmode="numeric" oninput="buildOffer()">
+    </div>
+    <div id="offerPreview"></div>
+    <button class="btn-primary btn-gold" onclick="generatePDF()" style="margin-bottom:10px">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+      PDF Oluştur &amp; İndir
+    </button>
+    <div class="share-buttons">
+      <button class="share-btn whatsapp" onclick="shareWhatsApp()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        WhatsApp
+      </button>
+      <button class="share-btn mail" onclick="shareMail()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>
+        E-posta
+      </button>
+    </div>
+    <button class="btn-primary" style="margin-top:12px;background:var(--green-dark)" onclick="resetApp()">🔄 Yeni Hesaplama</button>
+  </div>
+
+</div>
+
+<!-- PDF MODAL -->
+<div class="modal-overlay" id="pdfModal" style="align-items:stretch;z-index:500;">
+  <div style="background:white;width:100%;height:100%;overflow-y:auto;display:flex;flex-direction:column;">
+    <div style="background:#1a3a2a;color:white;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:10;">
+      <span style="font-weight:700;font-size:15px;">📄 Fiyat Teklifi</span>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <button onclick="printPDF()" style="background:#c8a84b;color:#1a3a2a;border:none;padding:8px 16px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;">🖨️ Yazdır / PDF</button>
+        <button onclick="closePDFModal()" style="background:rgba(255,255,255,0.15);color:white;border:none;width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+      </div>
+    </div>
+    <div id="pdfContent" style="flex:1;padding:0;"></div>
+  </div>
+</div>
+
+
+<button class="admin-toggle" onclick="openAdmin()" title="Fiyat Listesi Yönet">⚙️</button>
+
+<!-- ADMIN MODAL -->
+<div class="modal-overlay" id="adminModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Fiyat Listesi Yönetimi</div>
+    <div class="modal-sub">Firma fiyatlarını güncelleyin ve kaydedin.</div>
+    <div class="admin-firm-tab" id="adminTabs"></div>
+    <div class="admin-quality-list" id="adminQualityList"></div>
+    <button class="save-admin-btn" onclick="saveAdminPrices()">💾 Kaydet</button>
+    <button class="close-modal-btn" onclick="closeAdmin()">Kapat</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── VERİ ───────────────────────────────────────────────────────────────────
+const DEFAULT_FIRMS = [
+  {
+    id: 'ankutsan',
+    name: 'Ankutsan',
+    sub: 'Mersin Fabrikası · Temmuz 2026',
+    qualities: [
+      { no:1, wave:'BC', kalite:'TL-HPFL-TL', gramaj:'', price:23500 },
+      { no:2, wave:'BC', kalite:'KM-HPFL-KM', gramaj:'', price:24600 },
+      { no:3, wave:'BC', kalite:'BTL-HPFL-TL', gramaj:'', price:27000 },
+      { no:4, wave:'EB', kalite:'TL-HPFL-TL', gramaj:'', price:24700 },
+      { no:5, wave:'EB', kalite:'BTL-HPFL-TL', gramaj:'', price:27300 },
+      { no:6, wave:'EB', kalite:'HPFL-TL', gramaj:'', price:20300 },
+      { no:7, wave:'C', kalite:'TL-HPFL-TL', gramaj:'', price:14600 },
+      { no:8, wave:'B', kalite:'TL-HPFL-TL', gramaj:'', price:14200 },
+      { no:9, wave:'B', kalite:'BTL-HPFL-TL', gramaj:'', price:17100 },
+      { no:10, wave:'E', kalite:'TL-HPFL-TL', gramaj:'', price:14800 },
+      { no:11, wave:'E', kalite:'BTL-HPFL-TL', gramaj:'', price:17700 },
+      { no:12, wave:'BC', kalite:'KM-HPFL-KM', gramaj:'100/100/80/100/100', price:26400 },
+      { no:13, wave:'BC', kalite:'KM-HPFL-KM', gramaj:'100/115/80/115/100', price:28100 },
+      { no:14, wave:'BC', kalite:'KM-HPFL-KM', gramaj:'135/100/80/115/100', price:28900 },
+      { no:15, wave:'BC', kalite:'KM-HPFL-KM', gramaj:'135/115/80/135/100', price:30800 },
+      { no:16, wave:'BC', kalite:'KM-HPFL-KM', gramaj:'135/115/80/115/135', price:31300 },
+      { no:17, wave:'BC', kalite:'KM-HPFL-KM', gramaj:'135/135/80/135/135', price:33500 },
+      { no:18, wave:'BC', kalite:'KM-HPFL-KM', gramaj:'135/135/135/135/135', price:35900 },
+      { no:19, wave:'BC', kalite:'KM-HPFL-KM', gramaj:'170/135/135/135/170', price:38900 },
+      { no:20, wave:'BC', kalite:'KR-HPFL-KM', gramaj:'135/115/80/115/135', price:32500 },
+      { no:21, wave:'BC', kalite:'BTL-HPFL-KM', gramaj:'110/115/80/115/100', price:30200 },
+      { no:22, wave:'BC', kalite:'BTL-HPFL-KM', gramaj:'110/135/80/135/135', price:34100 },
+      { no:23, wave:'EB', kalite:'KM-HPFL-KM', gramaj:'135/100/80/115/100', price:29700 },
+      { no:24, wave:'EB', kalite:'BTL-HPFL-KM', gramaj:'110/115/80/115/100', price:30900 },
+      { no:25, wave:'EB', kalite:'KM-HPFL-KM', gramaj:'100/100/80/100/100', price:26800 },
+      { no:26, wave:'EB', kalite:'KM-HPFL-KM', gramaj:'135/115/80/115/135', price:32000 },
+      { no:27, wave:'C', kalite:'KM-HPFL-KM', gramaj:'100/100/100', price:17500 },
+      { no:28, wave:'C', kalite:'KM-HPFL-KM', gramaj:'100/115/100', price:18400 },
+      { no:29, wave:'C', kalite:'KM-HPFL-KM', gramaj:'100/135/100', price:19700 },
+      { no:30, wave:'C', kalite:'BTL-HPFL-KM', gramaj:'110/100/100', price:19300 },
+      { no:31, wave:'C', kalite:'BTL-HPFL-KM', gramaj:'110/135/100', price:21800 },
+      { no:32, wave:'C', kalite:'KM-HPFL-KM', gramaj:'135/135/135', price:23200 },
+      { no:33, wave:'B', kalite:'KM-HPFL-KM', gramaj:'100/100/100', price:16900 },
+      { no:34, wave:'B', kalite:'KM-HPFL-KM', gramaj:'100/115/100', price:17800 },
+      { no:35, wave:'B', kalite:'KM-HPFL-KM', gramaj:'100/135/100', price:19100 },
+      { no:36, wave:'B', kalite:'BTL-HPFL-KM', gramaj:'110/115/100', price:20000 },
+      { no:37, wave:'B', kalite:'BTL-HPFL-KM', gramaj:'110/135/100', price:21500 },
+      { no:38, wave:'E', kalite:'KM-HPFL-KM', gramaj:'100/100/100', price:17000 },
+      { no:39, wave:'E', kalite:'KM-HPFL-KM', gramaj:'100/135/100', price:19100 },
+      { no:40, wave:'E', kalite:'BTL-HPFL-KM', gramaj:'110/115/100', price:20500 },
+    ]
+  },
+  {
+    id: 'krn',
+    name: 'KRN Ambalaj',
+    sub: 'Fiyat listesi henüz eklenmedi',
+    qualities: []
+  }
+];
+
+// STATE
+let firms = JSON.parse(localStorage.getItem('gunkar_firms') || 'null') || DEFAULT_FIRMS;
+let state = {
+  en: null, boy: null, area: null,
+  firmId: null,
+  qualityNo: null,
+  qualityPrice: null,
+  qualityLabel: null,
+  finalPrice: null,
+  margin: 20
+};
+let currentScreen = 1;
+let adminActiveFirm = 0;
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+function init() {
+  renderFirms();
+  updateProgress(1);
+}
+
+// ─── PROGRESS ────────────────────────────────────────────────────────────────
+function updateProgress(step) {
+  currentScreen = step;
+  for (let i = 1; i <= 5; i++) {
+    const el = document.getElementById('ps' + i);
+    el.className = 'progress-step' + (i < step ? ' done' : i === step ? ' active' : '');
+  }
+  document.getElementById('progressLabel').textContent = 'Adım ' + step + ' / 5';
+  document.getElementById('backBtn').className = 'back-btn' + (step > 1 ? ' visible' : '');
+}
+
+function goTo(step) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen' + step).classList.add('active');
+  updateProgress(step);
+  if (step === 4) fillPriceScreen();
+  if (step === 5) { buildOffer(); }
+  window.scrollTo(0,0);
+}
+
+function goBack() {
+  if (currentScreen > 1) goTo(currentScreen - 1);
+}
+
+// ─── SCREEN 1 ────────────────────────────────────────────────────────────────
+function calcArea() {
+  const en = parseFloat(document.getElementById('enInput').value);
+  const boy = parseFloat(document.getElementById('boyInput').value);
+  const btn = document.getElementById('nextBtn1');
+  const card = document.getElementById('areaCard');
+  if (en > 0 && boy > 0) {
+    // mm × mm → m²: (en × boy) ÷ 1.000.000
+    const carpim = en * boy;
+    const area = carpim / 1000000;
+    state.en = en; state.boy = boy; state.area = area;
+    document.getElementById('areaResult').textContent = area.toFixed(6).replace(/0+$/, '').replace(/\.$/, '') + ' m²';
+    document.getElementById('areaCalcDetail').textContent =
+      `${en.toLocaleString('tr-TR')} × ${boy.toLocaleString('tr-TR')} = ${carpim.toLocaleString('tr-TR')} mm²  →  ÷ 1.000.000 = ${area.toFixed(6).replace(/0+$/, '')} m²`;
+    card.style.display = 'block';
+    btn.disabled = false;
+  } else {
+    card.style.display = 'none';
+    btn.disabled = true;
+  }
+}
+
+// ─── SCREEN 2 ────────────────────────────────────────────────────────────────
+function renderFirms() {
+  const grid = document.getElementById('firmGrid');
+  grid.innerHTML = firms.map(f => `
+    <div class="firm-card" id="fc_${f.id}" onclick="selectFirm('${f.id}')">
+      <div>
+        <div class="fc-name">${f.name}</div>
+        <div class="fc-sub">${f.sub}</div>
+      </div>
+      <div class="fc-check">✓</div>
+    </div>
+  `).join('');
+}
+
+function selectFirm(id) {
+  state.firmId = id;
+  state.qualityNo = null; state.qualityPrice = null; state.qualityLabel = null;
+  document.querySelectorAll('.firm-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('fc_' + id).classList.add('selected');
+  document.getElementById('nextBtn2').disabled = false;
+  renderQualities(id);
+}
+
+// ─── SCREEN 3 ────────────────────────────────────────────────────────────────
+function renderQualities(firmId, filter) {
+  const firm = firms.find(f => f.id === firmId);
+  if (!firm) return;
+
+  const waves = [...new Set(firm.qualities.map(q => q.wave))];
+  const filterBar = document.getElementById('filterBar');
+  filterBar.innerHTML = `<div class="filter-chip ${!filter ? 'active' : ''}" onclick="renderQualities('${firmId}')">Tümü</div>` +
+    waves.map(w => `<div class="filter-chip ${filter===w ? 'active' : ''}" onclick="renderQualities('${firmId}','${w}')">${w} Dalga</div>`).join('');
+
+  const list = document.getElementById('qualityList');
+  const qs = filter ? firm.qualities.filter(q => q.wave === filter) : firm.qualities;
+  list.innerHTML = qs.map(q => `
+    <div class="quality-item ${state.qualityNo === q.no ? 'selected' : ''}" onclick="selectQuality(${q.no}, ${q.price}, '${q.wave} · ${q.kalite}${q.gramaj ? ' ' + q.gramaj : ''}')">
+      <div class="qi-left">
+        <div class="qi-no">NO ${q.no}</div>
+        <div class="qi-wave">${q.wave} Dalga</div>
+        <div class="qi-kalite">${q.kalite}${q.gramaj ? ' · ' + q.gramaj : ''}</div>
+      </div>
+      <div class="qi-price">${(q.price/100).toFixed(2)} <span>TL/m²</span></div>
+    </div>
+  `).join('') || '<div style="text-align:center;color:#9a9a9a;padding:24px;font-size:14px;">Bu firma için henüz fiyat listesi eklenmedi.<br>⚙️ Yönetim panelinden güncelleyin.</div>';
+}
+
+function selectQuality(no, price, label) {
+  state.qualityNo = no;
+  state.qualityPrice = price / 100; // price stored as kuruş×100 → TL
+  state.qualityLabel = label;
+  document.querySelectorAll('.quality-item').forEach(i => i.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  document.getElementById('nextBtn3').disabled = false;
+}
+
+// ─── SCREEN 4 ────────────────────────────────────────────────────────────────
+function fillPriceScreen() {
+  document.getElementById('s4Area').textContent = state.area.toFixed(4) + ' m²';
+  document.getElementById('s4UnitPrice').textContent = state.qualityPrice.toFixed(2) + ' TL/m²';
+  const raw = state.area * state.qualityPrice;
+  document.getElementById('s4RawCost').textContent = raw.toFixed(2) + ' TL';
+  calcFinal();
+}
+
+function calcFinal() {
+  const margin = parseFloat(document.getElementById('marginInput').value) || 0;
+  state.margin = margin;
+  const raw = state.area * state.qualityPrice;
+  const final = raw / (1 - margin / 100);
+  state.finalPrice = final;
+  document.getElementById('finalPrice').textContent = final.toFixed(2) + ' TL';
+}
+
+// ─── SCREEN 5 ────────────────────────────────────────────────────────────────
+function buildOffer() {
+  const customer = document.getElementById('customerName').value || '...';
+  const adet = parseInt(document.getElementById('adetInput').value) || null;
+  const firm = firms.find(f => f.id === state.firmId);
+  const today = new Date().toLocaleDateString('tr-TR');
+  const teklifNo = 'GNK-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random()*9000);
+  const raw = (state.area * state.qualityPrice).toFixed(2);
+  const final = state.finalPrice.toFixed(2);
+  const toplam = adet ? (state.finalPrice * adet).toFixed(2) : null;
+
+  document.getElementById('offerPreview').innerHTML = `
+    <div class="op-header">
+      <div class="op-company">GÜNKAR AMBALAJ</div>
+      <div class="op-slogan">"Kutunun Her Hali"</div>
+    </div>
+    <hr>
+    <table class="op-table">
+      <tr><td>Müşteri</td><td>${customer}</td></tr>
+      <tr><td>Tarih</td><td>${today}</td></tr>
+      <tr><td>Teklif No</td><td>${teklifNo}</td></tr>
+    </table>
+    <hr>
+    <table class="op-table">
+      <tr><td>Açık Ölçü</td><td>${state.en} × ${state.boy} mm</td></tr>
+      <tr><td>Plaka Alanı</td><td>${state.area.toFixed(4)} m²</td></tr>
+      <tr><td>Dalga / Kalite</td><td>${state.qualityLabel}</td></tr>
+      <tr><td>Levha Maliyeti</td><td>${raw} TL</td></tr>
+      <tr><td>Kâr Marjı</td><td>%${state.margin}</td></tr>
+    </table>
+    <hr>
+    <table class="op-table">
+      <tr><td class="op-total">BİRİM FİYAT (KDV Hariç)</td><td class="op-total" style="color:var(--green-dark)">${final} TL</td></tr>
+      ${adet ? `<tr><td>Adet</td><td>${adet.toLocaleString('tr-TR')} adet</td></tr>` : ''}
+      ${toplam ? `<tr><td class="op-total">TOPLAM TUTAR</td><td class="op-total" style="color:var(--green-dark)">${parseFloat(toplam).toLocaleString('tr-TR',{minimumFractionDigits:2})} TL</td></tr>` : ''}
+    </table>
+    <hr>
+    <div style="font-size:11px;color:#9a9a9a;margin-top:8px">
+      • Fiyatlara KDV dahil değildir.<br>
+      • Nakliye fiyata dahildir.<br>
+      • Teklif geçerlilik süresi 15 takvim günüdür.<br>
+      • Üretim toleransı ± %5'tir.
+    </div>
+    <hr>
+    <div style="font-size:11px;color:#9a9a9a;text-align:center">
+      Günkar Ambalaj San. ve Tic. Ltd. Şti.<br>
+      Tel: +90 507 221 82 37 · info@gunkarambalaj.com
+    </div>
+  `;
+}
+
+function getOfferText() {
+  const customer = document.getElementById('customerName').value || '...';
+  const adet = parseInt(document.getElementById('adetInput').value) || null;
+  const today = new Date().toLocaleDateString('tr-TR');
+  const teklifNo = 'GNK-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random()*9000);
+  const raw = (state.area * state.qualityPrice).toFixed(2);
+  const final = state.finalPrice.toFixed(2);
+  const toplam = adet ? (state.finalPrice * adet).toFixed(2) : null;
+
+  return `*GÜNKAR AMBALAJ - FİYAT TEKLİFİ*\n"Kutunun Her Hali"\n\n` +
+    `Müşteri: ${customer}\nTarih: ${today}\nTeklif No: ${teklifNo}\n\n` +
+    `📦 *ÜRÜN BİLGİLERİ*\n` +
+    `• Açık Ölçü: ${state.en} × ${state.boy} mm\n` +
+    `• Plaka Alanı: ${state.area.toFixed(4)} m²\n` +
+    `• Dalga / Kalite: ${state.qualityLabel}\n\n` +
+    `💰 *FİYATLANDIRMA*\n` +
+    `• Birim Fiyat: *${final} TL* (KDV Hariç)\n` +
+    (adet ? `• Adet: ${adet.toLocaleString('tr-TR')}\n• Toplam: *${parseFloat(toplam).toLocaleString('tr-TR',{minimumFractionDigits:2})} TL*\n` : '') +
+    `\n📋 Nakliye dahildir. Teklif 15 gün geçerlidir. Tolerans ±%5.\n\n` +
+    `Günkar Ambalaj · +90 507 221 82 37 · info@gunkarambalaj.com`;
+}
+
+function shareWhatsApp() {
+  const text = getOfferText();
+  window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+}
+
+function shareMail() {
+  const customer = document.getElementById('customerName').value || 'Değerli Müşteri';
+  const subject = 'Günkar Ambalaj Fiyat Teklifi - ' + new Date().toLocaleDateString('tr-TR');
+  const body = getOfferText().replace(/\*/g, '');
+  window.open(`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
+}
+
+function generatePDF() {
+  const customer = document.getElementById('customerName').value || '...';
+  const adet = parseInt(document.getElementById('adetInput').value) || null;
+  const today = new Date().toLocaleDateString('tr-TR');
+  const teklifNo = state.teklifNo || ('GNK-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random()*9000));
+  state.teklifNo = teklifNo;
+  const final = state.finalPrice.toFixed(2);
+  const finalFmt = parseFloat(final).toLocaleString('tr-TR', {minimumFractionDigits:2});
+  const toplam = adet ? (state.finalPrice * adet) : null;
+  const toplamFmt = toplam ? toplam.toLocaleString('tr-TR', {minimumFractionDigits:2}) : null;
+
+  const labelParts = state.qualityLabel.split(' · ');
+  const wave = labelParts[0] || '';
+  const kalite = labelParts[1] || '';
+  const gramaj = labelParts[2] || '';
+  const kaliteStr = gramaj ? `${kalite} (${gramaj})` : kalite;
+
+  const html = `<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Günkar Teklif - ${teklifNo}</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; font-size: 9pt; color: #222; background: white; }
+  @page { size: A4; margin: 12mm 14mm; }
+  @media print { body { print-color-adjust: exact; -webkit-print-color-adjust: exact; } }
+
+  .header { background: #1a3a2a; color: white; padding: 12px 16px; text-align: center; margin-bottom: 0; }
+  .header h1 { font-size: 18pt; color: white; letter-spacing: 1px; margin-bottom: 2px; }
+  .header .slogan { color: #c8a84b; font-style: italic; font-size: 10pt; margin-bottom: 4px; }
+  .header .title { font-size: 13pt; font-weight: bold; color: white; border-top: 1px solid #c8a84b; padding-top: 6px; margin-top: 6px; }
+  .header .addr { font-size: 7.5pt; color: #ccc; margin-top: 4px; line-height: 1.6; }
+
+  .meta { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #ddd; margin-bottom: 8px; font-size: 8.5pt; }
+  .meta .col { flex: 1; }
+  .meta .col div { margin-bottom: 3px; }
+  .meta .col span.label { font-weight: bold; color: #1a3a2a; margin-right: 4px; }
+
+  .intro { font-size: 8pt; color: #444; line-height: 1.6; margin-bottom: 10px; }
+  .intro .sayin { font-weight: bold; margin-bottom: 4px; }
+
+  .section-title { background: #1a3a2a; color: white; font-weight: bold; font-size: 9pt; padding: 5px 8px; margin-bottom: 0; }
+
+  table.product-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 8pt; }
+  table.product-table th { background: #2d5a40; color: white; padding: 5px 6px; text-align: left; font-weight: bold; border: 1px solid #2d5a40; }
+  table.product-table td { padding: 6px 6px; border: 1px solid #ccc; vertical-align: top; }
+  table.product-table tr:nth-child(even) td { background: #f0f8f4; }
+  table.product-table .price-cell { font-weight: bold; color: #1a3a2a; font-size: 10pt; white-space: nowrap; }
+  table.product-table .price-sub { font-size: 7pt; color: #666; font-weight: normal; }
+
+  .total-box { background: #1a3a2a; color: white; padding: 10px 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+  .total-box .tl { font-size: 8pt; color: #ccc; }
+  .total-box .tr-val { font-size: 13pt; font-weight: bold; color: #c8a84b; }
+
+  .sartlar { margin-bottom: 12px; }
+  .sart-item { margin-bottom: 5px; font-size: 8pt; line-height: 1.55; color: #333; }
+  .sart-item .sart-label { font-weight: bold; color: #1a3a2a; }
+
+  .closing { font-size: 8pt; color: #444; line-height: 1.6; margin-bottom: 6px; }
+
+  .page-break { page-break-after: always; }
+
+  .imza-section { margin-top: 30px; }
+  .imza-title { font-weight: bold; font-size: 11pt; color: #1a3a2a; text-align: center; border-bottom: 2px solid #c8a84b; padding-bottom: 6px; margin-bottom: 20px; }
+  .imza-row { display: flex; gap: 20px; margin-top: 10px; }
+  .imza-box { flex: 1; border: 1px solid #ccc; }
+  .imza-box .imza-header { background: #1a3a2a; color: white; font-weight: bold; font-size: 8.5pt; padding: 7px 10px; text-align: center; }
+  .imza-box .imza-body { padding: 12px 10px; min-height: 80px; font-size: 8pt; color: #333; line-height: 2; }
+  .imza-box .imza-line { border-top: 1px solid #999; margin: 8px 0; }
+
+  .page2-header { background: #1a3a2a; color: white; padding: 8px 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .page2-header .p2h-name { font-weight: bold; font-size: 10pt; }
+  .page2-header .p2h-ref { font-size: 8pt; color: #c8a84b; }
+
+  .footer { position: fixed; bottom: 0; left: 0; right: 0; background: #f5f5f5; border-top: 1px solid #ddd; padding: 4px 14px; display: flex; justify-content: space-between; font-size: 7pt; color: #888; }
+</style>
+</head>
+<body>
+
+<!-- ===== SAYFA 1 ===== -->
+<div class="header">
+  <h1>GÜNKAR AMBALAJ</h1>
+  <div class="slogan">"Kutunun Her Hali"</div>
+  <div class="title">RESMİ FİYAT TEKLİFİ</div>
+  <div class="addr">
+    GÜNKAR AMBALAJ SAN. ve TİC. LTD. ŞTİ.<br>
+    Acidere Mah. 6679 Sk. 2 Blok No: 3 Sarıçam / ADANA<br>
+    Tic. Sic. No: 102995 &nbsp;|&nbsp; Yüreğir V.D.: 4380868058 &nbsp;|&nbsp; Mersis No: 0438086805800001<br>
+    Tel: +90 507 221 82 37 &nbsp;|&nbsp; info@gunkarambalaj.com
+  </div>
+</div>
+
+<div style="padding: 10px 0 0 0;">
+  <div class="meta">
+    <div class="col">
+      <div><span class="label">Müşteri:</span> ${customer}</div>
+      <div><span class="label">Konu:</span> Oluklu Mukavva Koli Fiyat Teklifi</div>
+    </div>
+    <div class="col" style="text-align:right;">
+      <div><span class="label">Tarih:</span> ${today}</div>
+      <div><span class="label">Teklif No:</span> ${teklifNo}</div>
+    </div>
+  </div>
+
+  <div class="intro">
+    <div class="sayin">Sayın Yetkili,</div>
+    Oluklu mukavva koli ve kutu ihtiyacınıza yönelik hazırladığımız alternatifli teknik özellikler, birim fiyat, nakliye durumu ve ticari şartları içeren güncellenmiş fiyat teklifimiz aşağıda bilgilerinize sunulmuştur:
+  </div>
+
+  <div class="section-title">1. ÜRÜN VE FİYATLANDIRMA BİLGİLERİ</div>
+  <table class="product-table">
+    <thead>
+      <tr>
+        <th>Ürün Tanımı</th>
+        <th>Açık Ölçü (En × Boy)</th>
+        <th>Plaka Alanı</th>
+        <th>Dalga Cinsi</th>
+        <th>Kalite Yapısı</th>
+        <th>Teslimat</th>
+        <th>Birim Fiyat</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Ürün 1</td>
+        <td>${state.en} × ${state.boy} mm</td>
+        <td>${state.area.toFixed(3)} m²</td>
+        <td>${wave} Dalga</td>
+        <td>${kaliteStr}</td>
+        <td>Nakliye Dahil</td>
+        <td class="price-cell">${finalFmt} TL<br><span class="price-sub">+ KDV</span></td>
+      </tr>
+      ${adet ? `<tr>
+        <td colspan="5" style="text-align:right; font-weight:bold; color:#1a3a2a;">Sipariş Adedi: ${adet.toLocaleString('tr-TR')} adet</td>
+        <td colspan="2" style="font-weight:bold; color:#1a3a2a; font-size:10pt;">TOPLAM: ${toplamFmt} TL + KDV</td>
+      </tr>` : ''}
+    </tbody>
+  </table>
+
+  <div class="section-title">2. TİCARİ VE MALİ ŞARTLAR</div>
+  <div class="sartlar" style="padding-top:8px;">
+    <div class="sart-item"><span class="sart-label">Fiyat Tanımı:</span> Belirtilen koli birim fiyatlarına KDV dahil olmayıp, faturalandırma tarihinde yürürlükte olan yasal oran eklenecektir. Fiyatlara nakliye maliyeti dahildir.</div>
+    <div class="sart-item"><span class="sart-label">Ödeme Koşulu:</span> Ödeme planı ve vadelendirme şartları, tarafların karşılıklı mutabakatı esasına göre netleştirilecektir.</div>
+    <div class="sart-item"><span class="sart-label">Tolerans Sınırları:</span> Üretim prosesinin doğal yapısı gereği, üretilen mamullerin gramaj, boyut ve hammadde özelliklerinde küçük endüstriyel sapmalar (± %5) görülebilir.</div>
+    <div class="sart-item"><span class="sart-label">Numune Tedariği:</span> Seri üretim öncesinde firmamızdan fiziksel numune talep edilerek incelenmesi, olası hatalı imalatların önüne geçilmesi adına önemle tavsiye edilmektedir.</div>
+    <div class="sart-item"><span class="sart-label">Teklif Geçerlilik Süresi:</span> Hammadde ve piyasa hareketlilikleri sebebiyle, işbu fiyat teklifi verildiği tarihten itibaren 15 (on beş) takvim günü geçerlidir.</div>
+  </div>
+
+  <div class="closing">
+    Sektördeki standartlarımız, zamanında teslimat güvencemiz ve üretim altyapımızla hizmet vermekten memnuniyet duyacağımızı belirtir, teklifinizin olumlu değerlendirilmesini dileriz.
+  </div>
+  <div class="closing">
+    Teklife istinaden verilecek tüm yazılı yanıtların resmi kayıt takibi amacıyla <strong>info@gunkarambalaj.com</strong> adresi üzerinden iletilmesini rica ederiz.
+  </div>
+</div>
+
+<div style="text-align:right; font-size:7.5pt; color:#888; margin-top:8px; border-top:1px solid #eee; padding-top:4px;">
+  Tel: +90 507 221 82 37 &nbsp;|&nbsp; info@gunkarambalaj.com &nbsp;&nbsp;&nbsp; Sayfa 1 / 2
+</div>
+
+<!-- ===== SAYFA 2 ===== -->
+<div class="page-break"></div>
+
+<div class="page2-header">
+  <span class="p2h-name">GÜNKAR AMBALAJ SAN. ve TİC. LTD. ŞTİ.</span>
+  <span class="p2h-ref">${teklifNo} &nbsp;|&nbsp; ${today}</span>
+</div>
+
+<div class="imza-section">
+  <div class="imza-title">ONAY VE İMZA</div>
+  <div class="imza-row">
+    <div class="imza-box">
+      <div class="imza-header">Müşteri Onayı</div>
+      <div class="imza-body">
+        ${customer}<br><br>
+        Yetkili İmza / Kaşe<br>
+        <div class="imza-line"></div>
+        Tarih: .... / .... / 2026
+      </div>
+    </div>
+    <div class="imza-box">
+      <div class="imza-header">Satış ve Pazarlama Departmanı</div>
+      <div class="imza-body">
+        Günkar Ambalaj San. ve Tic. Ltd. Şti.<br><br>
+        Yetkili İmza / Kaşe<br>
+        <div class="imza-line"></div>
+        Tarih: ${today}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="text-align:right; font-size:7.5pt; color:#888; margin-top: 40px; border-top:1px solid #eee; padding-top:4px;">
+  Tel: +90 507 221 82 37 &nbsp;|&nbsp; info@gunkarambalaj.com &nbsp;&nbsp;&nbsp; Sayfa 2 / 2
+</div>
+
+<script>
+  window.onload = function() {
+    window.print();
+  };
+<\/script>
+</body>
+</html>`;
+
+  const w = document.getElementById('pdfContent');
+  w.innerHTML = html;
+  document.getElementById('pdfModal').classList.add('open');
+}
+
+function closePDFModal() {
+  document.getElementById('pdfModal').classList.remove('open');
+}
+
+function printPDF() {
+  const content = document.getElementById('pdfContent').innerHTML;
+  const printWin = window.open('', '_blank', 'width=800,height=900');
+  if (printWin) {
+    printWin.document.write(content.replace('<script>window.onload=function(){window.print();};<\/script>', ''));
+    printWin.document.close();
+    printWin.focus();
+    setTimeout(() => printWin.print(), 500);
+  } else {
+    // Fallback: iframe print
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+    iframe.contentDocument.write(content);
+    iframe.contentDocument.close();
+    setTimeout(() => {
+      iframe.contentWindow.print();
+      setTimeout(() => document.body.removeChild(iframe), 1000);
+    }, 500);
+  }
+}
+
+
+
+function resetApp() {
+  state = { en:null, boy:null, area:null, firmId:null, qualityNo:null, qualityPrice:null, qualityLabel:null, finalPrice:null, margin:20 };
+  document.getElementById('enInput').value = '';
+  document.getElementById('boyInput').value = '';
+  document.getElementById('customerName').value = '';
+  document.getElementById('adetInput').value = '';
+  document.getElementById('areaCard').style.display = 'none';
+  document.getElementById('nextBtn1').disabled = true;
+  document.getElementById('nextBtn2').disabled = true;
+  document.getElementById('nextBtn3').disabled = true;
+  document.querySelectorAll('.firm-card').forEach(c => c.classList.remove('selected'));
+  goTo(1);
+}
+
+// ─── ADMIN ───────────────────────────────────────────────────────────────────
+function openAdmin() {
+  document.getElementById('adminModal').classList.add('open');
+  renderAdminTabs();
+}
+function closeAdmin() {
+  document.getElementById('adminModal').classList.remove('open');
+}
+document.getElementById('adminModal').addEventListener('click', function(e) {
+  if (e.target === this) closeAdmin();
+});
+
+function renderAdminTabs() {
+  const tabs = document.getElementById('adminTabs');
+  tabs.innerHTML = firms.map((f,i) => `
+    <div class="atab ${i===adminActiveFirm?'active':''}" onclick="setAdminFirm(${i})">${f.name}</div>
+  `).join('');
+  renderAdminQualities();
+}
+
+function setAdminFirm(i) {
+  adminActiveFirm = i;
+  renderAdminTabs();
+}
+
+function renderAdminQualities() {
+  const firm = firms[adminActiveFirm];
+  const list = document.getElementById('adminQualityList');
+  if (!firm.qualities.length) {
+    list.innerHTML = '<div style="text-align:center;color:#9a9a9a;padding:16px;font-size:13px;">Henüz fiyat listesi yok.</div>';
+    return;
+  }
+  list.innerHTML = firm.qualities.map(q => `
+    <div class="admin-qi">
+      <div class="aqi-info">
+        <div class="aqi-wave">${q.wave} · ${q.kalite}</div>
+        <div class="aqi-kalite">${q.gramaj || 'Standart'}</div>
+      </div>
+      <input type="number" id="aprice_${q.no}" value="${(q.price/100).toFixed(2)}" inputmode="decimal" step="0.01">
+    </div>
+  `).join('');
+}
+
+function saveAdminPrices() {
+  const firm = firms[adminActiveFirm];
+  firm.qualities.forEach(q => {
+    const el = document.getElementById('aprice_' + q.no);
+    if (el) q.price = Math.round(parseFloat(el.value) * 100);
+  });
+  localStorage.setItem('gunkar_firms', JSON.stringify(firms));
+  showToast('✅ Fiyatlar kaydedildi');
+  closeAdmin();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+init();
+</script>
+</body>
+</html>
