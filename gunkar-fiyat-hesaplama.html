@@ -630,16 +630,144 @@
 
   <!-- PROGRESS -->
   <div class="progress-bar">
+    <div class="progress-step" id="ps0"></div>
     <div class="progress-step" id="ps1"></div>
     <div class="progress-step" id="ps2"></div>
     <div class="progress-step" id="ps3"></div>
     <div class="progress-step" id="ps4"></div>
     <div class="progress-step" id="ps5"></div>
-    <span class="progress-label" id="progressLabel">Adım 1 / 5</span>
+    <div class="progress-step" id="ps6"></div>
+    <div class="progress-step" id="ps7"></div>
+    <span class="progress-label" id="progressLabel">Adım 1 / 8</span>
+  </div>
+
+  <!-- SCREEN 0: KUTU TİPİ SEÇİMİ (OPSİYONEL) -->
+  <div class="screen active" id="screen0">
+    <div class="screen-title">Kutu Tipi</div>
+    <div class="screen-desc">İsterseniz iç ölçülerden levha boyu/enini otomatik hesaplayın. Bu adım opsiyoneldir, atlayabilirsiniz.</div>
+
+    <div class="firm-grid">
+      <div class="firm-card" id="kutuTipiABox" onclick="selectKutuTipi('abox')">
+        <div>
+          <div class="fc-name">A-Box</div>
+          <div class="fc-sub">Normal koli · FEFCO 0201</div>
+        </div>
+        <div class="fc-check">✓</div>
+      </div>
+      <div class="firm-card" id="kutuTipiTeleskopik" onclick="selectKutuTipi('teleskopik')">
+        <div>
+          <div class="fc-name">Teleskopik</div>
+          <div class="fc-sub">Alt kutu + üst kapak (2 parça)</div>
+        </div>
+        <div class="fc-check">✓</div>
+      </div>
+    </div>
+
+    <button class="btn-primary" style="background:var(--gray-200);color:var(--gray-700);margin-top:auto;" onclick="skipKutuTipi()">Atla, Doğrudan Ölçü Gir →</button>
+  </div>
+
+  <!-- SCREEN A-BOX: A-BOX LEVHA AÇINIMI -->
+  <div class="screen" id="screenABox">
+    <div class="screen-title">A-Box Levha Açınımı</div>
+    <div class="screen-desc">İç ölçüleri girin, levha boyu/eni otomatik hesaplansın.</div>
+
+    <div class="input-group">
+      <label>L — Boy (mm)</label>
+      <input type="number" id="aboxL" placeholder="Örn: 400" inputmode="numeric" oninput="calcABox()">
+    </div>
+    <div class="input-group">
+      <label>W — En (mm)</label>
+      <input type="number" id="aboxW" placeholder="Örn: 300" inputmode="numeric" oninput="calcABox()">
+    </div>
+    <div class="input-group">
+      <label>H — Yükseklik (mm)</label>
+      <input type="number" id="aboxH" placeholder="Örn: 250" inputmode="numeric" oninput="calcABox()">
+    </div>
+    <div class="input-group">
+      <label>G — Yapıştırma Kulağı Payı (mm)</label>
+      <input type="number" id="aboxG" placeholder="Örn: 40 (genelde 30-40 mm)" inputmode="numeric" value="40" oninput="calcABox()">
+    </div>
+    <div class="input-group">
+      <label>P — Üretim/Tolerans Payı (mm)</label>
+      <input type="number" id="aboxP" placeholder="Örn: 0 (genelde 5-10 mm)" inputmode="numeric" value="0" oninput="calcABox()">
+    </div>
+
+    <div class="result-card" id="aboxCard" style="display:none">
+      <div class="rc-label">Levha Boyu</div>
+      <div class="rc-value" id="aboxBoyResult">—</div>
+      <div class="rc-sub" id="aboxBoyDetail">2 × (L + W) + G + P</div>
+      <div style="height:14px;"></div>
+      <div class="rc-label">Levha Eni</div>
+      <div class="rc-value" id="aboxEnResult">—</div>
+      <div class="rc-sub">H + W</div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:auto;">
+      <button class="btn-primary" style="background:var(--gray-200);color:var(--gray-700);flex:1;" onclick="skipABox()">Atla →</button>
+      <button class="btn-primary btn-gold" style="flex:1;" id="aboxNextBtn" onclick="useABoxResult()" disabled>Bu Sonucu Kullan →</button>
+    </div>
+  </div>
+
+  <!-- SCREEN TELESKOPİK: TELESKOPİK LEVHA AÇINIMI -->
+  <div class="screen" id="screenTeleskopik">
+    <div class="screen-title">Teleskopik Levha Açınımı</div>
+    <div class="screen-desc">Alt kutu + üst kapak için iç ölçüleri girin.</div>
+
+    <div class="input-group">
+      <label>L — Boy (mm)</label>
+      <input type="number" id="telL" placeholder="Örn: 400" inputmode="numeric" oninput="calcTeleskopik()">
+    </div>
+    <div class="input-group">
+      <label>W — En (mm)</label>
+      <input type="number" id="telW" placeholder="Örn: 300" inputmode="numeric" oninput="calcTeleskopik()">
+    </div>
+    <div class="input-group">
+      <label>H Alt — Alt Kutu Yüksekliği (mm)</label>
+      <input type="number" id="telHAlt" placeholder="Örn: 200" inputmode="numeric" oninput="calcTeleskopik()">
+    </div>
+    <div class="input-group">
+      <label>H Kapak — Kapak Yüksekliği (mm)</label>
+      <input type="number" id="telHKapak" placeholder="Örn: 60" inputmode="numeric" oninput="calcTeleskopik()">
+    </div>
+    <div class="input-group">
+      <label>G — Yapıştırma Kulağı Payı (mm)</label>
+      <input type="number" id="telG" placeholder="Örn: 35 (genelde 30-40 mm)" inputmode="numeric" value="35" oninput="calcTeleskopik()">
+    </div>
+    <div class="input-group">
+      <label>P — Üretim/Tolerans Payı (mm)</label>
+      <input type="number" id="telP" placeholder="Örn: 7 (genelde 5-10 mm)" inputmode="numeric" value="7" oninput="calcTeleskopik()">
+    </div>
+    <div class="input-group">
+      <label>B — Kapak Bolluk Payı (mm)</label>
+      <input type="number" id="telB" placeholder="Örn: 3-5 mm" inputmode="numeric" value="4" oninput="calcTeleskopik()">
+    </div>
+
+    <div class="result-card" id="telCard" style="display:none">
+      <div class="rc-label">ALT KUTU — Levha Boyu</div>
+      <div class="rc-value" id="telAltBoyResult">—</div>
+      <div class="rc-sub" id="telAltBoyDetail">2 × (L + W) + G + P</div>
+      <div style="height:8px;"></div>
+      <div class="rc-label">ALT KUTU — Levha Eni</div>
+      <div class="rc-value" id="telAltEnResult">—</div>
+      <div class="rc-sub">H_alt + W</div>
+      <div style="height:18px;border-top:1px solid rgba(255,255,255,0.15);"></div>
+      <div class="rc-label" style="margin-top:14px;">ÜST KAPAK — Levha Boyu</div>
+      <div class="rc-value" id="telKapakBoyResult">—</div>
+      <div class="rc-sub" id="telKapakBoyDetail">2 × (L_kapak + W_kapak) + G + P</div>
+      <div style="height:8px;"></div>
+      <div class="rc-label">ÜST KAPAK — Levha Eni</div>
+      <div class="rc-value" id="telKapakEnResult">—</div>
+      <div class="rc-sub">H_kapak + W_kapak</div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:auto;">
+      <button class="btn-primary" style="background:var(--gray-200);color:var(--gray-700);flex:1;" onclick="skipABox()">Atla →</button>
+      <button class="btn-primary btn-gold" style="flex:1;" id="telNextBtn" onclick="useTeleskopikResult()" disabled>Alt Kutuyu Kullan →</button>
+    </div>
   </div>
 
   <!-- SCREEN 1: ÖLÇÜLER -->
-  <div class="screen active" id="screen1">
+  <div class="screen" id="screen1">
     <div class="screen-title">Kutu Ölçüleri</div>
     <div class="screen-desc">Müşteriden alınan kutunun açık ölçülerini girin.</div>
     <div class="input-group">
@@ -657,7 +785,7 @@
       <div class="rc-value" id="areaResult">—</div>
       <div class="rc-sub" id="areaCalcDetail">En × Boy ÷ 1.000.000</div>
     </div>
-    <button class="btn-primary" id="nextBtn1" onclick="goTo(2)" disabled>Devam Et →</button>
+    <button class="btn-primary" id="nextBtn1" onclick="goTo('screen2')" disabled>Devam Et →</button>
   </div>
 
   <!-- SCREEN 2: FİRMA SEÇ -->
@@ -665,7 +793,7 @@
     <div class="screen-title">Levha Firması</div>
     <div class="screen-desc">Hangi firmadan levha alıyorsunuz?</div>
     <div class="firm-grid" id="firmGrid"></div>
-    <button class="btn-primary" id="nextBtn2" onclick="goTo(3)" disabled>Devam Et →</button>
+    <button class="btn-primary" id="nextBtn2" onclick="goTo('screen3')" disabled>Devam Et →</button>
   </div>
 
   <!-- SCREEN 3: KALİTE SEÇ -->
@@ -674,16 +802,44 @@
     <div class="screen-desc">Kullanmak istediğiniz levha kalitesini seçin.</div>
     <div class="filter-bar" id="filterBar"></div>
     <div class="quality-list" id="qualityList"></div>
-    <button class="btn-primary" id="nextBtn3" onclick="goTo(4)" disabled>Devam Et →</button>
+    <button class="btn-primary" id="nextBtn3" onclick="goTo('screen4')" disabled>Devam Et →</button>
   </div>
 
   <!-- SCREEN 4: FİYAT HESAPLAMA -->
   <div class="screen" id="screen4">
     <div class="screen-title">Fiyat Hesaplama</div>
-    <div class="screen-desc">Kâr marjınızı girerek satış fiyatını belirleyin.</div>
+    <div class="screen-desc">Ödeme şeklini seçin ve kâr marjınızı girerek satış fiyatını belirleyin.</div>
+
+    <div class="input-group" id="odemeSekliWrap" style="display:none;">
+      <label id="odemeSekliLabel">Ödeme Şekli</label>
+      <div style="display:flex;gap:10px;">
+        <div class="firm-card" id="odemeCek" onclick="setOdemeSekli('cek')" style="flex:1;flex-direction:column;align-items:center;justify-content:center;padding:14px 10px;gap:6px;">
+          <span class="fc-name" style="font-size:14px;">Çek</span>
+          <div style="display:flex;align-items:center;gap:3px;" onclick="event.stopPropagation()">
+            <span style="font-size:12px;color:var(--gray-400);">%</span>
+            <input type="number" id="cekOraniInput" value="22" inputmode="numeric" step="1"
+              style="width:44px;padding:4px 2px;border:1px solid var(--gray-200);border-radius:6px;font-size:13px;font-weight:700;text-align:center;font-family:'Inter',sans-serif;outline:none;-webkit-appearance:none;"
+              oninput="onOdemeOraniChange()">
+            <span style="font-size:11px;color:var(--gray-400);">iskonto</span>
+          </div>
+        </div>
+        <div class="firm-card" id="odemePesin" onclick="setOdemeSekli('pesin')" style="flex:1;flex-direction:column;align-items:center;justify-content:center;padding:14px 10px;gap:6px;">
+          <span class="fc-name" style="font-size:14px;">Peşin</span>
+          <div style="display:flex;align-items:center;gap:3px;" onclick="event.stopPropagation()">
+            <span style="font-size:12px;color:var(--gray-400);">%</span>
+            <input type="number" id="pesinOraniInput" value="29" inputmode="numeric" step="1"
+              style="width:44px;padding:4px 2px;border:1px solid var(--gray-200);border-radius:6px;font-size:13px;font-weight:700;text-align:center;font-family:'Inter',sans-serif;outline:none;-webkit-appearance:none;"
+              oninput="onOdemeOraniChange()">
+            <span style="font-size:11px;color:var(--gray-400);">iskonto</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="price-summary">
       <div class="ps-row"><span class="ps-label">Levha Alanı</span><span class="ps-val" id="s4Area">—</span></div>
       <div class="ps-row"><span class="ps-label">Levha Fiyatı (m²)</span><span class="ps-val" id="s4UnitPrice">—</span></div>
+      <div class="ps-row" id="s4IskontoRow" style="display:none;"><span class="ps-label">Uygulanan İskonto</span><span class="ps-val" id="s4Iskonto">—</span></div>
       <div class="ps-row"><span class="ps-label">Ham Maliyet (levha)</span><span class="ps-val" id="s4RawCost">—</span></div>
     </div>
     <div class="margin-input-row">
@@ -698,22 +854,84 @@
       <div class="fpc-price" id="finalPrice">—</div>
       <div class="fpc-sub">KDV hariç · Nakliye dahil</div>
     </div>
-    <button class="btn-primary btn-gold" onclick="goTo(5)">Teklif Oluştur →</button>
+    <button class="btn-primary btn-gold" onclick="goTo('screen5')">Devam Et →</button>
   </div>
 
-  <!-- SCREEN 5: TEKLİF -->
+  <!-- SCREEN 5: NAKLİYE FİYATI -->
   <div class="screen" id="screen5">
+    <div class="screen-title">Nakliye Fiyatı</div>
+    <div class="screen-desc">Bu teklife nakliye bedeli eklenecek mi?</div>
+
+    <div class="input-group">
+      <label>Nakliye Dahil mi?</label>
+      <div style="display:flex;gap:10px;">
+        <div class="firm-card" id="nakliyeYes" onclick="setNakliyeVar(true)" style="flex:1;justify-content:center;padding:16px;">
+          <span class="fc-name" style="text-align:center;">Evet</span>
+        </div>
+        <div class="firm-card" id="nakliyeNo" onclick="setNakliyeVar(false)" style="flex:1;justify-content:center;padding:16px;">
+          <span class="fc-name" style="text-align:center;">Hayır</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="nakliyeInputWrap" style="display:none;">
+      <div class="input-group">
+        <label>Nakliye Bedeli (TL)</label>
+        <input type="number" id="nakliyeInput" placeholder="Örn: 1500" inputmode="numeric" value="0" oninput="calcShipping()">
+        <div class="unit">Toplam sipariş için nakliye maliyeti (TL)</div>
+      </div>
+      <div class="result-card" id="shippingCard">
+        <div class="rc-label">Nakliye Dahil Toplam Maliyet</div>
+        <div class="rc-value" id="shippingResult">—</div>
+        <div class="rc-sub" id="shippingDetail">Levha maliyeti + Nakliye</div>
+      </div>
+    </div>
+
+    <button class="btn-primary" id="nextBtn5" onclick="goTo('screen6')" disabled>Devam Et →</button>
+  </div>
+
+  <!-- SCREEN 6: TEKLİF -->
+  <div class="screen" id="screen6">
+    <div class="screen-title">Ürünü Sepete Ekle</div>
+    <div class="screen-desc">Bu ürünü teklife ekleyin, isterseniz başka ürün daha ekleyin.</div>
+
+    <div class="customer-input">
+      <label>Ürün İsmi</label>
+      <input type="text" id="urunIsmiInput" placeholder="Örn: 25 Desi Özçete Baskılı">
+    </div>
+    <div class="customer-input">
+      <label>Adet (İsteğe Bağlı)</label>
+      <input type="number" id="urunAdetInput" placeholder="Örn: 1000" inputmode="numeric">
+    </div>
+
+    <div class="price-summary" style="margin-bottom:14px;">
+      <div class="ps-row"><span class="ps-label">Kutu Ölçüsü</span><span class="ps-val" id="cartBoxSize">—</span></div>
+      <div class="ps-row"><span class="ps-label">Levha Ölçüsü</span><span class="ps-val" id="cartSheetSize">—</span></div>
+      <div class="ps-row"><span class="ps-label">Dalga / Kalite</span><span class="ps-val" id="cartKalite">—</span></div>
+      <div class="ps-row"><span class="ps-label">Birim Fiyat</span><span class="ps-val" id="cartUnitPrice">—</span></div>
+    </div>
+
+    <button class="btn-primary btn-gold" onclick="addToCart()" style="margin-bottom:10px;">➕ Bu Ürünü Sepete Ekle</button>
+    <button class="btn-primary" style="background:var(--gray-200);color:var(--gray-700);margin-bottom:18px;" onclick="resetForNewProduct()">🔁 Farklı Bir Ürün Daha Hesapla</button>
+
+    <div id="cartListWrap" style="display:none;">
+      <div class="screen-title" style="font-size:16px;margin-bottom:10px;">Sepetteki Ürünler (<span id="cartCount">0</span>)</div>
+      <div id="cartList" style="margin-bottom:18px;"></div>
+    </div>
+
+    <button class="btn-primary" style="background:var(--green-dark);" onclick="goToFinalOffer()">📋 Teklifi Tamamla →</button>
+  </div>
+
+  <!-- SCREEN 7: SON TEKLİF -->
+  <div class="screen" id="screen7">
     <div class="screen-title">Fiyat Teklifi</div>
     <div class="screen-desc">Müşteri bilgilerini girin ve paylaşın.</div>
     <div class="customer-input">
       <label>Müşteri Firma Adı</label>
-      <input type="text" id="customerName" placeholder="Örn: Sar Ahsen Tekstil Ltd. Şti." oninput="buildOffer()">
-    </div>
-    <div class="customer-input">
-      <label>Adet (İsteğe Bağlı)</label>
-      <input type="number" id="adetInput" placeholder="Örn: 1000" inputmode="numeric" oninput="buildOffer()">
+      <input type="text" id="customerName" placeholder="Örn: Özçete Otomotiv San. ve Tic. A.Ş." oninput="buildOffer()">
     </div>
     <div id="offerPreview"></div>
+    <button class="btn-primary" style="background:var(--gray-200);color:var(--gray-700);margin-bottom:10px;" onclick="goTo('screen6')">← Sepete Dön / Ürün Ekle</button>
     <button class="btn-primary btn-gold" onclick="generatePDF()" style="margin-bottom:10px">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
       PDF Oluştur &amp; İndir
@@ -728,12 +946,13 @@
         E-posta
       </button>
     </div>
-    <button class="btn-primary" style="margin-top:12px;background:var(--green-dark)" onclick="resetApp()">🔄 Yeni Hesaplama</button>
+    <button class="btn-primary" style="margin-top:12px;background:var(--green-dark)" onclick="resetApp()">🔄 Yeni Teklif Başlat</button>
   </div>
 
 </div>
 
 <!-- PDF MODAL -->
+
 <div class="modal-overlay" id="pdfModal" style="align-items:stretch;z-index:500;">
   <div style="background:white;width:100%;height:100%;overflow:hidden;display:flex;flex-direction:column;">
     <div style="background:#1a3a2a;color:white;padding:12px 16px;flex-shrink:0;">
@@ -764,6 +983,7 @@
     <div class="admin-quality-list" id="adminQualityList"></div>
     <button class="save-admin-btn" onclick="saveAdminPrices()">💾 Kaydet</button>
     <button class="close-modal-btn" onclick="closeAdmin()">Kapat</button>
+    <button class="close-modal-btn" style="background:#fde8e8;color:#b91c1c;margin-top:8px;" onclick="resetAllFirmData()">🔄 Tüm Fiyat Verilerini Sıfırla (Varsayılana Dön)</button>
   </div>
 </div>
 
@@ -775,60 +995,68 @@ const DEFAULT_FIRMS = [
   {
     id: 'ankutsan',
     name: 'Ankutsan',
-    sub: 'Mersin Fabrikası · Temmuz 2026',
+    sub: 'Mersin Fabrikası · Ocak 2026 (+%6 dahil)',
     qualities: [
-      { no:1, wave:'BC', kalite:'TL-HPFL-TL', gramaj:'', price:23500 },
-      { no:2, wave:'BC', kalite:'KM-HPFL-KM', gramaj:'', price:24600 },
-      { no:3, wave:'BC', kalite:'BTL-HPFL-TL', gramaj:'', price:27000 },
-      { no:4, wave:'EB', kalite:'TL-HPFL-TL', gramaj:'', price:24700 },
-      { no:5, wave:'EB', kalite:'BTL-HPFL-TL', gramaj:'', price:27300 },
-      { no:6, wave:'EB', kalite:'HPFL-TL', gramaj:'', price:20300 },
-      { no:7, wave:'C', kalite:'TL-HPFL-TL', gramaj:'', price:14600 },
-      { no:8, wave:'B', kalite:'TL-HPFL-TL', gramaj:'', price:14200 },
-      { no:9, wave:'B', kalite:'BTL-HPFL-TL', gramaj:'', price:17100 },
-      { no:10, wave:'E', kalite:'TL-HPFL-TL', gramaj:'', price:14800 },
-      { no:11, wave:'E', kalite:'BTL-HPFL-TL', gramaj:'', price:17700 },
-      { no:12, wave:'BC', kalite:'KM-HPFL-KM', gramaj:'100/100/80/100/100', price:26400 },
-      { no:13, wave:'BC', kalite:'KM-HPFL-KM', gramaj:'100/115/80/115/100', price:28100 },
-      { no:14, wave:'BC', kalite:'KM-HPFL-KM', gramaj:'135/100/80/115/100', price:28900 },
-      { no:15, wave:'BC', kalite:'KM-HPFL-KM', gramaj:'135/115/80/135/100', price:30800 },
-      { no:16, wave:'BC', kalite:'KM-HPFL-KM', gramaj:'135/115/80/115/135', price:31300 },
-      { no:17, wave:'BC', kalite:'KM-HPFL-KM', gramaj:'135/135/80/135/135', price:33500 },
-      { no:18, wave:'BC', kalite:'KM-HPFL-KM', gramaj:'135/135/135/135/135', price:35900 },
-      { no:19, wave:'BC', kalite:'KM-HPFL-KM', gramaj:'170/135/135/135/170', price:38900 },
-      { no:20, wave:'BC', kalite:'KR-HPFL-KM', gramaj:'135/115/80/115/135', price:32500 },
-      { no:21, wave:'BC', kalite:'BTL-HPFL-KM', gramaj:'110/115/80/115/100', price:30200 },
-      { no:22, wave:'BC', kalite:'BTL-HPFL-KM', gramaj:'110/135/80/135/135', price:34100 },
-      { no:23, wave:'EB', kalite:'KM-HPFL-KM', gramaj:'135/100/80/115/100', price:29700 },
-      { no:24, wave:'EB', kalite:'BTL-HPFL-KM', gramaj:'110/115/80/115/100', price:30900 },
-      { no:25, wave:'EB', kalite:'KM-HPFL-KM', gramaj:'100/100/80/100/100', price:26800 },
-      { no:26, wave:'EB', kalite:'KM-HPFL-KM', gramaj:'135/115/80/115/135', price:32000 },
-      { no:27, wave:'C', kalite:'KM-HPFL-KM', gramaj:'100/100/100', price:17500 },
-      { no:28, wave:'C', kalite:'KM-HPFL-KM', gramaj:'100/115/100', price:18400 },
-      { no:29, wave:'C', kalite:'KM-HPFL-KM', gramaj:'100/135/100', price:19700 },
-      { no:30, wave:'C', kalite:'BTL-HPFL-KM', gramaj:'110/100/100', price:19300 },
-      { no:31, wave:'C', kalite:'BTL-HPFL-KM', gramaj:'110/135/100', price:21800 },
-      { no:32, wave:'C', kalite:'KM-HPFL-KM', gramaj:'135/135/135', price:23200 },
-      { no:33, wave:'B', kalite:'KM-HPFL-KM', gramaj:'100/100/100', price:16900 },
-      { no:34, wave:'B', kalite:'KM-HPFL-KM', gramaj:'100/115/100', price:17800 },
-      { no:35, wave:'B', kalite:'KM-HPFL-KM', gramaj:'100/135/100', price:19100 },
-      { no:36, wave:'B', kalite:'BTL-HPFL-KM', gramaj:'110/115/100', price:20000 },
-      { no:37, wave:'B', kalite:'BTL-HPFL-KM', gramaj:'110/135/100', price:21500 },
-      { no:38, wave:'E', kalite:'KM-HPFL-KM', gramaj:'100/100/100', price:17000 },
-      { no:39, wave:'E', kalite:'KM-HPFL-KM', gramaj:'100/135/100', price:19100 },
-      { no:40, wave:'E', kalite:'BTL-HPFL-KM', gramaj:'110/115/100', price:20500 },
-    ]
+      { no:1, wave:'BC', kalite:'TL-HPFL-TL', gramaj:'', price:22.218 },
+      { no:2, wave:'BC', kalite:'KM-HPFL-KM', gramaj:'', price:23.214 },
+      { no:3, wave:'BC', kalite:'BTL-HPFL-TL', gramaj:'', price:25.08 },
+      { no:4, wave:'EB', kalite:'TL-HPFL-TL', gramaj:'', price:22.97 },
+      { no:5, wave:'EB', kalite:'BTL-HPFL-TL', gramaj:'', price:25.578 },
+      { no:6, wave:'EB', kalite:'HPFL-TL', gramaj:'', price:18.847 },
+      { no:7, wave:'C', kalite:'TL-HPFL-TL', gramaj:'', price:13.812 },
+      { no:8, wave:'C', kalite:'BTL-HPFL-TL', gramaj:'', price:16.186 },
+      { no:9, wave:'B', kalite:'TL-HPFL-TL', gramaj:'', price:13.42 },
+      { no:10, wave:'B', kalite:'BTL-HPFL-TL', gramaj:'', price:15.773 },
+      { no:11, wave:'E', kalite:'TL-HPFL-TL', gramaj:'', price:13.748 },
+      { no:12, wave:'E', kalite:'BTL-HPFL-TL', gramaj:'', price:16.218 },
+      { no:13, wave:'BC', kalite:'KM-HPFL-KM', gramaj:'100/100/80/100/100', price:24.613 },
+      { no:14, wave:'BC', kalite:'KM-HPFL-KM', gramaj:'100/115/80/115/100', price:26.288 },
+      { no:15, wave:'BC', kalite:'KM-HPFL-KM', gramaj:'135/100/80/115/100', price:26.956 },
+      { no:16, wave:'BC', kalite:'KM-HPFL-KM', gramaj:'135/115/80/135/100', price:28.758 },
+      { no:17, wave:'BC', kalite:'KM-HPFL-KM', gramaj:'135/115/80/115/135', price:29.182 },
+      { no:18, wave:'BC', kalite:'KM-HPFL-KM', gramaj:'135/135/80/135/135', price:31.27 },
+      { no:19, wave:'BC', kalite:'KM-HPFL-KM', gramaj:'135/135/135/135/135', price:33.602 },
+      { no:20, wave:'BC', kalite:'KM-HPFL-KM', gramaj:'170/135/135/135/170', price:36.358 },
+      { no:21, wave:'BC', kalite:'BTL-HPFL-KM', gramaj:'110/115/80/115/100', price:27.634 },
+      { no:22, wave:'BC', kalite:'BTL-HPFL-KM', gramaj:'110/135/80/135/135', price:32.796 },
+      { no:23, wave:'EB', kalite:'KM-HPFL-KM', gramaj:'135/100/80/115/100', price:27.528 },
+      { no:24, wave:'EB', kalite:'BTL-HPFL-KM', gramaj:'110/115/80/115/100', price:28.281 },
+      { no:25, wave:'EB', kalite:'KM-HPFL-KM', gramaj:'100/100/80/100/100', price:24.984 },
+      { no:26, wave:'EB', kalite:'KM-HPFL-KM', gramaj:'135/115/80/115/135', price:29.881 },
+      { no:27, wave:'C', kalite:'KM-HPFL-KM', gramaj:'100/100/100', price:16.26 },
+      { no:28, wave:'C', kalite:'KM-HPFL-KM', gramaj:'100/115/100', price:17.119 },
+      { no:29, wave:'C', kalite:'KM-HPFL-KM', gramaj:'100/135/100', price:18.37 },
+      { no:30, wave:'C', kalite:'BTL-HPFL-KM', gramaj:'110/135/100', price:19.928 },
+      { no:31, wave:'C', kalite:'KM-HPFL-KM', gramaj:'135/135/135', price:21.582 },
+      { no:32, wave:'C', kalite:'KM-HPFL-KM', gramaj:'135/160/135', price:23.119 },
+      { no:33, wave:'B', kalite:'KM-HPFL-KM', gramaj:'100/100/100', price:15.805 },
+      { no:34, wave:'B', kalite:'KM-HPFL-KM', gramaj:'100/115/100', price:16.6 },
+      { no:35, wave:'B', kalite:'KM-HPFL-KM', gramaj:'100/135/100', price:17.776 },
+      { no:36, wave:'B', kalite:'BTL-HPFL-KM', gramaj:'110/115/100', price:19.26 },
+      { no:37, wave:'E', kalite:'KM-HPFL-KM', gramaj:'100/100/100', price:15.858 },
+      { no:38, wave:'E', kalite:'KM-HPFL-KM', gramaj:'100/135/100', price:17.766 },
+      { no:39, wave:'E', kalite:'BTL-HPFL-KM', gramaj:'110/115/100', price:18.815 },
+    ],
+    paymentOptions: { cek: 0.22, pesin: 0.29 }
   },
   {
     id: 'krn',
     name: 'KRN Ambalaj',
     sub: 'Fiyat listesi henüz eklenmedi',
-    qualities: []
+    qualities: [],
+    paymentOptions: { cek: 0, pesin: 0 }
   }
 ];
 
 // STATE
 let firms = JSON.parse(localStorage.getItem('gunkar_firms') || 'null') || DEFAULT_FIRMS;
+// Eski kayıtlı verilerde paymentOptions eksikse, varsayılan firma verisinden tamamla
+firms.forEach(f => {
+  if (!f.paymentOptions) {
+    const def = DEFAULT_FIRMS.find(df => df.id === f.id);
+    f.paymentOptions = def ? def.paymentOptions : { cek: 0, pesin: 0 };
+  }
+});
 let state = {
   en: null, boy: null, area: null,
   firmId: null,
@@ -836,39 +1064,187 @@ let state = {
   qualityPrice: null,
   qualityLabel: null,
   finalPrice: null,
-  margin: 20
+  margin: 20,
+  nakliye: 0,
+  odemeSekli: null
 };
-let currentScreen = 1;
+let cart = []; // Sepetteki ürünler: { urunIsmi, adet, en, boy, area, qualityLabel, finalPrice, kutuOlcusu }
+let currentScreen = 'screen0';
 let adminActiveFirm = 0;
+
+// Adım sırası: 8 görsel adım. screenABox/screenTeleskopik aynı adımı (2. adım) paylaşır.
+const screenOrder = ['screen0', 'screenABox', 'screen1', 'screen2', 'screen3', 'screen4', 'screen5', 'screen6', 'screen7'];
+const TOTAL_STEPS = 8;
+function stepIndexOf(screenId) {
+  if (screenId === 'screenTeleskopik') return screenOrder.indexOf('screenABox');
+  if (screenId === 'screen7') return screenOrder.indexOf('screen6');
+  return screenOrder.indexOf(screenId);
+}
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
 function init() {
   renderFirms();
-  updateProgress(1);
+  updateProgress('screen0');
 }
 
 // ─── PROGRESS ────────────────────────────────────────────────────────────────
-function updateProgress(step) {
-  currentScreen = step;
-  for (let i = 1; i <= 5; i++) {
+function updateProgress(screenId) {
+  currentScreen = screenId;
+  const stepIndex = stepIndexOf(screenId);
+
+  for (let i = 0; i < 8; i++) {
     const el = document.getElementById('ps' + i);
-    el.className = 'progress-step' + (i < step ? ' done' : i === step ? ' active' : '');
+    if (!el) continue;
+    el.className = 'progress-step' + (i < stepIndex ? ' done' : i === stepIndex ? ' active' : '');
   }
-  document.getElementById('progressLabel').textContent = 'Adım ' + step + ' / 5';
-  document.getElementById('backBtn').className = 'back-btn' + (step > 1 ? ' visible' : '');
+  document.getElementById('progressLabel').textContent = 'Adım ' + (stepIndex + 1) + ' / ' + TOTAL_STEPS;
+  document.getElementById('backBtn').className = 'back-btn' + (stepIndex > 0 ? ' visible' : '');
 }
 
-function goTo(step) {
+function goTo(screenId) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen' + step).classList.add('active');
-  updateProgress(step);
-  if (step === 4) fillPriceScreen();
-  if (step === 5) { buildOffer(); }
+  document.getElementById(screenId).classList.add('active');
+  updateProgress(screenId);
+  if (screenId === 'screen4') fillPriceScreen();
+  if (screenId === 'screen6') { fillCartScreen(); }
+  if (screenId === 'screen7') { buildOffer(); }
   window.scrollTo(0,0);
 }
 
 function goBack() {
-  if (currentScreen > 1) goTo(currentScreen - 1);
+  // Teleskopik ekranındaysak geri tuşu kutu tipi seçimine döner
+  if (currentScreen === 'screenABox' || currentScreen === 'screenTeleskopik') {
+    goTo('screen0');
+    return;
+  }
+  const idx = screenOrder.indexOf(currentScreen);
+  if (idx > 0) goTo(screenOrder[idx - 1]);
+}
+
+// ─── SCREEN 0 (KUTU TİPİ SEÇİMİ) ─────────────────────────────────────────────
+let kutuTipi = null;
+
+function selectKutuTipi(tip) {
+  kutuTipi = tip;
+  document.getElementById('kutuTipiABox').classList.toggle('selected', tip === 'abox');
+  document.getElementById('kutuTipiTeleskopik').classList.toggle('selected', tip === 'teleskopik');
+
+  if (tip === 'abox') {
+    goTo('screenABox');
+  } else {
+    goTo('screenTeleskopik');
+  }
+}
+
+function skipKutuTipi() {
+  goTo('screen1');
+}
+
+// ─── A-BOX HESAPLAMA ─────────────────────────────────────────────────────────
+let aboxResult = null;
+
+function calcABox() {
+  const L = parseFloat(document.getElementById('aboxL').value);
+  const W = parseFloat(document.getElementById('aboxW').value);
+  const H = parseFloat(document.getElementById('aboxH').value);
+  const G = parseFloat(document.getElementById('aboxG').value) || 0;
+  const P = parseFloat(document.getElementById('aboxP').value) || 0;
+
+  const card = document.getElementById('aboxCard');
+  const nextBtn = document.getElementById('aboxNextBtn');
+
+  if (L > 0 && W > 0 && H > 0) {
+    const levhaBoyu = 2 * (L + W) + G + P;
+    const levhaEni = H + W;
+    aboxResult = { boy: levhaBoyu, en: levhaEni, kutuL: L, kutuW: W, kutuH: H };
+
+    document.getElementById('aboxBoyResult').textContent = levhaBoyu.toLocaleString('tr-TR') + ' mm';
+    document.getElementById('aboxBoyDetail').textContent =
+      `2 × (${L} + ${W}) + ${G} + ${P} = ${levhaBoyu.toLocaleString('tr-TR')} mm`;
+    document.getElementById('aboxEnResult').textContent = levhaEni.toLocaleString('tr-TR') + ' mm';
+
+    card.style.display = 'block';
+    nextBtn.disabled = false;
+  } else {
+    card.style.display = 'none';
+    nextBtn.disabled = true;
+    aboxResult = null;
+  }
+}
+
+function skipABox() {
+  goTo('screen1');
+}
+
+function useABoxResult() {
+  if (!aboxResult) return;
+  document.getElementById('enInput').value = aboxResult.en;
+  document.getElementById('boyInput').value = aboxResult.boy;
+  state.kutuOlcusu = `${aboxResult.kutuW} x ${aboxResult.kutuL} x ${aboxResult.kutuH}`;
+  state.kutuTipi = 'A.BOX';
+  calcArea();
+  goTo('screen1');
+}
+
+// ─── TELESKOPİK HESAPLAMA ────────────────────────────────────────────────────
+let teleskopikResult = null;
+
+function calcTeleskopik() {
+  const L = parseFloat(document.getElementById('telL').value);
+  const W = parseFloat(document.getElementById('telW').value);
+  const HAlt = parseFloat(document.getElementById('telHAlt').value);
+  const HKapak = parseFloat(document.getElementById('telHKapak').value);
+  const G = parseFloat(document.getElementById('telG').value) || 0;
+  const P = parseFloat(document.getElementById('telP').value) || 0;
+  const B = parseFloat(document.getElementById('telB').value) || 0;
+
+  const card = document.getElementById('telCard');
+  const nextBtn = document.getElementById('telNextBtn');
+
+  if (L > 0 && W > 0 && HAlt > 0 && HKapak > 0) {
+    // Alt kutu
+    const altBoyu = 2 * (L + W) + G + P;
+    const altEni = HAlt + W;
+
+    // Üst kapak
+    const LKapak = L + B;
+    const WKapak = W + B;
+    const kapakBoyu = 2 * (LKapak + WKapak) + G + P;
+    const kapakEni = HKapak + WKapak;
+
+    teleskopikResult = {
+      alt: { boy: altBoyu, en: altEni },
+      kapak: { boy: kapakBoyu, en: kapakEni },
+      kutuL: L, kutuW: W, kutuHAlt: HAlt, kutuHKapak: HKapak
+    };
+
+    document.getElementById('telAltBoyResult').textContent = altBoyu.toLocaleString('tr-TR') + ' mm';
+    document.getElementById('telAltBoyDetail').textContent =
+      `2 × (${L} + ${W}) + ${G} + ${P} = ${altBoyu.toLocaleString('tr-TR')} mm`;
+    document.getElementById('telAltEnResult').textContent = altEni.toLocaleString('tr-TR') + ' mm';
+
+    document.getElementById('telKapakBoyResult').textContent = kapakBoyu.toLocaleString('tr-TR') + ' mm';
+    document.getElementById('telKapakBoyDetail').textContent =
+      `2 × (${LKapak} + ${WKapak}) + ${G} + ${P} = ${kapakBoyu.toLocaleString('tr-TR')} mm`;
+    document.getElementById('telKapakEnResult').textContent = kapakEni.toLocaleString('tr-TR') + ' mm';
+
+    card.style.display = 'block';
+    nextBtn.disabled = false;
+  } else {
+    card.style.display = 'none';
+    nextBtn.disabled = true;
+    teleskopikResult = null;
+  }
+}
+
+function useTeleskopikResult() {
+  if (!teleskopikResult) return;
+  document.getElementById('enInput').value = teleskopikResult.alt.en;
+  document.getElementById('boyInput').value = teleskopikResult.alt.boy;
+  state.kutuOlcusu = `${teleskopikResult.kutuW} x ${teleskopikResult.kutuL} x ${teleskopikResult.kutuHAlt}`;
+  state.kutuTipi = 'TELESKOPIK';
+  calcArea();
+  goTo('screen1');
 }
 
 // ─── SCREEN 1 ────────────────────────────────────────────────────────────────
@@ -935,14 +1311,14 @@ function renderQualities(firmId, filter) {
         <div class="qi-wave">${q.wave} Dalga</div>
         <div class="qi-kalite">${q.kalite}${q.gramaj ? ' · ' + q.gramaj : ''}</div>
       </div>
-      <div class="qi-price">${(q.price/100).toFixed(2)} <span>TL/m²</span></div>
+      <div class="qi-price">${q.price.toFixed(2)} <span>TL/m²</span></div>
     </div>
   `).join('') || '<div style="text-align:center;color:#9a9a9a;padding:24px;font-size:14px;">Bu firma için henüz fiyat listesi eklenmedi.<br>⚙️ Yönetim panelinden güncelleyin.</div>';
 }
 
 function selectQuality(no, price, label) {
   state.qualityNo = no;
-  state.qualityPrice = price / 100; // price stored as kuruş×100 → TL
+  state.qualityPrice = price;
   state.qualityLabel = label;
   document.querySelectorAll('.quality-item').forEach(i => i.classList.remove('selected'));
   event.currentTarget.classList.add('selected');
@@ -953,30 +1329,233 @@ function selectQuality(no, price, label) {
 function fillPriceScreen() {
   document.getElementById('s4Area').textContent = state.area.toFixed(4) + ' m²';
   document.getElementById('s4UnitPrice').textContent = state.qualityPrice.toFixed(2) + ' TL/m²';
-  const raw = state.area * state.qualityPrice;
-  document.getElementById('s4RawCost').textContent = raw.toFixed(2) + ' TL';
+
+  const firm = firms.find(f => f.id === state.firmId);
+  const odemeWrap = document.getElementById('odemeSekliWrap');
+  if (firm && firm.paymentOptions) {
+    odemeWrap.style.display = 'block';
+    document.getElementById('odemeSekliLabel').textContent = `Ödeme Şekli (${firm.name})`;
+    document.getElementById('cekOraniInput').value = ((firm.paymentOptions.cek||0)*100).toFixed(0);
+    document.getElementById('pesinOraniInput').value = ((firm.paymentOptions.pesin||0)*100).toFixed(0);
+    document.getElementById('odemeCek').classList.toggle('selected', state.odemeSekli === 'cek');
+    document.getElementById('odemePesin').classList.toggle('selected', state.odemeSekli === 'pesin');
+  } else {
+    odemeWrap.style.display = 'none';
+    state.odemeSekli = null;
+  }
+
   calcFinal();
+}
+
+function setOdemeSekli(tip) {
+  state.odemeSekli = tip;
+  document.getElementById('odemeCek').classList.toggle('selected', tip === 'cek');
+  document.getElementById('odemePesin').classList.toggle('selected', tip === 'pesin');
+  calcFinal();
+}
+
+function onOdemeOraniChange() {
+  // Kullanıcı oranı elle değiştirdiğinde anlık yeniden hesapla, kaydetmek isterse firma verisine de yazılsın
+  const firm = firms.find(f => f.id === state.firmId);
+  if (!firm) return;
+  const cekVal = parseFloat(document.getElementById('cekOraniInput').value) || 0;
+  const pesinVal = parseFloat(document.getElementById('pesinOraniInput').value) || 0;
+  firm.paymentOptions.cek = cekVal / 100;
+  firm.paymentOptions.pesin = pesinVal / 100;
+  localStorage.setItem('gunkar_firms', JSON.stringify(firms));
+  calcFinal();
+}
+
+function getIskontoOrani() {
+  const firm = firms.find(f => f.id === state.firmId);
+  if (!firm || !firm.paymentOptions) return 0;
+  if (state.odemeSekli === 'cek') return firm.paymentOptions.cek || 0;
+  if (state.odemeSekli === 'pesin') return firm.paymentOptions.pesin || 0;
+  return 0;
 }
 
 function calcFinal() {
   const margin = parseFloat(document.getElementById('marginInput').value) || 0;
   state.margin = margin;
-  const raw = state.area * state.qualityPrice;
+
+  const iskontoOrani = getIskontoOrani();
+  const rawListPrice = state.area * state.qualityPrice;
+  const raw = rawListPrice * (1 - iskontoOrani);
+
+  const iskontoRow = document.getElementById('s4IskontoRow');
+  if (iskontoOrani > 0) {
+    iskontoRow.style.display = 'flex';
+    document.getElementById('s4Iskonto').textContent =
+      `%${(iskontoOrani*100).toFixed(0)} (${state.odemeSekli === 'cek' ? 'Çek' : 'Peşin'})`;
+  } else {
+    iskontoRow.style.display = 'none';
+  }
+  document.getElementById('s4RawCost').textContent = raw.toFixed(2) + ' TL';
+
   const final = raw / (1 - margin / 100);
   state.finalPrice = final;
   document.getElementById('finalPrice').textContent = final.toFixed(2) + ' TL';
 }
 
-// ─── SCREEN 5 ────────────────────────────────────────────────────────────────
+// ─── SCREEN 5 (NAKLİYE) ──────────────────────────────────────────────────────
+function setNakliyeVar(hasShipping) {
+  state.nakliyeVar = hasShipping;
+  document.getElementById('nakliyeYes').classList.toggle('selected', hasShipping);
+  document.getElementById('nakliyeNo').classList.toggle('selected', !hasShipping);
+  document.getElementById('nakliyeInputWrap').style.display = hasShipping ? 'block' : 'none';
+  document.getElementById('nextBtn5').disabled = false;
+  if (!hasShipping) {
+    state.nakliye = 0;
+    document.getElementById('nakliyeInput').value = 0;
+  } else {
+    calcShipping();
+  }
+}
+
+function calcShipping() {
+  const nakliyeInput = document.getElementById('nakliyeInput');
+  const nakliye = parseFloat(nakliyeInput.value) || 0;
+  state.nakliye = nakliye;
+  const total = (state.finalPrice || 0) + nakliye;
+  document.getElementById('shippingResult').textContent = total.toFixed(2) + ' TL';
+  document.getElementById('shippingDetail').textContent =
+    `${(state.finalPrice||0).toFixed(2)} TL (levha) + ${nakliye.toFixed(2)} TL (nakliye)`;
+}
+
+// ─── SCREEN 6 (TEKLİF) ───────────────────────────────────────────────────────
+// ─── SEPET (ÇOKLU ÜRÜN) ──────────────────────────────────────────────────────
+function fillCartScreen() {
+  document.getElementById('cartBoxSize').textContent = state.kutuOlcusu ? (state.kutuOlcusu + ' mm') : '—';
+  document.getElementById('cartSheetSize').textContent = `${state.en} × ${state.boy} mm`;
+  document.getElementById('cartKalite').textContent = state.qualityLabel || '—';
+  document.getElementById('cartUnitPrice').textContent = state.finalPrice ? state.finalPrice.toFixed(2) + ' TL' : '—';
+  document.getElementById('urunIsmiInput').value = '';
+  document.getElementById('urunAdetInput').value = '';
+  renderCartList();
+}
+
+function addToCart() {
+  const urunIsmi = document.getElementById('urunIsmiInput').value.trim();
+  if (!urunIsmi) {
+    showToast('⚠️ Lütfen ürün ismi girin');
+    return;
+  }
+  const adet = parseInt(document.getElementById('urunAdetInput').value) || null;
+
+  cart.push({
+    urunIsmi,
+    adet,
+    kutuOlcusu: state.kutuOlcusu || null,
+    kutuTipi: state.kutuTipi || null,
+    levhaEn: state.en,
+    levhaBoy: state.boy,
+    area: state.area,
+    qualityLabel: state.qualityLabel,
+    nakliye: state.nakliye || 0,
+    unitPrice: state.finalPrice
+  });
+
+  showToast('✅ "' + urunIsmi + '" sepete eklendi');
+  resetForNewProduct();
+}
+
+function removeFromCart(idx) {
+  cart.splice(idx, 1);
+  renderCartList();
+}
+
+function renderCartList() {
+  const wrap = document.getElementById('cartListWrap');
+  const list = document.getElementById('cartList');
+  document.getElementById('cartCount').textContent = cart.length;
+
+  if (cart.length === 0) {
+    wrap.style.display = 'none';
+    return;
+  }
+  wrap.style.display = 'block';
+
+  list.innerHTML = cart.map((item, i) => `
+    <div style="background:white;border:1px solid var(--gray-200);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px;">
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:700;font-size:13px;color:var(--green-dark);">${item.urunIsmi}</div>
+        <div style="font-size:11px;color:var(--gray-400);">
+          ${item.kutuOlcusu ? item.kutuOlcusu + ' mm · ' : ''}${item.qualityLabel}${item.adet ? ' · ' + item.adet.toLocaleString('tr-TR') + ' adet' : ''}
+        </div>
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-top:2px;">${item.unitPrice.toFixed(2)} TL</div>
+      </div>
+      <button onclick="removeFromCart(${i})" style="background:#fde8e8;color:#b91c1c;border:none;width:30px;height:30px;border-radius:50%;font-size:14px;cursor:pointer;flex-shrink:0;">✕</button>
+    </div>
+  `).join('');
+}
+
+function resetForNewProduct() {
+  // Sadece ürün hesaplama state'ini sıfırla, sepeti koru
+  state.en = null; state.boy = null; state.area = null;
+  state.firmId = null; state.qualityNo = null; state.qualityPrice = null; state.qualityLabel = null;
+  state.finalPrice = null; state.margin = 20; state.nakliye = 0; state.nakliyeVar = null;
+  state.odemeSekli = null; state.kutuOlcusu = null; state.kutuTipi = null;
+  aboxResult = null; teleskopikResult = null; kutuTipi = null;
+
+  document.getElementById('kutuTipiABox').classList.remove('selected');
+  document.getElementById('kutuTipiTeleskopik').classList.remove('selected');
+  document.getElementById('aboxL').value = '';
+  document.getElementById('aboxW').value = '';
+  document.getElementById('aboxH').value = '';
+  document.getElementById('aboxG').value = '40';
+  document.getElementById('aboxP').value = '0';
+  document.getElementById('aboxCard').style.display = 'none';
+  document.getElementById('aboxNextBtn').disabled = true;
+  document.getElementById('telL').value = '';
+  document.getElementById('telW').value = '';
+  document.getElementById('telHAlt').value = '';
+  document.getElementById('telHKapak').value = '';
+  document.getElementById('telG').value = '35';
+  document.getElementById('telP').value = '7';
+  document.getElementById('telB').value = '4';
+  document.getElementById('telCard').style.display = 'none';
+  document.getElementById('telNextBtn').disabled = true;
+  document.getElementById('enInput').value = '';
+  document.getElementById('boyInput').value = '';
+  document.getElementById('nakliyeInput').value = '0';
+  document.getElementById('nakliyeInputWrap').style.display = 'none';
+  document.getElementById('nakliyeYes').classList.remove('selected');
+  document.getElementById('nakliyeNo').classList.remove('selected');
+  document.getElementById('areaCard').style.display = 'none';
+  document.getElementById('nextBtn1').disabled = true;
+  document.getElementById('nextBtn2').disabled = true;
+  document.getElementById('nextBtn3').disabled = true;
+  document.getElementById('nextBtn5').disabled = true;
+  document.querySelectorAll('.firm-card').forEach(c => c.classList.remove('selected'));
+
+  goTo('screen0');
+}
+
+function goToFinalOffer() {
+  if (cart.length === 0) {
+    showToast('⚠️ Önce en az bir ürün ekleyin');
+    return;
+  }
+  goTo('screen7');
+}
+
 function buildOffer() {
   const customer = document.getElementById('customerName').value || '...';
-  const adet = parseInt(document.getElementById('adetInput').value) || null;
-  const firm = firms.find(f => f.id === state.firmId);
   const today = new Date().toLocaleDateString('tr-TR');
-  const teklifNo = 'GNK-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random()*9000);
-  const raw = (state.area * state.qualityPrice).toFixed(2);
-  const final = state.finalPrice.toFixed(2);
-  const toplam = adet ? (state.finalPrice * adet).toFixed(2) : null;
+  const teklifNo = state.teklifNo || ('GNK-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random()*9000));
+  state.teklifNo = teklifNo;
+
+  let grandTotal = 0;
+  const rows = cart.map((item, i) => {
+    const lineTotal = item.adet ? (item.unitPrice * item.adet + item.nakliye) : null;
+    if (lineTotal) grandTotal += lineTotal;
+    return `
+      <tr>
+        <td>${i+1}. ${item.urunIsmi}</td>
+        <td style="text-align:right;">${item.unitPrice.toFixed(2)} TL${item.adet ? '<br><span style="font-size:10px;color:#9a9a9a;">' + item.adet.toLocaleString('tr-TR') + ' adet</span>' : ''}</td>
+      </tr>
+    `;
+  }).join('');
 
   document.getElementById('offerPreview').innerHTML = `
     <div class="op-header">
@@ -988,25 +1567,16 @@ function buildOffer() {
       <tr><td>Müşteri</td><td>${customer}</td></tr>
       <tr><td>Tarih</td><td>${today}</td></tr>
       <tr><td>Teklif No</td><td>${teklifNo}</td></tr>
+      <tr><td>Ürün Sayısı</td><td>${cart.length}</td></tr>
     </table>
     <hr>
     <table class="op-table">
-      <tr><td>Açık Ölçü</td><td>${state.en} × ${state.boy} mm</td></tr>
-      <tr><td>Plaka Alanı</td><td>${state.area.toFixed(4)} m²</td></tr>
-      <tr><td>Dalga / Kalite</td><td>${state.qualityLabel}</td></tr>
-      <tr><td>Levha Maliyeti</td><td>${raw} TL</td></tr>
-      <tr><td>Kâr Marjı</td><td>%${state.margin}</td></tr>
+      ${rows}
     </table>
     <hr>
-    <table class="op-table">
-      <tr><td class="op-total">BİRİM FİYAT (KDV Hariç)</td><td class="op-total" style="color:var(--green-dark)">${final} TL</td></tr>
-      ${adet ? `<tr><td>Adet</td><td>${adet.toLocaleString('tr-TR')} adet</td></tr>` : ''}
-      ${toplam ? `<tr><td class="op-total">TOPLAM TUTAR</td><td class="op-total" style="color:var(--green-dark)">${parseFloat(toplam).toLocaleString('tr-TR',{minimumFractionDigits:2})} TL</td></tr>` : ''}
-    </table>
-    <hr>
+    ${grandTotal > 0 ? `<table class="op-table"><tr><td class="op-total">GENEL TOPLAM (Nakliye Dahil)</td><td class="op-total" style="color:var(--green-dark)">${grandTotal.toLocaleString('tr-TR',{minimumFractionDigits:2})} TL</td></tr></table><hr>` : ''}
     <div style="font-size:11px;color:#9a9a9a;margin-top:8px">
       • Fiyatlara KDV dahil değildir.<br>
-      • Nakliye fiyata dahildir.<br>
       • Teklif geçerlilik süresi 15 takvim günüdür.<br>
       • Üretim toleransı ± %5'tir.
     </div>
@@ -1020,23 +1590,21 @@ function buildOffer() {
 
 function getOfferText() {
   const customer = document.getElementById('customerName').value || '...';
-  const adet = parseInt(document.getElementById('adetInput').value) || null;
   const today = new Date().toLocaleDateString('tr-TR');
-  const teklifNo = 'GNK-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random()*9000);
-  const raw = (state.area * state.qualityPrice).toFixed(2);
-  const final = state.finalPrice.toFixed(2);
-  const toplam = adet ? (state.finalPrice * adet).toFixed(2) : null;
+  const teklifNo = state.teklifNo || ('GNK-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random()*9000));
+
+  let grandTotal = 0;
+  const lines = cart.map((item, i) => {
+    const lineTotal = item.adet ? (item.unitPrice * item.adet + item.nakliye) : null;
+    if (lineTotal) grandTotal += lineTotal;
+    return `${i+1}. ${item.urunIsmi}: *${item.unitPrice.toFixed(2)} TL*${item.adet ? ' (' + item.adet.toLocaleString('tr-TR') + ' adet)' : ''}`;
+  }).join('\n');
 
   return `*GÜNKAR AMBALAJ - FİYAT TEKLİFİ*\n"Kutunun Her Hali"\n\n` +
     `Müşteri: ${customer}\nTarih: ${today}\nTeklif No: ${teklifNo}\n\n` +
-    `📦 *ÜRÜN BİLGİLERİ*\n` +
-    `• Açık Ölçü: ${state.en} × ${state.boy} mm\n` +
-    `• Plaka Alanı: ${state.area.toFixed(4)} m²\n` +
-    `• Dalga / Kalite: ${state.qualityLabel}\n\n` +
-    `💰 *FİYATLANDIRMA*\n` +
-    `• Birim Fiyat: *${final} TL* (KDV Hariç)\n` +
-    (adet ? `• Adet: ${adet.toLocaleString('tr-TR')}\n• Toplam: *${parseFloat(toplam).toLocaleString('tr-TR',{minimumFractionDigits:2})} TL*\n` : '') +
-    `\n📋 Nakliye dahildir. Teklif 15 gün geçerlidir. Tolerans ±%5.\n\n` +
+    `📦 *ÜRÜNLER*\n${lines}\n\n` +
+    (grandTotal > 0 ? `💰 *GENEL TOPLAM: ${grandTotal.toLocaleString('tr-TR',{minimumFractionDigits:2})} TL*\n\n` : '') +
+    `📋 Fiyatlara KDV dahil değildir. Teklif 15 gün geçerlidir. Tolerans ±%5.\n\n` +
     `Günkar Ambalaj · +90 507 221 82 37 · info@gunkarambalaj.com`;
 }
 
@@ -1054,20 +1622,31 @@ function shareMail() {
 
 function generatePDF() {
   const customer = document.getElementById('customerName').value || '...';
-  const adet = parseInt(document.getElementById('adetInput').value) || null;
   const today = new Date().toLocaleDateString('tr-TR');
   const teklifNo = state.teklifNo || ('GNK-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random()*9000));
   state.teklifNo = teklifNo;
-  const final = state.finalPrice.toFixed(2);
-  const finalFmt = parseFloat(final).toLocaleString('tr-TR', {minimumFractionDigits:2});
-  const toplam = adet ? (state.finalPrice * adet) : null;
-  const toplamFmt = toplam ? toplam.toLocaleString('tr-TR', {minimumFractionDigits:2}) : null;
 
-  const labelParts = state.qualityLabel.split(' · ');
-  const wave = labelParts[0] || '';
-  const kalite = labelParts[1] || '';
-  const gramaj = labelParts[2] || '';
-  const kaliteStr = gramaj ? `${kalite} (${gramaj})` : kalite;
+  let grandTotal = 0;
+  let hasAdet = false;
+
+  const productRows = cart.map((item, i) => {
+    const labelParts = (item.qualityLabel || '').split(' · ');
+    const wave = labelParts[0] || '';
+    const kaliteRest = labelParts.slice(1).join(' · ');
+    const unitWithShipping = item.unitPrice + (item.nakliye || 0);
+    const lineTotal = item.adet ? (unitWithShipping * item.adet) : null;
+    if (lineTotal) { grandTotal += lineTotal; hasAdet = true; }
+
+    return `
+    <tr style="background-color:${i % 2 === 0 ? '#eef2fa' : '#ffffff'};">
+      <td style="padding:6px;border:1px solid #ccc;text-align:center;">${i+1}</td>
+      <td style="padding:6px;border:1px solid #ccc;">${item.urunIsmi}</td>
+      <td style="padding:6px;border:1px solid #ccc;">${item.kutuOlcusu ? item.kutuOlcusu + ' mm' : '—'}</td>
+      <td style="padding:6px;border:1px solid #ccc;">${item.levhaEn} × ${item.levhaBoy} mm</td>
+      <td style="padding:6px;border:1px solid #ccc;">${wave}${kaliteRest ? ' · ' + kaliteRest : ''}${item.kutuTipi ? '<br><span style="font-size:7pt;color:#666;">' + item.kutuTipi + '</span>' : ''}</td>
+      <td style="padding:6px;border:1px solid #ccc;font-weight:bold;color:#2b4d8c;">${unitWithShipping.toLocaleString('tr-TR',{minimumFractionDigits:2})} TL${item.adet ? '<br><span style="font-size:7pt;color:#666;font-weight:normal;">' + item.adet.toLocaleString('tr-TR') + ' adet</span>' : ''}</td>
+    </tr>`;
+  }).join('');
 
   const html = `<!DOCTYPE html>
 <html lang="tr">
@@ -1087,9 +1666,9 @@ function generatePDF() {
 
 <!-- HEADER -->
 <div style="background-color:#2b4d8c;color:white;padding:14px 16px;text-align:center;margin-bottom:0;">
-  <div style="font-size:20pt;font-weight:bold;color:#ffffff;letter-spacing:1px;margin-bottom:3px;">GÜNKAR AMBALAJ</div>
+  <div style="font-size:17pt;font-weight:bold;color:#ffffff;letter-spacing:1px;margin-bottom:3px;">GÜNKAR AMBALAJ</div>
   <div style="font-size:10pt;font-style:italic;color:#c8a84b;margin-bottom:5px;">"Kutunun Her Hali"</div>
-  <div style="border-top:1px solid #c8a84b;padding-top:6px;font-size:13pt;font-weight:bold;color:#ffffff;margin-bottom:5px;">RESMİ FİYAT TEKLİFİ</div>
+  <div style="border-top:1px solid #c8a84b;padding-top:6px;font-size:11pt;font-weight:bold;color:#ffffff;margin-bottom:5px;">RESMİ FİYAT TEKLİFİ</div>
   <div style="font-size:7.5pt;color:#cccccc;line-height:1.7;">
     GÜNKAR AMBALAJ SAN. ve TİC. LTD. ŞTİ.<br>
     Acidere Mah. 6679 Sk. 2 Blok No: 3 Sarıçam / ADANA<br>
@@ -1113,54 +1692,37 @@ function generatePDF() {
 <!-- GİRİŞ METNİ -->
 <div style="font-size:8pt;color:#444;line-height:1.6;margin-bottom:10px;">
   <div style="font-weight:bold;margin-bottom:4px;">Sayın Yetkili,</div>
-  Oluklu mukavva koli ve kutu ihtiyacınıza yönelik hazırladığımız alternatifli teknik özellikler, birim fiyat, nakliye durumu ve ticari şartları içeren güncellenmiş fiyat teklifimiz aşağıda bilgilerinize sunulmuştur:
+  Oluklu mukavva koli ve kutu ihtiyacınıza yönelik hazırladığımız teknik özellikler ve birim fiyat alanlarını içeren resmi fiyat teklifimiz aşağıda bilgilerinize sunulmuştur:
 </div>
 
-<!-- BÖLÜM 1 BAŞLIĞI -->
-<div style="background-color:#2b4d8c;color:#ffffff;font-weight:bold;font-size:9pt;padding:5px 8px;margin-bottom:0;">1. ÜRÜN VE FİYATLANDIRMA BİLGİLERİ</div>
-
 <!-- ÜRÜN TABLOSU -->
-<table style="width:100%;border-collapse:collapse;margin-bottom:12px;font-size:8pt;">
+<table style="width:100%;border-collapse:collapse;margin-bottom:12px;font-size:7.5pt;">
   <thead>
     <tr>
-      <th style="background-color:#3a63ab;color:#ffffff;padding:5px 6px;text-align:left;border:1px solid #3a63ab;">Ürün Tanımı</th>
-      <th style="background-color:#3a63ab;color:#ffffff;padding:5px 6px;text-align:left;border:1px solid #3a63ab;">Açık Ölçü</th>
-      <th style="background-color:#3a63ab;color:#ffffff;padding:5px 6px;text-align:left;border:1px solid #3a63ab;">Plaka Alanı</th>
-      <th style="background-color:#3a63ab;color:#ffffff;padding:5px 6px;text-align:left;border:1px solid #3a63ab;">Dalga Cinsi</th>
-      <th style="background-color:#3a63ab;color:#ffffff;padding:5px 6px;text-align:left;border:1px solid #3a63ab;">Kalite Yapısı</th>
-      <th style="background-color:#3a63ab;color:#ffffff;padding:5px 6px;text-align:left;border:1px solid #3a63ab;">Teslimat</th>
+      <th style="background-color:#3a63ab;color:#ffffff;padding:5px 4px;text-align:center;border:1px solid #3a63ab;width:24px;">NO</th>
+      <th style="background-color:#3a63ab;color:#ffffff;padding:5px 6px;text-align:left;border:1px solid #3a63ab;">Ürün İsmi</th>
+      <th style="background-color:#3a63ab;color:#ffffff;padding:5px 6px;text-align:left;border:1px solid #3a63ab;">Kutu Ölçüsü<br>(En×Boy×Yük)</th>
+      <th style="background-color:#3a63ab;color:#ffffff;padding:5px 6px;text-align:left;border:1px solid #3a63ab;">Levha Ölçüsü<br>(En×Boy)</th>
+      <th style="background-color:#3a63ab;color:#ffffff;padding:5px 6px;text-align:left;border:1px solid #3a63ab;">Dalga / Kalite</th>
       <th style="background-color:#3a63ab;color:#ffffff;padding:5px 6px;text-align:left;border:1px solid #3a63ab;">Birim Fiyat</th>
     </tr>
   </thead>
   <tbody>
-    <tr style="background-color:#eef2fa;">
-      <td style="padding:6px;border:1px solid #ccc;">Ürün 1</td>
-      <td style="padding:6px;border:1px solid #ccc;">${state.en} × ${state.boy} mm</td>
-      <td style="padding:6px;border:1px solid #ccc;">${state.area.toFixed(3)} m²</td>
-      <td style="padding:6px;border:1px solid #ccc;">${wave} Dalga</td>
-      <td style="padding:6px;border:1px solid #ccc;">${kaliteStr}</td>
-      <td style="padding:6px;border:1px solid #ccc;">Nakliye Dahil</td>
-      <td style="padding:6px;border:1px solid #ccc;font-weight:bold;color:#2b4d8c;font-size:10pt;">${finalFmt} TL<br><span style="font-size:7pt;color:#666;font-weight:normal;">+ KDV</span></td>
-    </tr>
-    ${adet ? `<tr>
-      <td colspan="5" style="padding:6px;border:1px solid #ccc;text-align:right;font-weight:bold;color:#2b4d8c;">Sipariş Adedi: ${adet.toLocaleString('tr-TR')} adet</td>
-      <td colspan="2" style="padding:6px;border:1px solid #ccc;font-weight:bold;color:#2b4d8c;">TOPLAM: ${toplamFmt} TL + KDV</td>
+    ${productRows}
+    ${hasAdet ? `<tr>
+      <td colspan="5" style="padding:6px;border:1px solid #ccc;text-align:right;font-weight:bold;color:#2b4d8c;">GENEL TOPLAM (Nakliye Dahil)</td>
+      <td style="padding:6px;border:1px solid #ccc;font-weight:bold;color:#2b4d8c;font-size:9pt;">${grandTotal.toLocaleString('tr-TR',{minimumFractionDigits:2})} TL</td>
     </tr>` : ''}
   </tbody>
 </table>
 
-<!-- BÖLÜM 2 BAŞLIĞI -->
-<div style="background-color:#2b4d8c;color:#ffffff;font-weight:bold;font-size:9pt;padding:5px 8px;margin-bottom:8px;">2. TİCARİ VE MALİ ŞARTLAR</div>
+<!-- TİCARİ ŞARTLAR BAŞLIĞI -->
+<div style="background-color:#2b4d8c;color:#ffffff;font-weight:bold;font-size:9pt;padding:5px 8px;margin-bottom:8px;">TİCARİ ŞARTLAR VE KOŞULLAR</div>
 
-<!-- TİCARİ ŞARTLAR -->
 <div style="margin-bottom:5px;font-size:8pt;line-height:1.6;color:#333;"><span style="font-weight:bold;color:#2b4d8c;">Fiyat Tanımı:</span> Belirtilen koli birim fiyatlarına KDV dahil olmayıp, faturalandırma tarihinde yürürlükte olan yasal oran eklenecektir. Fiyatlara nakliye maliyeti dahildir.</div>
 <div style="margin-bottom:5px;font-size:8pt;line-height:1.6;color:#333;"><span style="font-weight:bold;color:#2b4d8c;">Ödeme Koşulu:</span> Ödeme planı ve vadelendirme şartları, tarafların karşılıklı mutabakatı esasına göre netleştirilecektir.</div>
 <div style="margin-bottom:5px;font-size:8pt;line-height:1.6;color:#333;"><span style="font-weight:bold;color:#2b4d8c;">Tolerans Sınırları:</span> Üretim prosesinin doğal yapısı gereği, üretilen mamullerin gramaj, boyut ve hammadde özelliklerinde küçük endüstriyel sapmalar (± %5) görülebilir.</div>
-<div style="margin-bottom:5px;font-size:8pt;line-height:1.6;color:#333;"><span style="font-weight:bold;color:#2b4d8c;">Numune Tedariği:</span> Seri üretim öncesinde firmamızdan fiziksel numune talep edilerek incelenmesi, olası hatalı imalatların önüne geçilmesi adına önemle tavsiye edilmektedir.</div>
 <div style="margin-bottom:10px;font-size:8pt;line-height:1.6;color:#333;"><span style="font-weight:bold;color:#2b4d8c;">Teklif Geçerlilik Süresi:</span> Hammadde ve piyasa hareketlilikleri sebebiyle, işbu fiyat teklifi verildiği tarihten itibaren 15 (on beş) takvim günü geçerlidir.</div>
-
-<div style="font-size:8pt;color:#444;line-height:1.6;margin-bottom:5px;">Sektördeki standartlarımız, zamanında teslimat güvencemiz ve üretim altyapımızla hizmet vermekten memnuniyet duyacağımızı belirtir, teklifinizin olumlu değerlendirilmesini dileriz.</div>
-<div style="font-size:8pt;color:#444;line-height:1.6;margin-bottom:10px;">Teklife istinaden verilecek tüm yazılı yanıtların resmi kayıt takibi amacıyla <strong>info@gunkarambalaj.com</strong> adresi üzerinden iletilmesini rica ederiz.</div>
 
 <div style="text-align:right;font-size:7.5pt;color:#888;border-top:1px solid #eee;padding-top:4px;">Tel: +90 507 221 82 37 &nbsp;|&nbsp; info@gunkarambalaj.com &nbsp;&nbsp; Sayfa 1 / 2</div>
 
@@ -1318,17 +1880,45 @@ async function sharePDF() {
 }
 
 function resetApp() {
-  state = { en:null, boy:null, area:null, firmId:null, qualityNo:null, qualityPrice:null, qualityLabel:null, finalPrice:null, margin:20 };
+  state = { en:null, boy:null, area:null, firmId:null, qualityNo:null, qualityPrice:null, qualityLabel:null, finalPrice:null, margin:20, nakliye:0, nakliyeVar:null, odemeSekli:null, kutuOlcusu:null, kutuTipi:null, teklifNo:null };
+  cart = [];
+  aboxResult = null;
+  teleskopikResult = null;
+  kutuTipi = null;
+  document.getElementById('kutuTipiABox').classList.remove('selected');
+  document.getElementById('kutuTipiTeleskopik').classList.remove('selected');
+  document.getElementById('aboxL').value = '';
+  document.getElementById('aboxW').value = '';
+  document.getElementById('aboxH').value = '';
+  document.getElementById('aboxG').value = '40';
+  document.getElementById('aboxP').value = '0';
+  document.getElementById('aboxCard').style.display = 'none';
+  document.getElementById('aboxNextBtn').disabled = true;
+  document.getElementById('telL').value = '';
+  document.getElementById('telW').value = '';
+  document.getElementById('telHAlt').value = '';
+  document.getElementById('telHKapak').value = '';
+  document.getElementById('telG').value = '35';
+  document.getElementById('telP').value = '7';
+  document.getElementById('telB').value = '4';
+  document.getElementById('telCard').style.display = 'none';
+  document.getElementById('telNextBtn').disabled = true;
   document.getElementById('enInput').value = '';
   document.getElementById('boyInput').value = '';
+  document.getElementById('nakliyeInput').value = '0';
+  document.getElementById('nakliyeInputWrap').style.display = 'none';
+  document.getElementById('nakliyeYes').classList.remove('selected');
+  document.getElementById('nakliyeNo').classList.remove('selected');
   document.getElementById('customerName').value = '';
-  document.getElementById('adetInput').value = '';
+  document.getElementById('urunIsmiInput').value = '';
+  document.getElementById('urunAdetInput').value = '';
   document.getElementById('areaCard').style.display = 'none';
   document.getElementById('nextBtn1').disabled = true;
   document.getElementById('nextBtn2').disabled = true;
   document.getElementById('nextBtn3').disabled = true;
+  document.getElementById('nextBtn5').disabled = true;
   document.querySelectorAll('.firm-card').forEach(c => c.classList.remove('selected'));
-  goTo(1);
+  goTo('screen0');
 }
 
 // ─── ADMIN ───────────────────────────────────────────────────────────────────
@@ -1359,30 +1949,77 @@ function setAdminFirm(i) {
 function renderAdminQualities() {
   const firm = firms[adminActiveFirm];
   const list = document.getElementById('adminQualityList');
+
+  let html = '';
+
+  // Ödeme şekli (Çek/Peşin) iskonto düzenleme bölümü
+  const po = firm.paymentOptions || { cek: 0, pesin: 0 };
+  html += `
+    <div style="background:white;border-radius:12px;padding:14px;margin-bottom:14px;border:1px solid var(--gray-200);">
+      <div style="font-size:11px;font-weight:700;color:var(--green-dark);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:10px;">Ödeme Şekli İskontoları</div>
+      <div style="display:flex;gap:10px;">
+        <div style="flex:1;">
+          <label style="font-size:11px;color:var(--gray-400);display:block;margin-bottom:4px;">Çek (%)</label>
+          <input type="number" id="adminCekIskonto" value="${((po.cek||0)*100).toFixed(0)}" inputmode="decimal" step="1"
+            style="width:100%;padding:8px 10px;border:2px solid var(--gray-200);border-radius:8px;font-size:14px;font-weight:700;font-family:'Inter',sans-serif;text-align:center;outline:none;-webkit-appearance:none;">
+        </div>
+        <div style="flex:1;">
+          <label style="font-size:11px;color:var(--gray-400);display:block;margin-bottom:4px;">Peşin (%)</label>
+          <input type="number" id="adminPesinIskonto" value="${((po.pesin||0)*100).toFixed(0)}" inputmode="decimal" step="1"
+            style="width:100%;padding:8px 10px;border:2px solid var(--gray-200);border-radius:8px;font-size:14px;font-weight:700;font-family:'Inter',sans-serif;text-align:center;outline:none;-webkit-appearance:none;">
+        </div>
+      </div>
+    </div>
+  `;
+
   if (!firm.qualities.length) {
-    list.innerHTML = '<div style="text-align:center;color:#9a9a9a;padding:16px;font-size:13px;">Henüz fiyat listesi yok.</div>';
+    html += '<div style="text-align:center;color:#9a9a9a;padding:16px;font-size:13px;">Henüz fiyat listesi yok.</div>';
+    list.innerHTML = html;
     return;
   }
-  list.innerHTML = firm.qualities.map(q => `
+
+  html += firm.qualities.map(q => `
     <div class="admin-qi">
       <div class="aqi-info">
         <div class="aqi-wave">${q.wave} · ${q.kalite}</div>
         <div class="aqi-kalite">${q.gramaj || 'Standart'}</div>
       </div>
-      <input type="number" id="aprice_${q.no}" value="${(q.price/100).toFixed(2)}" inputmode="decimal" step="0.01">
+      <input type="number" id="aprice_${q.no}" value="${q.price.toFixed(2)}" inputmode="decimal" step="0.01">
     </div>
   `).join('');
+
+  list.innerHTML = html;
 }
 
 function saveAdminPrices() {
   const firm = firms[adminActiveFirm];
   firm.qualities.forEach(q => {
     const el = document.getElementById('aprice_' + q.no);
-    if (el) q.price = Math.round(parseFloat(el.value) * 100);
+    if (el) q.price = parseFloat(el.value);
   });
+
+  const cekEl = document.getElementById('adminCekIskonto');
+  const pesinEl = document.getElementById('adminPesinIskonto');
+  if (cekEl && pesinEl) {
+    firm.paymentOptions = {
+      cek: (parseFloat(cekEl.value) || 0) / 100,
+      pesin: (parseFloat(pesinEl.value) || 0) / 100
+    };
+  }
+
   localStorage.setItem('gunkar_firms', JSON.stringify(firms));
   showToast('✅ Fiyatlar kaydedildi');
   closeAdmin();
+}
+
+function resetAllFirmData() {
+  if (!confirm('Tüm fiyat listeleri ve iskonto oranları varsayılana dönecek. Emin misiniz?')) return;
+  localStorage.removeItem('gunkar_firms');
+  firms = JSON.parse(JSON.stringify(DEFAULT_FIRMS));
+  adminActiveFirm = 0;
+  renderFirms();
+  renderAdminTabs();
+  showToast('✅ Veriler sıfırlandı');
 }
 
 function showToast(msg) {
