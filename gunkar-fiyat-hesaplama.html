@@ -806,7 +806,41 @@
   </div>
 
   <!-- SCREEN 4: FİYAT HESAPLAMA -->
+  <!-- SCREEN 4: NAKLİYE FİYATI -->
   <div class="screen" id="screen4">
+    <div class="screen-title">Nakliye Fiyatı</div>
+    <div class="screen-desc">Bu teklife nakliye bedeli eklenecek mi?</div>
+
+    <div class="input-group">
+      <label>Nakliye Dahil mi?</label>
+      <div style="display:flex;gap:10px;">
+        <div class="firm-card" id="nakliyeYes" onclick="setNakliyeVar(true)" style="flex:1;justify-content:center;padding:16px;">
+          <span class="fc-name" style="text-align:center;">Evet</span>
+        </div>
+        <div class="firm-card" id="nakliyeNo" onclick="setNakliyeVar(false)" style="flex:1;justify-content:center;padding:16px;">
+          <span class="fc-name" style="text-align:center;">Hayır</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="nakliyeInputWrap" style="display:none;">
+      <div class="input-group">
+        <label>Nakliye Bedeli (TL)</label>
+        <input type="number" id="nakliyeInput" placeholder="Örn: 1500" inputmode="numeric" value="0" oninput="calcShipping()">
+        <div class="unit">Toplam sipariş için nakliye maliyeti (TL)</div>
+      </div>
+      <div class="result-card" id="shippingCard">
+        <div class="rc-label">Levha Maliyeti + Nakliye</div>
+        <div class="rc-value" id="shippingResult">—</div>
+        <div class="rc-sub" id="shippingDetail">Levha maliyeti + Nakliye</div>
+      </div>
+    </div>
+
+    <button class="btn-primary" id="nextBtn5" onclick="goTo('screen5')" disabled>Devam Et →</button>
+  </div>
+
+  <!-- SCREEN 5: FİYAT HESAPLAMA -->
+  <div class="screen" id="screen5">
     <div class="screen-title">Fiyat Hesaplama</div>
     <div class="screen-desc">Ödeme şeklini seçin ve kâr marjınızı girerek satış fiyatını belirleyin.</div>
 
@@ -841,6 +875,8 @@
       <div class="ps-row"><span class="ps-label">Levha Fiyatı (m²)</span><span class="ps-val" id="s4UnitPrice">—</span></div>
       <div class="ps-row" id="s4IskontoRow" style="display:none;"><span class="ps-label">Uygulanan İskonto</span><span class="ps-val" id="s4Iskonto">—</span></div>
       <div class="ps-row"><span class="ps-label">Ham Maliyet (levha)</span><span class="ps-val" id="s4RawCost">—</span></div>
+      <div class="ps-row"><span class="ps-label">Nakliye Bedeli</span><span class="ps-val" id="s4Nakliye">—</span></div>
+      <div class="ps-row"><span class="ps-label">Toplam Maliyet (Levha+Nakliye)</span><span class="ps-val" id="s4TotalCost">—</span></div>
     </div>
     <div class="margin-input-row">
       <label>Kâr Marjı</label>
@@ -854,40 +890,7 @@
       <div class="fpc-price" id="finalPrice">—</div>
       <div class="fpc-sub">KDV hariç · Nakliye dahil</div>
     </div>
-    <button class="btn-primary btn-gold" onclick="goTo('screen5')">Devam Et →</button>
-  </div>
-
-  <!-- SCREEN 5: NAKLİYE FİYATI -->
-  <div class="screen" id="screen5">
-    <div class="screen-title">Nakliye Fiyatı</div>
-    <div class="screen-desc">Bu teklife nakliye bedeli eklenecek mi?</div>
-
-    <div class="input-group">
-      <label>Nakliye Dahil mi?</label>
-      <div style="display:flex;gap:10px;">
-        <div class="firm-card" id="nakliyeYes" onclick="setNakliyeVar(true)" style="flex:1;justify-content:center;padding:16px;">
-          <span class="fc-name" style="text-align:center;">Evet</span>
-        </div>
-        <div class="firm-card" id="nakliyeNo" onclick="setNakliyeVar(false)" style="flex:1;justify-content:center;padding:16px;">
-          <span class="fc-name" style="text-align:center;">Hayır</span>
-        </div>
-      </div>
-    </div>
-
-    <div id="nakliyeInputWrap" style="display:none;">
-      <div class="input-group">
-        <label>Nakliye Bedeli (TL)</label>
-        <input type="number" id="nakliyeInput" placeholder="Örn: 1500" inputmode="numeric" value="0" oninput="calcShipping()">
-        <div class="unit">Toplam sipariş için nakliye maliyeti (TL)</div>
-      </div>
-      <div class="result-card" id="shippingCard">
-        <div class="rc-label">Nakliye Dahil Toplam Maliyet</div>
-        <div class="rc-value" id="shippingResult">—</div>
-        <div class="rc-sub" id="shippingDetail">Levha maliyeti + Nakliye</div>
-      </div>
-    </div>
-
-    <button class="btn-primary" id="nextBtn5" onclick="goTo('screen6')" disabled>Devam Et →</button>
+    <button class="btn-primary btn-gold" onclick="goTo('screen6')">Devam Et →</button>
   </div>
 
   <!-- SCREEN 6: TEKLİF -->
@@ -1105,7 +1108,7 @@ function goTo(screenId) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(screenId).classList.add('active');
   updateProgress(screenId);
-  if (screenId === 'screen4') fillPriceScreen();
+  if (screenId === 'screen5') fillPriceScreen();
   if (screenId === 'screen6') { fillCartScreen(); }
   if (screenId === 'screen7') { buildOffer(); }
   window.scrollTo(0,0);
@@ -1381,6 +1384,8 @@ function calcFinal() {
   const iskontoOrani = getIskontoOrani();
   const rawListPrice = state.area * state.qualityPrice;
   const raw = rawListPrice * (1 - iskontoOrani);
+  const nakliye = state.nakliye || 0;
+  const totalCost = raw + nakliye;
 
   const iskontoRow = document.getElementById('s4IskontoRow');
   if (iskontoOrani > 0) {
@@ -1391,13 +1396,15 @@ function calcFinal() {
     iskontoRow.style.display = 'none';
   }
   document.getElementById('s4RawCost').textContent = raw.toFixed(2) + ' TL';
+  document.getElementById('s4Nakliye').textContent = nakliye.toFixed(2) + ' TL';
+  document.getElementById('s4TotalCost').textContent = totalCost.toFixed(2) + ' TL';
 
-  const final = raw / (1 - margin / 100);
+  const final = totalCost / (1 - margin / 100);
   state.finalPrice = final;
   document.getElementById('finalPrice').textContent = final.toFixed(2) + ' TL';
 }
 
-// ─── SCREEN 5 (NAKLİYE) ──────────────────────────────────────────────────────
+// ─── SCREEN 4 (NAKLİYE) ──────────────────────────────────────────────────────
 function setNakliyeVar(hasShipping) {
   state.nakliyeVar = hasShipping;
   document.getElementById('nakliyeYes').classList.toggle('selected', hasShipping);
@@ -1416,10 +1423,11 @@ function calcShipping() {
   const nakliyeInput = document.getElementById('nakliyeInput');
   const nakliye = parseFloat(nakliyeInput.value) || 0;
   state.nakliye = nakliye;
-  const total = (state.finalPrice || 0) + nakliye;
+  const rawListPrice = state.area * state.qualityPrice;
+  const total = rawListPrice + nakliye;
   document.getElementById('shippingResult').textContent = total.toFixed(2) + ' TL';
   document.getElementById('shippingDetail').textContent =
-    `${(state.finalPrice||0).toFixed(2)} TL (levha) + ${nakliye.toFixed(2)} TL (nakliye)`;
+    `${rawListPrice.toFixed(2)} TL (levha) + ${nakliye.toFixed(2)} TL (nakliye)`;
 }
 
 // ─── SCREEN 6 (TEKLİF) ───────────────────────────────────────────────────────
@@ -1547,7 +1555,7 @@ function buildOffer() {
 
   let grandTotal = 0;
   const rows = cart.map((item, i) => {
-    const lineTotal = item.adet ? (item.unitPrice * item.adet + item.nakliye) : null;
+    const lineTotal = item.adet ? (item.unitPrice * item.adet) : null;
     if (lineTotal) grandTotal += lineTotal;
     return `
       <tr>
@@ -1595,7 +1603,7 @@ function getOfferText() {
 
   let grandTotal = 0;
   const lines = cart.map((item, i) => {
-    const lineTotal = item.adet ? (item.unitPrice * item.adet + item.nakliye) : null;
+    const lineTotal = item.adet ? (item.unitPrice * item.adet) : null;
     if (lineTotal) grandTotal += lineTotal;
     return `${i+1}. ${item.urunIsmi}: *${item.unitPrice.toFixed(2)} TL*${item.adet ? ' (' + item.adet.toLocaleString('tr-TR') + ' adet)' : ''}`;
   }).join('\n');
@@ -1633,8 +1641,7 @@ function generatePDF() {
     const labelParts = (item.qualityLabel || '').split(' · ');
     const wave = labelParts[0] || '';
     const kaliteRest = labelParts.slice(1).join(' · ');
-    const unitWithShipping = item.unitPrice + (item.nakliye || 0);
-    const lineTotal = item.adet ? (unitWithShipping * item.adet) : null;
+    const lineTotal = item.adet ? (item.unitPrice * item.adet) : null;
     if (lineTotal) { grandTotal += lineTotal; hasAdet = true; }
 
     return `
@@ -1644,7 +1651,7 @@ function generatePDF() {
       <td style="padding:6px;border:1px solid #ccc;">${item.kutuOlcusu ? item.kutuOlcusu + ' mm' : '—'}</td>
       <td style="padding:6px;border:1px solid #ccc;">${item.levhaEn} × ${item.levhaBoy} mm</td>
       <td style="padding:6px;border:1px solid #ccc;">${wave}${kaliteRest ? ' · ' + kaliteRest : ''}${item.kutuTipi ? '<br><span style="font-size:7pt;color:#666;">' + item.kutuTipi + '</span>' : ''}</td>
-      <td style="padding:6px;border:1px solid #ccc;font-weight:bold;color:#2b4d8c;">${unitWithShipping.toLocaleString('tr-TR',{minimumFractionDigits:2})} TL${item.adet ? '<br><span style="font-size:7pt;color:#666;font-weight:normal;">' + item.adet.toLocaleString('tr-TR') + ' adet</span>' : ''}</td>
+      <td style="padding:6px;border:1px solid #ccc;font-weight:bold;color:#2b4d8c;">${item.unitPrice.toLocaleString('tr-TR',{minimumFractionDigits:2})} TL${item.adet ? '<br><span style="font-size:7pt;color:#666;font-weight:normal;">' + item.adet.toLocaleString('tr-TR') + ' adet</span>' : ''}</td>
     </tr>`;
   }).join('');
 
