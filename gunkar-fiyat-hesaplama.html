@@ -735,15 +735,19 @@
 
 <!-- PDF MODAL -->
 <div class="modal-overlay" id="pdfModal" style="align-items:stretch;z-index:500;">
-  <div style="background:white;width:100%;height:100%;overflow-y:auto;display:flex;flex-direction:column;">
-    <div style="background:#1a3a2a;color:white;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:10;">
-      <span style="font-weight:700;font-size:15px;">📄 Fiyat Teklifi</span>
-      <div style="display:flex;gap:10px;align-items:center;">
-        <button onclick="printPDF()" style="background:#c8a84b;color:#1a3a2a;border:none;padding:8px 16px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;">🖨️ Yazdır / PDF</button>
+  <div style="background:white;width:100%;height:100%;overflow:hidden;display:flex;flex-direction:column;">
+    <div style="background:#1a3a2a;color:white;padding:12px 16px;flex-shrink:0;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <span style="font-weight:700;font-size:15px;">📄 Fiyat Teklifi</span>
         <button onclick="closePDFModal()" style="background:rgba(255,255,255,0.15);color:white;border:none;width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
       </div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="downloadPDF()" style="flex:1;background:#c8a84b;color:#1a3a2a;border:none;padding:10px 12px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;">⬇️ İndir</button>
+        <button onclick="sharePDF()" style="flex:1;background:#25D366;color:white;border:none;padding:10px 12px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;">📲 Paylaş</button>
+        <button onclick="printPDF()" style="flex:1;background:rgba(255,255,255,0.15);color:white;border:none;padding:10px 12px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;">🖨️ Yazdır</button>
+      </div>
     </div>
-    <div id="pdfContent" style="flex:1;padding:0;"></div>
+    <iframe id="pdfFrame" style="flex:1;width:100%;border:none;" scrolling="yes"></iframe>
   </div>
 </div>
 
@@ -1069,72 +1073,24 @@ function generatePDF() {
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Günkar Teklif - ${teklifNo}</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: Arial, sans-serif; font-size: 9pt; color: #222; background: white; }
-  @page { size: A4; margin: 12mm 14mm; }
-  @media print { body { print-color-adjust: exact; -webkit-print-color-adjust: exact; } }
-
-  .header { background: #1a3a2a; color: white; padding: 12px 16px; text-align: center; margin-bottom: 0; }
-  .header h1 { font-size: 18pt; color: white; letter-spacing: 1px; margin-bottom: 2px; }
-  .header .slogan { color: #c8a84b; font-style: italic; font-size: 10pt; margin-bottom: 4px; }
-  .header .title { font-size: 13pt; font-weight: bold; color: white; border-top: 1px solid #c8a84b; padding-top: 6px; margin-top: 6px; }
-  .header .addr { font-size: 7.5pt; color: #ccc; margin-top: 4px; line-height: 1.6; }
-
-  .meta { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #ddd; margin-bottom: 8px; font-size: 8.5pt; }
-  .meta .col { flex: 1; }
-  .meta .col div { margin-bottom: 3px; }
-  .meta .col span.label { font-weight: bold; color: #1a3a2a; margin-right: 4px; }
-
-  .intro { font-size: 8pt; color: #444; line-height: 1.6; margin-bottom: 10px; }
-  .intro .sayin { font-weight: bold; margin-bottom: 4px; }
-
-  .section-title { background: #1a3a2a; color: white; font-weight: bold; font-size: 9pt; padding: 5px 8px; margin-bottom: 0; }
-
-  table.product-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 8pt; }
-  table.product-table th { background: #2d5a40; color: white; padding: 5px 6px; text-align: left; font-weight: bold; border: 1px solid #2d5a40; }
-  table.product-table td { padding: 6px 6px; border: 1px solid #ccc; vertical-align: top; }
-  table.product-table tr:nth-child(even) td { background: #f0f8f4; }
-  table.product-table .price-cell { font-weight: bold; color: #1a3a2a; font-size: 10pt; white-space: nowrap; }
-  table.product-table .price-sub { font-size: 7pt; color: #666; font-weight: normal; }
-
-  .total-box { background: #1a3a2a; color: white; padding: 10px 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-  .total-box .tl { font-size: 8pt; color: #ccc; }
-  .total-box .tr-val { font-size: 13pt; font-weight: bold; color: #c8a84b; }
-
-  .sartlar { margin-bottom: 12px; }
-  .sart-item { margin-bottom: 5px; font-size: 8pt; line-height: 1.55; color: #333; }
-  .sart-item .sart-label { font-weight: bold; color: #1a3a2a; }
-
-  .closing { font-size: 8pt; color: #444; line-height: 1.6; margin-bottom: 6px; }
-
-  .page-break { page-break-after: always; }
-
-  .imza-section { margin-top: 30px; }
-  .imza-title { font-weight: bold; font-size: 11pt; color: #1a3a2a; text-align: center; border-bottom: 2px solid #c8a84b; padding-bottom: 6px; margin-bottom: 20px; }
-  .imza-row { display: flex; gap: 20px; margin-top: 10px; }
-  .imza-box { flex: 1; border: 1px solid #ccc; }
-  .imza-box .imza-header { background: #1a3a2a; color: white; font-weight: bold; font-size: 8.5pt; padding: 7px 10px; text-align: center; }
-  .imza-box .imza-body { padding: 12px 10px; min-height: 80px; font-size: 8pt; color: #333; line-height: 2; }
-  .imza-box .imza-line { border-top: 1px solid #999; margin: 8px 0; }
-
-  .page2-header { background: #1a3a2a; color: white; padding: 8px 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-  .page2-header .p2h-name { font-weight: bold; font-size: 10pt; }
-  .page2-header .p2h-ref { font-size: 8pt; color: #c8a84b; }
-
-  .footer { position: fixed; bottom: 0; left: 0; right: 0; background: #f5f5f5; border-top: 1px solid #ddd; padding: 4px 14px; display: flex; justify-content: space-between; font-size: 7pt; color: #888; }
+  body { font-family: Arial, sans-serif; font-size: 9pt; color: #222; background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  @page { size: A4; margin: 10mm 14mm; }
+  @media print { * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } }
+  table { border-collapse: collapse; width: 100%; }
+  .pb { page-break-after: always; }
 </style>
 </head>
 <body>
 
-<!-- ===== SAYFA 1 ===== -->
-<div class="header">
-  <h1>GÜNKAR AMBALAJ</h1>
-  <div class="slogan">"Kutunun Her Hali"</div>
-  <div class="title">RESMİ FİYAT TEKLİFİ</div>
-  <div class="addr">
+<!-- HEADER -->
+<div style="background-color:#2b4d8c;color:white;padding:14px 16px;text-align:center;margin-bottom:0;">
+  <div style="font-size:20pt;font-weight:bold;color:#ffffff;letter-spacing:1px;margin-bottom:3px;">GÜNKAR AMBALAJ</div>
+  <div style="font-size:10pt;font-style:italic;color:#c8a84b;margin-bottom:5px;">"Kutunun Her Hali"</div>
+  <div style="border-top:1px solid #c8a84b;padding-top:6px;font-size:13pt;font-weight:bold;color:#ffffff;margin-bottom:5px;">RESMİ FİYAT TEKLİFİ</div>
+  <div style="font-size:7.5pt;color:#cccccc;line-height:1.7;">
     GÜNKAR AMBALAJ SAN. ve TİC. LTD. ŞTİ.<br>
     Acidere Mah. 6679 Sk. 2 Blok No: 3 Sarıçam / ADANA<br>
     Tic. Sic. No: 102995 &nbsp;|&nbsp; Yüreğir V.D.: 4380868058 &nbsp;|&nbsp; Mersis No: 0438086805800001<br>
@@ -1142,120 +1098,113 @@ function generatePDF() {
   </div>
 </div>
 
-<div style="padding: 10px 0 0 0;">
-  <div class="meta">
-    <div class="col">
-      <div><span class="label">Müşteri:</span> ${customer}</div>
-      <div><span class="label">Konu:</span> Oluklu Mukavva Koli Fiyat Teklifi</div>
-    </div>
-    <div class="col" style="text-align:right;">
-      <div><span class="label">Tarih:</span> ${today}</div>
-      <div><span class="label">Teklif No:</span> ${teklifNo}</div>
-    </div>
+<!-- MÜŞTERİ BİLGİLERİ -->
+<div style="padding:10px 0 6px 0;border-bottom:1px solid #ddd;margin-bottom:8px;display:flex;justify-content:space-between;font-size:8.5pt;">
+  <div>
+    <div style="margin-bottom:3px;"><span style="font-weight:bold;color:#2b4d8c;">Müşteri:</span> ${customer}</div>
+    <div><span style="font-weight:bold;color:#2b4d8c;">Konu:</span> Oluklu Mukavva Koli Fiyat Teklifi</div>
   </div>
-
-  <div class="intro">
-    <div class="sayin">Sayın Yetkili,</div>
-    Oluklu mukavva koli ve kutu ihtiyacınıza yönelik hazırladığımız alternatifli teknik özellikler, birim fiyat, nakliye durumu ve ticari şartları içeren güncellenmiş fiyat teklifimiz aşağıda bilgilerinize sunulmuştur:
-  </div>
-
-  <div class="section-title">1. ÜRÜN VE FİYATLANDIRMA BİLGİLERİ</div>
-  <table class="product-table">
-    <thead>
-      <tr>
-        <th>Ürün Tanımı</th>
-        <th>Açık Ölçü (En × Boy)</th>
-        <th>Plaka Alanı</th>
-        <th>Dalga Cinsi</th>
-        <th>Kalite Yapısı</th>
-        <th>Teslimat</th>
-        <th>Birim Fiyat</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Ürün 1</td>
-        <td>${state.en} × ${state.boy} mm</td>
-        <td>${state.area.toFixed(3)} m²</td>
-        <td>${wave} Dalga</td>
-        <td>${kaliteStr}</td>
-        <td>Nakliye Dahil</td>
-        <td class="price-cell">${finalFmt} TL<br><span class="price-sub">+ KDV</span></td>
-      </tr>
-      ${adet ? `<tr>
-        <td colspan="5" style="text-align:right; font-weight:bold; color:#1a3a2a;">Sipariş Adedi: ${adet.toLocaleString('tr-TR')} adet</td>
-        <td colspan="2" style="font-weight:bold; color:#1a3a2a; font-size:10pt;">TOPLAM: ${toplamFmt} TL + KDV</td>
-      </tr>` : ''}
-    </tbody>
-  </table>
-
-  <div class="section-title">2. TİCARİ VE MALİ ŞARTLAR</div>
-  <div class="sartlar" style="padding-top:8px;">
-    <div class="sart-item"><span class="sart-label">Fiyat Tanımı:</span> Belirtilen koli birim fiyatlarına KDV dahil olmayıp, faturalandırma tarihinde yürürlükte olan yasal oran eklenecektir. Fiyatlara nakliye maliyeti dahildir.</div>
-    <div class="sart-item"><span class="sart-label">Ödeme Koşulu:</span> Ödeme planı ve vadelendirme şartları, tarafların karşılıklı mutabakatı esasına göre netleştirilecektir.</div>
-    <div class="sart-item"><span class="sart-label">Tolerans Sınırları:</span> Üretim prosesinin doğal yapısı gereği, üretilen mamullerin gramaj, boyut ve hammadde özelliklerinde küçük endüstriyel sapmalar (± %5) görülebilir.</div>
-    <div class="sart-item"><span class="sart-label">Numune Tedariği:</span> Seri üretim öncesinde firmamızdan fiziksel numune talep edilerek incelenmesi, olası hatalı imalatların önüne geçilmesi adına önemle tavsiye edilmektedir.</div>
-    <div class="sart-item"><span class="sart-label">Teklif Geçerlilik Süresi:</span> Hammadde ve piyasa hareketlilikleri sebebiyle, işbu fiyat teklifi verildiği tarihten itibaren 15 (on beş) takvim günü geçerlidir.</div>
-  </div>
-
-  <div class="closing">
-    Sektördeki standartlarımız, zamanında teslimat güvencemiz ve üretim altyapımızla hizmet vermekten memnuniyet duyacağımızı belirtir, teklifinizin olumlu değerlendirilmesini dileriz.
-  </div>
-  <div class="closing">
-    Teklife istinaden verilecek tüm yazılı yanıtların resmi kayıt takibi amacıyla <strong>info@gunkarambalaj.com</strong> adresi üzerinden iletilmesini rica ederiz.
+  <div style="text-align:right;">
+    <div style="margin-bottom:3px;"><span style="font-weight:bold;color:#2b4d8c;">Tarih:</span> ${today}</div>
+    <div><span style="font-weight:bold;color:#2b4d8c;">Teklif No:</span> ${teklifNo}</div>
   </div>
 </div>
 
-<div style="text-align:right; font-size:7.5pt; color:#888; margin-top:8px; border-top:1px solid #eee; padding-top:4px;">
-  Tel: +90 507 221 82 37 &nbsp;|&nbsp; info@gunkarambalaj.com &nbsp;&nbsp;&nbsp; Sayfa 1 / 2
+<!-- GİRİŞ METNİ -->
+<div style="font-size:8pt;color:#444;line-height:1.6;margin-bottom:10px;">
+  <div style="font-weight:bold;margin-bottom:4px;">Sayın Yetkili,</div>
+  Oluklu mukavva koli ve kutu ihtiyacınıza yönelik hazırladığımız alternatifli teknik özellikler, birim fiyat, nakliye durumu ve ticari şartları içeren güncellenmiş fiyat teklifimiz aşağıda bilgilerinize sunulmuştur:
 </div>
 
-<!-- ===== SAYFA 2 ===== -->
-<div class="page-break"></div>
+<!-- BÖLÜM 1 BAŞLIĞI -->
+<div style="background-color:#2b4d8c;color:#ffffff;font-weight:bold;font-size:9pt;padding:5px 8px;margin-bottom:0;">1. ÜRÜN VE FİYATLANDIRMA BİLGİLERİ</div>
 
-<div class="page2-header">
-  <span class="p2h-name">GÜNKAR AMBALAJ SAN. ve TİC. LTD. ŞTİ.</span>
-  <span class="p2h-ref">${teklifNo} &nbsp;|&nbsp; ${today}</span>
+<!-- ÜRÜN TABLOSU -->
+<table style="width:100%;border-collapse:collapse;margin-bottom:12px;font-size:8pt;">
+  <thead>
+    <tr>
+      <th style="background-color:#3a63ab;color:#ffffff;padding:5px 6px;text-align:left;border:1px solid #3a63ab;">Ürün Tanımı</th>
+      <th style="background-color:#3a63ab;color:#ffffff;padding:5px 6px;text-align:left;border:1px solid #3a63ab;">Açık Ölçü</th>
+      <th style="background-color:#3a63ab;color:#ffffff;padding:5px 6px;text-align:left;border:1px solid #3a63ab;">Plaka Alanı</th>
+      <th style="background-color:#3a63ab;color:#ffffff;padding:5px 6px;text-align:left;border:1px solid #3a63ab;">Dalga Cinsi</th>
+      <th style="background-color:#3a63ab;color:#ffffff;padding:5px 6px;text-align:left;border:1px solid #3a63ab;">Kalite Yapısı</th>
+      <th style="background-color:#3a63ab;color:#ffffff;padding:5px 6px;text-align:left;border:1px solid #3a63ab;">Teslimat</th>
+      <th style="background-color:#3a63ab;color:#ffffff;padding:5px 6px;text-align:left;border:1px solid #3a63ab;">Birim Fiyat</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="background-color:#eef2fa;">
+      <td style="padding:6px;border:1px solid #ccc;">Ürün 1</td>
+      <td style="padding:6px;border:1px solid #ccc;">${state.en} × ${state.boy} mm</td>
+      <td style="padding:6px;border:1px solid #ccc;">${state.area.toFixed(3)} m²</td>
+      <td style="padding:6px;border:1px solid #ccc;">${wave} Dalga</td>
+      <td style="padding:6px;border:1px solid #ccc;">${kaliteStr}</td>
+      <td style="padding:6px;border:1px solid #ccc;">Nakliye Dahil</td>
+      <td style="padding:6px;border:1px solid #ccc;font-weight:bold;color:#2b4d8c;font-size:10pt;">${finalFmt} TL<br><span style="font-size:7pt;color:#666;font-weight:normal;">+ KDV</span></td>
+    </tr>
+    ${adet ? `<tr>
+      <td colspan="5" style="padding:6px;border:1px solid #ccc;text-align:right;font-weight:bold;color:#2b4d8c;">Sipariş Adedi: ${adet.toLocaleString('tr-TR')} adet</td>
+      <td colspan="2" style="padding:6px;border:1px solid #ccc;font-weight:bold;color:#2b4d8c;">TOPLAM: ${toplamFmt} TL + KDV</td>
+    </tr>` : ''}
+  </tbody>
+</table>
+
+<!-- BÖLÜM 2 BAŞLIĞI -->
+<div style="background-color:#2b4d8c;color:#ffffff;font-weight:bold;font-size:9pt;padding:5px 8px;margin-bottom:8px;">2. TİCARİ VE MALİ ŞARTLAR</div>
+
+<!-- TİCARİ ŞARTLAR -->
+<div style="margin-bottom:5px;font-size:8pt;line-height:1.6;color:#333;"><span style="font-weight:bold;color:#2b4d8c;">Fiyat Tanımı:</span> Belirtilen koli birim fiyatlarına KDV dahil olmayıp, faturalandırma tarihinde yürürlükte olan yasal oran eklenecektir. Fiyatlara nakliye maliyeti dahildir.</div>
+<div style="margin-bottom:5px;font-size:8pt;line-height:1.6;color:#333;"><span style="font-weight:bold;color:#2b4d8c;">Ödeme Koşulu:</span> Ödeme planı ve vadelendirme şartları, tarafların karşılıklı mutabakatı esasına göre netleştirilecektir.</div>
+<div style="margin-bottom:5px;font-size:8pt;line-height:1.6;color:#333;"><span style="font-weight:bold;color:#2b4d8c;">Tolerans Sınırları:</span> Üretim prosesinin doğal yapısı gereği, üretilen mamullerin gramaj, boyut ve hammadde özelliklerinde küçük endüstriyel sapmalar (± %5) görülebilir.</div>
+<div style="margin-bottom:5px;font-size:8pt;line-height:1.6;color:#333;"><span style="font-weight:bold;color:#2b4d8c;">Numune Tedariği:</span> Seri üretim öncesinde firmamızdan fiziksel numune talep edilerek incelenmesi, olası hatalı imalatların önüne geçilmesi adına önemle tavsiye edilmektedir.</div>
+<div style="margin-bottom:10px;font-size:8pt;line-height:1.6;color:#333;"><span style="font-weight:bold;color:#2b4d8c;">Teklif Geçerlilik Süresi:</span> Hammadde ve piyasa hareketlilikleri sebebiyle, işbu fiyat teklifi verildiği tarihten itibaren 15 (on beş) takvim günü geçerlidir.</div>
+
+<div style="font-size:8pt;color:#444;line-height:1.6;margin-bottom:5px;">Sektördeki standartlarımız, zamanında teslimat güvencemiz ve üretim altyapımızla hizmet vermekten memnuniyet duyacağımızı belirtir, teklifinizin olumlu değerlendirilmesini dileriz.</div>
+<div style="font-size:8pt;color:#444;line-height:1.6;margin-bottom:10px;">Teklife istinaden verilecek tüm yazılı yanıtların resmi kayıt takibi amacıyla <strong>info@gunkarambalaj.com</strong> adresi üzerinden iletilmesini rica ederiz.</div>
+
+<div style="text-align:right;font-size:7.5pt;color:#888;border-top:1px solid #eee;padding-top:4px;">Tel: +90 507 221 82 37 &nbsp;|&nbsp; info@gunkarambalaj.com &nbsp;&nbsp; Sayfa 1 / 2</div>
+
+<!-- SAYFA 2 -->
+<div class="pb"></div>
+
+<div style="background-color:#2b4d8c;color:#ffffff;padding:8px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;">
+  <span style="font-weight:bold;font-size:10pt;">GÜNKAR AMBALAJ SAN. ve TİC. LTD. ŞTİ.</span>
+  <span style="font-size:8pt;color:#c8a84b;">${teklifNo} &nbsp;|&nbsp; ${today}</span>
 </div>
 
-<div class="imza-section">
-  <div class="imza-title">ONAY VE İMZA</div>
-  <div class="imza-row">
-    <div class="imza-box">
-      <div class="imza-header">Müşteri Onayı</div>
-      <div class="imza-body">
-        ${customer}<br><br>
-        Yetkili İmza / Kaşe<br>
-        <div class="imza-line"></div>
-        Tarih: .... / .... / 2026
-      </div>
+<div style="font-weight:bold;font-size:11pt;color:#2b4d8c;text-align:center;border-bottom:2px solid #c8a84b;padding-bottom:6px;margin-bottom:24px;">ONAY VE İMZA</div>
+
+<div style="display:flex;gap:20px;">
+  <div style="flex:1;border:1px solid #ccc;">
+    <div style="background-color:#2b4d8c;color:#ffffff;font-weight:bold;font-size:8.5pt;padding:7px 10px;text-align:center;">Müşteri Onayı</div>
+    <div style="padding:14px 12px;min-height:90px;font-size:8pt;color:#333;line-height:2;">
+      ${customer}<br><br>
+      Yetkili İmza / Kaşe<br>
+      <div style="border-top:1px solid #999;margin:8px 0;"></div>
+      Tarih: .... / .... / 2026
     </div>
-    <div class="imza-box">
-      <div class="imza-header">Satış ve Pazarlama Departmanı</div>
-      <div class="imza-body">
-        Günkar Ambalaj San. ve Tic. Ltd. Şti.<br><br>
-        Yetkili İmza / Kaşe<br>
-        <div class="imza-line"></div>
-        Tarih: ${today}
-      </div>
+  </div>
+  <div style="flex:1;border:1px solid #ccc;">
+    <div style="background-color:#2b4d8c;color:#ffffff;font-weight:bold;font-size:8.5pt;padding:7px 10px;text-align:center;">Satış ve Pazarlama Departmanı</div>
+    <div style="padding:14px 12px;min-height:90px;font-size:8pt;color:#333;line-height:2;">
+      Günkar Ambalaj San. ve Tic. Ltd. Şti.<br><br>
+      Yetkili İmza / Kaşe<br>
+      <div style="border-top:1px solid #999;margin:8px 0;"></div>
+      Tarih: ${today}
     </div>
   </div>
 </div>
 
-<div style="text-align:right; font-size:7.5pt; color:#888; margin-top: 40px; border-top:1px solid #eee; padding-top:4px;">
-  Tel: +90 507 221 82 37 &nbsp;|&nbsp; info@gunkarambalaj.com &nbsp;&nbsp;&nbsp; Sayfa 2 / 2
-</div>
+<div style="text-align:right;font-size:7.5pt;color:#888;margin-top:40px;border-top:1px solid #eee;padding-top:4px;">Tel: +90 507 221 82 37 &nbsp;|&nbsp; info@gunkarambalaj.com &nbsp;&nbsp; Sayfa 2 / 2</div>
 
-<script>
-  window.onload = function() {
-    window.print();
-  };
-<\/script>
 </body>
 </html>`;
 
-  const w = document.getElementById('pdfContent');
-  w.innerHTML = html;
+  const frame = document.getElementById('pdfFrame');
+  frame.srcdoc = html;
+  state.lastPdfHtml = html;
+  state.lastTeklifNo = teklifNo;
+  state.lastCustomer = customer;
   document.getElementById('pdfModal').classList.add('open');
 }
 
@@ -1264,28 +1213,109 @@ function closePDFModal() {
 }
 
 function printPDF() {
-  const content = document.getElementById('pdfContent').innerHTML;
-  const printWin = window.open('', '_blank', 'width=800,height=900');
-  if (printWin) {
-    printWin.document.write(content.replace('<script>window.onload=function(){window.print();};<\/script>', ''));
-    printWin.document.close();
-    printWin.focus();
-    setTimeout(() => printWin.print(), 500);
-  } else {
-    // Fallback: iframe print
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
-    iframe.contentDocument.write(content);
-    iframe.contentDocument.close();
-    setTimeout(() => {
-      iframe.contentWindow.print();
-      setTimeout(() => document.body.removeChild(iframe), 1000);
-    }, 500);
+  const frame = document.getElementById('pdfFrame');
+  frame.contentWindow.focus();
+  frame.contentWindow.print();
+}
+
+// ─── PDF DOSYASI OLUŞTURMA (indirme / paylaşma için) ────────────────────────
+let _libsLoading = null;
+function loadPdfLibs() {
+  if (window.jspdf && window.html2canvas) return Promise.resolve();
+  if (_libsLoading) return _libsLoading;
+  _libsLoading = new Promise((resolve, reject) => {
+    let loaded = 0;
+    function done() { loaded++; if (loaded === 2) resolve(); }
+    const s1 = document.createElement('script');
+    s1.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    s1.onload = done; s1.onerror = reject;
+    document.head.appendChild(s1);
+    const s2 = document.createElement('script');
+    s2.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    s2.onload = done; s2.onerror = reject;
+    document.head.appendChild(s2);
+  });
+  return _libsLoading;
+}
+
+async function buildPdfBlob() {
+  await loadPdfLibs();
+
+  // Offscreen, DOM'a bağlı (ama görünmez) bir konteyner oluştur — html2canvas iframe içeriğini güvenilir yakalayamıyor
+  const container = document.createElement('div');
+  container.style.cssText = 'position:fixed;top:0;left:-9999px;width:794px;background:#ffffff;z-index:-1;';
+  container.innerHTML = state.lastPdfHtml.replace(/<!DOCTYPE[^>]*>/i, '').replace(/<\/?html[^>]*>/gi, '').replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<\/?body[^>]*>/gi, '');
+  document.body.appendChild(container);
+
+  // Yazı tiplerinin ve görsellerin yerleşmesi için kısa bekleme
+  await new Promise(r => setTimeout(r, 150));
+
+  const canvas = await html2canvas(container, { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: 794 });
+  document.body.removeChild(container);
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ unit: 'mm', format: 'a4' });
+  const pageW = 210, pageH = 297;
+  const imgW = pageW;
+  const imgH = (canvas.height * imgW) / canvas.width;
+
+  let heightLeft = imgH;
+  let position = 0;
+  const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+  pdf.addImage(imgData, 'JPEG', 0, position, imgW, imgH);
+  heightLeft -= pageH;
+
+  while (heightLeft > 0) {
+    position = heightLeft - imgH;
+    pdf.addPage();
+    pdf.addImage(imgData, 'JPEG', 0, position, imgW, imgH);
+    heightLeft -= pageH;
+  }
+
+  return pdf;
+}
+
+async function downloadPDF() {
+  showToast('⏳ PDF hazırlanıyor...');
+  try {
+    const pdf = await buildPdfBlob();
+    const fileName = `Gunkar_Teklif_${(state.lastCustomer||'Musteri').replace(/[^a-zA-Z0-9]/g,'_')}_${state.lastTeklifNo}.pdf`;
+    pdf.save(fileName);
+    showToast('✅ PDF indirildi');
+  } catch (e) {
+    showToast('⚠️ PDF oluşturulamadı, internet bağlantınızı kontrol edin');
+    console.error(e);
   }
 }
 
+async function sharePDF() {
+  showToast('⏳ PDF hazırlanıyor...');
+  try {
+    const pdf = await buildPdfBlob();
+    const fileName = `Gunkar_Teklif_${(state.lastCustomer||'Musteri').replace(/[^a-zA-Z0-9]/g,'_')}_${state.lastTeklifNo}.pdf`;
+    const blob = pdf.output('blob');
+    const file = new File([blob], fileName, { type: 'application/pdf' });
 
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({
+        files: [file],
+        title: 'Günkar Ambalaj Fiyat Teklifi',
+        text: 'Günkar Ambalaj fiyat teklifiniz ektedir.'
+      });
+      showToast('✅ Paylaşıldı');
+    } else {
+      // Paylaşım API desteklenmiyor (çoğunlukla masaüstü) → indir + bilgilendir
+      pdf.save(fileName);
+      showToast('📥 PDF indirildi, WhatsApp/Mail\'den ekleyin');
+    }
+  } catch (e) {
+    if (e.name !== 'AbortError') {
+      showToast('⚠️ Paylaşılamadı, internet bağlantınızı kontrol edin');
+      console.error(e);
+    }
+  }
+}
 
 function resetApp() {
   state = { en:null, boy:null, area:null, firmId:null, qualityNo:null, qualityPrice:null, qualityLabel:null, finalPrice:null, margin:20 };
