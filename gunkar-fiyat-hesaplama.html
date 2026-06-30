@@ -1540,6 +1540,8 @@ function resetForNewProduct() {
 }
 
 function goToFinalOffer() {
+  console.log('goToFinalOffer çağrıldı. cart.length:', cart.length, 'state.finalPrice:', state.finalPrice, 'state.qualityLabel:', state.qualityLabel);
+
   // Sepet boşsa ama o an hesaplanmış bir ürün varsa, otomatik sepete ekle
   if (cart.length === 0) {
     if (state.finalPrice && state.qualityLabel) {
@@ -1559,7 +1561,9 @@ function goToFinalOffer() {
         nakliye: state.nakliye || 0,
         unitPrice: state.finalPrice
       });
+      console.log('Otomatik sepete eklendi:', cart);
     } else {
+      console.warn('Sepete eklenemedi - finalPrice veya qualityLabel eksik');
       showToast('⚠️ Önce en az bir ürün hesaplayın');
       return;
     }
