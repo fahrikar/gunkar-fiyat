@@ -1540,9 +1540,29 @@ function resetForNewProduct() {
 }
 
 function goToFinalOffer() {
+  // Sepet boşsa ama o an hesaplanmış bir ürün varsa, otomatik sepete ekle
   if (cart.length === 0) {
-    showToast('⚠️ Önce en az bir ürün ekleyin');
-    return;
+    if (state.finalPrice && state.qualityLabel) {
+      const urunIsmiEl = document.getElementById('urunIsmiInput');
+      const urunIsmi = (urunIsmiEl.value || '').trim() || 'Ürün 1';
+      const adet = parseInt(document.getElementById('urunAdetInput').value) || null;
+
+      cart.push({
+        urunIsmi,
+        adet,
+        kutuOlcusu: state.kutuOlcusu || null,
+        kutuTipi: state.kutuTipi || null,
+        levhaEn: state.en,
+        levhaBoy: state.boy,
+        area: state.area,
+        qualityLabel: state.qualityLabel,
+        nakliye: state.nakliye || 0,
+        unitPrice: state.finalPrice
+      });
+    } else {
+      showToast('⚠️ Önce en az bir ürün hesaplayın');
+      return;
+    }
   }
   goTo('screen7');
 }
@@ -1629,25 +1649,31 @@ function shareMail() {
 }
 
 function generatePDF() {
-  const customer = document.getElementById('customerName').value || '...';
-  const today = new Date().toLocaleDateString('tr-TR');
-  const teklifNo = state.teklifNo || ('GNK-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random()*9000));
-  state.teklifNo = teklifNo;
+  if (!cart || cart.length === 0) {
+    showToast('⚠️ Sepet boş, önce ürün ekleyin');
+    return;
+  }
 
-  let grandTotal = 0;
-  let hasAdet = false;
+  try {
+    const customer = document.getElementById('customerName').value || '...';
+    const today = new Date().toLocaleDateString('tr-TR');
+    const teklifNo = state.teklifNo || ('GNK-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random()*9000));
+    state.teklifNo = teklifNo;
 
-  const productRows = cart.map((item, i) => {
-    const labelParts = (item.qualityLabel || '').split(' · ');
-    const wave = labelParts[0] || '';
-    const kaliteRest = labelParts.slice(1).join(' · ');
-    const lineTotal = item.adet ? (item.unitPrice * item.adet) : null;
-    if (lineTotal) { grandTotal += lineTotal; hasAdet = true; }
+    let grandTotal = 0;
+    let hasAdet = false;
 
-    return `
-    <tr style="background-color:${i % 2 === 0 ? '#eef2fa' : '#ffffff'};">
-      <td style="padding:6px;border:1px solid #ccc;text-align:center;">${i+1}</td>
-      <td style="padding:6px;border:1px solid #ccc;">${item.urunIsmi}</td>
+    const productRows = cart.map((item, i) => {
+      const labelParts = (item.qualityLabel || '').split(' · ');
+      const wave = labelParts[0] || '';
+      const kaliteRest = labelParts.slice(1).join(' · ');
+      const lineTotal = item.adet ? (item.unitPrice * item.adet) : null;
+      if (lineTotal) { grandTotal += lineTotal; hasAdet = true; }
+
+      return `
+      <tr style="background-color:${i % 2 === 0 ? '#eef2fa' : '#ffffff'};">
+        <td style="padding:6px;border:1px solid #ccc;text-align:center;">${i+1}</td>
+        <td style="padding:6px;border:1px solid #ccc;">${item.urunIsmi}</td>
       <td style="padding:6px;border:1px solid #ccc;">${item.kutuOlcusu ? item.kutuOlcusu + ' mm' : '—'}</td>
       <td style="padding:6px;border:1px solid #ccc;">${item.levhaEn} × ${item.levhaBoy} mm</td>
       <td style="padding:6px;border:1px solid #ccc;">${wave}${kaliteRest ? ' · ' + kaliteRest : ''}${item.kutuTipi ? '<br><span style="font-size:7pt;color:#666;">' + item.kutuTipi + '</span>' : ''}</td>
@@ -1770,11 +1796,15 @@ function generatePDF() {
 </html>`;
 
   const frame = document.getElementById('pdfFrame');
-  frame.srcdoc = html;
+  document.getElementById('pdfModal').classList.add('open');
   state.lastPdfHtml = html;
   state.lastTeklifNo = teklifNo;
   state.lastCustomer = customer;
-  document.getElementById('pdfModal').classList.add('open');
+  frame.srcdoc = html;
+  } catch (err) {
+    console.error('PDF oluşturma hatası:', err);
+    showToast('⚠️ PDF oluşturulamadı, tekrar deneyin');
+  }
 }
 
 function closePDFModal() {
@@ -1783,106 +1813,48 @@ function closePDFModal() {
 
 function printPDF() {
   const frame = document.getElementById('pdfFrame');
-  frame.contentWindow.focus();
-  frame.contentWindow.print();
-}
-
-// ─── PDF DOSYASI OLUŞTURMA (indirme / paylaşma için) ────────────────────────
-let _libsLoading = null;
-function loadPdfLibs() {
-  if (window.jspdf && window.html2canvas) return Promise.resolve();
-  if (_libsLoading) return _libsLoading;
-  _libsLoading = new Promise((resolve, reject) => {
-    let loaded = 0;
-    function done() { loaded++; if (loaded === 2) resolve(); }
-    const s1 = document.createElement('script');
-    s1.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-    s1.onload = done; s1.onerror = reject;
-    document.head.appendChild(s1);
-    const s2 = document.createElement('script');
-    s2.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-    s2.onload = done; s2.onerror = reject;
-    document.head.appendChild(s2);
-  });
-  return _libsLoading;
-}
-
-async function buildPdfBlob() {
-  await loadPdfLibs();
-
-  // Offscreen, DOM'a bağlı (ama görünmez) bir konteyner oluştur — html2canvas iframe içeriğini güvenilir yakalayamıyor
-  const container = document.createElement('div');
-  container.style.cssText = 'position:fixed;top:0;left:-9999px;width:794px;background:#ffffff;z-index:-1;';
-  container.innerHTML = state.lastPdfHtml.replace(/<!DOCTYPE[^>]*>/i, '').replace(/<\/?html[^>]*>/gi, '').replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<\/?body[^>]*>/gi, '');
-  document.body.appendChild(container);
-
-  // Yazı tiplerinin ve görsellerin yerleşmesi için kısa bekleme
-  await new Promise(r => setTimeout(r, 150));
-
-  const canvas = await html2canvas(container, { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: 794 });
-  document.body.removeChild(container);
-
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF({ unit: 'mm', format: 'a4' });
-  const pageW = 210, pageH = 297;
-  const imgW = pageW;
-  const imgH = (canvas.height * imgW) / canvas.width;
-
-  let heightLeft = imgH;
-  let position = 0;
-  const imgData = canvas.toDataURL('image/jpeg', 0.95);
-
-  pdf.addImage(imgData, 'JPEG', 0, position, imgW, imgH);
-  heightLeft -= pageH;
-
-  while (heightLeft > 0) {
-    position = heightLeft - imgH;
-    pdf.addPage();
-    pdf.addImage(imgData, 'JPEG', 0, position, imgW, imgH);
-    heightLeft -= pageH;
+  if (!state.lastPdfHtml) {
+    showToast('⚠️ Önce teklifi görüntüleyin');
+    return;
   }
-
-  return pdf;
-}
-
-async function downloadPDF() {
-  showToast('⏳ PDF hazırlanıyor...');
   try {
-    const pdf = await buildPdfBlob();
-    const fileName = `Gunkar_Teklif_${(state.lastCustomer||'Musteri').replace(/[^a-zA-Z0-9]/g,'_')}_${state.lastTeklifNo}.pdf`;
-    pdf.save(fileName);
-    showToast('✅ PDF indirildi');
-  } catch (e) {
-    showToast('⚠️ PDF oluşturulamadı, internet bağlantınızı kontrol edin');
-    console.error(e);
+    if (frame.contentWindow && frame.contentDocument && frame.contentDocument.body && frame.contentDocument.body.innerHTML.trim()) {
+      frame.contentWindow.focus();
+      frame.contentWindow.print();
+    } else {
+      // İçerik henüz hazır değilse yeniden yükleyip kısa bekleme sonrası yazdır
+      frame.srcdoc = state.lastPdfHtml;
+      frame.onload = () => {
+        frame.contentWindow.focus();
+        frame.contentWindow.print();
+      };
+    }
+  } catch (err) {
+    console.error('Yazdırma hatası:', err);
+    showToast('⚠️ Yazdırma açılamadı, sayfayı yenileyip tekrar deneyin');
   }
+}
+
+// ─── PDF İNDİRME / PAYLAŞMA (native yazdırma tabanlı, kütüphanesiz) ────────
+function downloadPDF() {
+  // Tarayıcının native "PDF olarak kaydet" özelliğini kullanır — kütüphane gerekmez, her cihazda çalışır
+  printPDF();
+  showToast('📄 Yazdır ekranından "PDF olarak kaydet" seçin');
 }
 
 async function sharePDF() {
-  showToast('⏳ PDF hazırlanıyor...');
-  try {
-    const pdf = await buildPdfBlob();
-    const fileName = `Gunkar_Teklif_${(state.lastCustomer||'Musteri').replace(/[^a-zA-Z0-9]/g,'_')}_${state.lastTeklifNo}.pdf`;
-    const blob = pdf.output('blob');
-    const file = new File([blob], fileName, { type: 'application/pdf' });
-
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+  // Web Share API metin/link paylaşımı destekler; dosya paylaşımı için önce yazdır ekranından PDF kaydedilmeli
+  if (navigator.share) {
+    try {
       await navigator.share({
-        files: [file],
         title: 'Günkar Ambalaj Fiyat Teklifi',
-        text: 'Günkar Ambalaj fiyat teklifiniz ektedir.'
+        text: getOfferText().replace(/\*/g, '')
       });
-      showToast('✅ Paylaşıldı');
-    } else {
-      // Paylaşım API desteklenmiyor (çoğunlukla masaüstü) → indir + bilgilendir
-      pdf.save(fileName);
-      showToast('📥 PDF indirildi, WhatsApp/Mail\'den ekleyin');
+    } catch (e) {
+      if (e.name !== 'AbortError') console.error(e);
     }
-  } catch (e) {
-    if (e.name !== 'AbortError') {
-      showToast('⚠️ Paylaşılamadı, internet bağlantınızı kontrol edin');
-      console.error(e);
-    }
+  } else {
+    shareWhatsApp();
   }
 }
 
