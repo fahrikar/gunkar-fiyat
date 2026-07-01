@@ -1770,7 +1770,7 @@ function generatePDF() {
         <td style="padding:5px 6px;border:1px solid #b0bcd0;font-size:7.5pt;vertical-align:top;">${item.adet ? item.adet.toLocaleString('tr-TR') : '—'}</td>
         <td style="padding:5px 6px;border:1px solid #b0bcd0;font-size:7.5pt;vertical-align:top;">${wave}</td>
         <td style="padding:5px 6px;border:1px solid #b0bcd0;font-size:7.5pt;vertical-align:top;">${kaliteRest || '—'}</td>
-        <td style="padding:5px 6px;border:1px solid #b0bcd0;font-size:7.5pt;vertical-align:top;white-space:nowrap;">${item.kutuOlcusu ? item.kutuOlcusu + ' mm' : '—'}</td>
+        <td style="padding:5px 6px;border:1px solid #b0bcd0;font-size:7.5pt;vertical-align:top;white-space:nowrap;">${item.kutuOlcusu ? item.kutuOlcusu + ' mm' : (item.levhaEn && item.levhaBoy ? item.levhaEn + ' × ' + item.levhaBoy + ' mm' : '—')}</td>
         <td style="padding:5px 6px;border:1px solid #b0bcd0;font-size:7.5pt;vertical-align:top;white-space:nowrap;">${item.levhaEn && item.levhaBoy ? item.levhaEn + ' × ' + item.levhaBoy + ' mm' : '—'}</td>
         <td style="padding:5px 6px;border:1px solid #b0bcd0;font-size:7.5pt;vertical-align:top;">${item.nakliyeVar !== false ? 'Nakliye Dahil' : 'Nakliye Hariç'}</td>
         <td style="padding:5px 6px;border:1px solid #b0bcd0;font-weight:bold;font-size:7.5pt;vertical-align:top;text-align:right;background-color:#ffc200;color:#1a1a1a;">${item.unitPrice.toLocaleString('tr-TR',{minimumFractionDigits:2})} TL + KDV</td>
@@ -1785,11 +1785,14 @@ function generatePDF() {
 <style>
   * { box-sizing:border-box; margin:0; padding:0; }
   body { font-family:Arial,sans-serif; font-size:9pt; color:#1a1a1a; background:white; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-  @page { size:A4; margin:14mm 16mm 14mm 16mm; }
-  @media print { * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; } }
+  @page { size:A4; margin:14mm 16mm; }
+  @media print {
+    * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+  }
   table { border-collapse:collapse; width:100%; }
   .pb { page-break-after:always; }
   p { margin:0 0 5px 0; }
+  th { white-space:nowrap; font-size:7pt; }
 </style>
 </head>
 <body>
