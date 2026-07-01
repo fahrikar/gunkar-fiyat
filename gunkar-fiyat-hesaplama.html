@@ -16,8 +16,9 @@
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
   @media print {
+    body { background:white !important; }
     body > *:not(#pdfPrintContent) { display:none !important; }
-    #pdfPrintContent { display:block !important; }
+    #pdfPrintContent { display:block !important; background:white !important; }
     #app, .admin-toggle { display:none !important; }
   }
 
