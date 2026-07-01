@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Günkar Fiyat">
@@ -11,6 +11,12 @@
 
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  @media print {
+    body > *:not(#pdfPrintContent) { display:none !important; }
+    #pdfPrintContent { display:block !important; }
+    #app, .admin-toggle { display:none !important; }
+  }
 
   :root {
     --green-dark: #1a3a2a;
@@ -802,10 +808,44 @@
     <div class="screen-desc">Kullanmak istediğiniz levha kalitesini seçin.</div>
     <div class="filter-bar" id="filterBar"></div>
     <div class="quality-list" id="qualityList"></div>
-    <button class="btn-primary" id="nextBtn3" onclick="goTo('screen4')" disabled>Devam Et →</button>
+    <button class="btn-primary" id="nextBtn3" onclick="goTo('screenIskonto')" disabled>Devam Et →</button>
   </div>
 
-  <!-- SCREEN 4: FİYAT HESAPLAMA -->
+  <!-- SCREEN İSKONTO: ÖDEME ŞEKLİ -->
+  <div class="screen" id="screenIskonto">
+    <div class="screen-title">Ödeme Şekli</div>
+    <div class="screen-desc">Ankutsan'dan hangi ödeme şekliyle alım yapıyorsunuz?</div>
+
+    <div id="iskontoEkranWrap">
+      <div class="firm-grid">
+        <div class="firm-card" id="iskcek" onclick="selectIskonto('cek')" style="flex-direction:column;align-items:flex-start;gap:4px;">
+          <div class="fc-name">Çek</div>
+          <div class="fc-sub" id="iskcekLabel">%22 iskonto</div>
+          <div class="fc-check" style="align-self:flex-end;">✓</div>
+        </div>
+        <div class="firm-card" id="iskpesin" onclick="selectIskonto('pesin')" style="flex-direction:column;align-items:flex-start;gap:4px;">
+          <div class="fc-name">Peşin</div>
+          <div class="fc-sub" id="iskpesinLabel">%29 iskonto</div>
+          <div class="fc-check" style="align-self:flex-end;">✓</div>
+        </div>
+      </div>
+
+      <div class="result-card" id="iskontoResultCard" style="display:none;">
+        <div class="rc-label">İskonto Sonrası Net Levha Maliyeti</div>
+        <div class="rc-value" id="iskontoResultVal">—</div>
+        <div class="rc-sub" id="iskontoResultDetail">—</div>
+      </div>
+    </div>
+
+    <div id="iskontoYokWrap" style="display:none;">
+      <div style="background:var(--gray-100);border-radius:var(--radius);padding:20px;text-align:center;color:var(--gray-400);font-size:14px;margin-bottom:20px;">
+        Bu firma için ödeme şekli tanımlanmamış.<br>İskontosuz devam ediliyor.
+      </div>
+    </div>
+
+    <button class="btn-primary" id="nextBtnIskonto" onclick="goTo('screen4')" disabled>Devam Et →</button>
+  </div>
+
   <!-- SCREEN 4: NAKLİYE FİYATI -->
   <div class="screen" id="screen4">
     <div class="screen-title">Nakliye Fiyatı</div>
@@ -844,30 +884,13 @@
     <div class="screen-title">Fiyat Hesaplama</div>
     <div class="screen-desc">Ödeme şeklini seçin ve kâr marjınızı girerek satış fiyatını belirleyin.</div>
 
-    <div class="input-group" id="odemeSekliWrap" style="display:none;">
-      <label id="odemeSekliLabel">Ödeme Şekli</label>
-      <div style="display:flex;gap:10px;">
-        <div class="firm-card" id="odemeCek" onclick="setOdemeSekli('cek')" style="flex:1;flex-direction:column;align-items:center;justify-content:center;padding:14px 10px;gap:6px;">
-          <span class="fc-name" style="font-size:14px;">Çek</span>
-          <div style="display:flex;align-items:center;gap:3px;" onclick="event.stopPropagation()">
-            <span style="font-size:12px;color:var(--gray-400);">%</span>
-            <input type="number" id="cekOraniInput" value="22" inputmode="numeric" step="1"
-              style="width:44px;padding:4px 2px;border:1px solid var(--gray-200);border-radius:6px;font-size:13px;font-weight:700;text-align:center;font-family:'Inter',sans-serif;outline:none;-webkit-appearance:none;"
-              oninput="onOdemeOraniChange()">
-            <span style="font-size:11px;color:var(--gray-400);">iskonto</span>
-          </div>
-        </div>
-        <div class="firm-card" id="odemePesin" onclick="setOdemeSekli('pesin')" style="flex:1;flex-direction:column;align-items:center;justify-content:center;padding:14px 10px;gap:6px;">
-          <span class="fc-name" style="font-size:14px;">Peşin</span>
-          <div style="display:flex;align-items:center;gap:3px;" onclick="event.stopPropagation()">
-            <span style="font-size:12px;color:var(--gray-400);">%</span>
-            <input type="number" id="pesinOraniInput" value="29" inputmode="numeric" step="1"
-              style="width:44px;padding:4px 2px;border:1px solid var(--gray-200);border-radius:6px;font-size:13px;font-weight:700;text-align:center;font-family:'Inter',sans-serif;outline:none;-webkit-appearance:none;"
-              oninput="onOdemeOraniChange()">
-            <span style="font-size:11px;color:var(--gray-400);">iskonto</span>
-          </div>
-        </div>
-      </div>
+    <!-- Ödeme şekli artık önceki ekranda seçiliyor, burada sadece hidden input'lar kalsın -->
+    <input type="hidden" id="cekOraniInput" value="22">
+    <input type="hidden" id="pesinOraniInput" value="29">
+    <div id="odemeSekliWrap" style="display:none;">
+      <div id="odemeCek"></div>
+      <div id="odemePesin"></div>
+      <label id="odemeSekliLabel"></label>
     </div>
 
     <div class="price-summary">
@@ -958,7 +981,7 @@
 
 <div class="modal-overlay" id="pdfModal" style="align-items:stretch;z-index:500;">
   <div style="background:white;width:100%;height:100%;overflow:hidden;display:flex;flex-direction:column;">
-    <div style="background:#1a3a2a;color:white;padding:12px 16px;flex-shrink:0;">
+    <div style="background:#1a3a2a;color:white;padding:12px 16px;padding-top:max(12px, env(safe-area-inset-top));flex-shrink:0;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
         <span style="font-weight:700;font-size:15px;">📄 Fiyat Teklifi</span>
         <button onclick="closePDFModal()" style="background:rgba(255,255,255,0.15);color:white;border:none;width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
@@ -1076,7 +1099,7 @@ let currentScreen = 'screen0';
 let adminActiveFirm = 0;
 
 // Adım sırası: 8 görsel adım. screenABox/screenTeleskopik aynı adımı (2. adım) paylaşır.
-const screenOrder = ['screen0', 'screenABox', 'screen1', 'screen2', 'screen3', 'screen4', 'screen5', 'screen6', 'screen7'];
+const screenOrder = ['screen0', 'screenABox', 'screen1', 'screen2', 'screen3', 'screenIskonto', 'screen4', 'screen5', 'screen6', 'screen7'];
 const TOTAL_STEPS = 8;
 function stepIndexOf(screenId) {
   if (screenId === 'screenTeleskopik') return screenOrder.indexOf('screenABox');
@@ -1108,6 +1131,7 @@ function goTo(screenId) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(screenId).classList.add('active');
   updateProgress(screenId);
+  if (screenId === 'screenIskonto') fillIskontoScreen();
   if (screenId === 'screen5') fillPriceScreen();
   if (screenId === 'screen6') { fillCartScreen(); }
   if (screenId === 'screen7') { buildOffer(); }
@@ -1328,25 +1352,69 @@ function selectQuality(no, price, label) {
   document.getElementById('nextBtn3').disabled = false;
 }
 
-// ─── SCREEN 4 ────────────────────────────────────────────────────────────────
+// ─── SCREEN İSKONTO ──────────────────────────────────────────────────────────
+function fillIskontoScreen() {
+  const firm = firms.find(f => f.id === state.firmId);
+  const po = firm && firm.paymentOptions;
+  const nextBtn = document.getElementById('nextBtnIskonto');
+
+  if (!po || (po.cek === 0 && po.pesin === 0)) {
+    // Firma için iskonto tanımlı değil
+    document.getElementById('iskontoEkranWrap').style.display = 'none';
+    document.getElementById('iskontoYokWrap').style.display = 'block';
+    state.odemeSekli = null;
+    nextBtn.disabled = false;
+    return;
+  }
+
+  document.getElementById('iskontoEkranWrap').style.display = 'block';
+  document.getElementById('iskontoYokWrap').style.display = 'none';
+  document.getElementById('iskcekLabel').textContent = '%' + (po.cek * 100).toFixed(0) + ' iskonto';
+  document.getElementById('iskpesinLabel').textContent = '%' + (po.pesin * 100).toFixed(0) + ' iskonto';
+  document.getElementById('iskcek').classList.toggle('selected', state.odemeSekli === 'cek');
+  document.getElementById('iskpesin').classList.toggle('selected', state.odemeSekli === 'pesin');
+
+  if (state.odemeSekli) {
+    showIskontoResult();
+    nextBtn.disabled = false;
+  } else {
+    document.getElementById('iskontoResultCard').style.display = 'none';
+    nextBtn.disabled = true;
+  }
+}
+
+function selectIskonto(tip) {
+  state.odemeSekli = tip;
+  document.getElementById('iskcek').classList.toggle('selected', tip === 'cek');
+  document.getElementById('iskpesin').classList.toggle('selected', tip === 'pesin');
+  showIskontoResult();
+  document.getElementById('nextBtnIskonto').disabled = false;
+
+  // Fiyat ekranındaki butonları da güncelle
+  const cekEl = document.getElementById('cekOraniInput');
+  const pesinEl = document.getElementById('pesinOraniInput');
+  if (cekEl) document.getElementById('odemeCek').classList.toggle('selected', tip === 'cek');
+  if (pesinEl) document.getElementById('odemePesin').classList.toggle('selected', tip === 'pesin');
+}
+
+function showIskontoResult() {
+  const firm = firms.find(f => f.id === state.firmId);
+  if (!firm || !state.qualityPrice || !state.area) return;
+  const po = firm.paymentOptions;
+  const oran = state.odemeSekli === 'cek' ? po.cek : po.pesin;
+  const listPrice = state.area * state.qualityPrice;
+  const netPrice = listPrice * (1 - oran);
+  const card = document.getElementById('iskontoResultCard');
+  card.style.display = 'block';
+  document.getElementById('iskontoResultVal').textContent = netPrice.toFixed(2) + ' TL';
+  document.getElementById('iskontoResultDetail').textContent =
+    `${listPrice.toFixed(2)} TL liste − %${(oran*100).toFixed(0)} iskonto = ${netPrice.toFixed(2)} TL`;
+}
+
+// ─── SCREEN 5 ────────────────────────────────────────────────────────────────
 function fillPriceScreen() {
   document.getElementById('s4Area').textContent = state.area.toFixed(4) + ' m²';
   document.getElementById('s4UnitPrice').textContent = state.qualityPrice.toFixed(2) + ' TL/m²';
-
-  const firm = firms.find(f => f.id === state.firmId);
-  const odemeWrap = document.getElementById('odemeSekliWrap');
-  if (firm && firm.paymentOptions) {
-    odemeWrap.style.display = 'block';
-    document.getElementById('odemeSekliLabel').textContent = `Ödeme Şekli (${firm.name})`;
-    document.getElementById('cekOraniInput').value = ((firm.paymentOptions.cek||0)*100).toFixed(0);
-    document.getElementById('pesinOraniInput').value = ((firm.paymentOptions.pesin||0)*100).toFixed(0);
-    document.getElementById('odemeCek').classList.toggle('selected', state.odemeSekli === 'cek');
-    document.getElementById('odemePesin').classList.toggle('selected', state.odemeSekli === 'pesin');
-  } else {
-    odemeWrap.style.display = 'none';
-    state.odemeSekli = null;
-  }
-
   calcFinal();
 }
 
@@ -1533,6 +1601,7 @@ function resetForNewProduct() {
   document.getElementById('nextBtn1').disabled = true;
   document.getElementById('nextBtn2').disabled = true;
   document.getElementById('nextBtn3').disabled = true;
+  document.getElementById('nextBtnIskonto').disabled = true;
   document.getElementById('nextBtn5').disabled = true;
   document.querySelectorAll('.firm-card').forEach(c => c.classList.remove('selected'));
 
@@ -1540,7 +1609,6 @@ function resetForNewProduct() {
 }
 
 function goToFinalOffer() {
-  console.log('goToFinalOffer çağrıldı. cart.length:', cart.length, 'state.finalPrice:', state.finalPrice, 'state.qualityLabel:', state.qualityLabel);
 
   // Sepet boşsa ama o an hesaplanmış bir ürün varsa, otomatik sepete ekle
   if (cart.length === 0) {
@@ -1561,9 +1629,7 @@ function goToFinalOffer() {
         nakliye: state.nakliye || 0,
         unitPrice: state.finalPrice
       });
-      console.log('Otomatik sepete eklendi:', cart);
     } else {
-      console.warn('Sepete eklenemedi - finalPrice veya qualityLabel eksik');
       showToast('⚠️ Önce en az bir ürün hesaplayın');
       return;
     }
@@ -1653,9 +1719,29 @@ function shareMail() {
 }
 
 function generatePDF() {
+  // Cart boşsa mevcut hesaplanan ürünü otomatik ekle
   if (!cart || cart.length === 0) {
-    showToast('⚠️ Sepet boş, önce ürün ekleyin');
-    return;
+    if (state.finalPrice && state.qualityLabel) {
+      const urunIsmiEl = document.getElementById('urunIsmiInput');
+      const urunIsmi = urunIsmiEl ? (urunIsmiEl.value || '').trim() || 'Ürün 1' : 'Ürün 1';
+      const adetEl = document.getElementById('urunAdetInput');
+      const adet = adetEl ? (parseInt(adetEl.value) || null) : null;
+      cart.push({
+        urunIsmi, adet,
+        kutuOlcusu: state.kutuOlcusu || null,
+        kutuTipi: state.kutuTipi || null,
+        levhaEn: state.en,
+        levhaBoy: state.boy,
+        area: state.area,
+        qualityLabel: state.qualityLabel,
+        nakliyeVar: state.nakliyeVar,
+        nakliye: state.nakliye || 0,
+        unitPrice: state.finalPrice
+      });
+    } else {
+      showToast('⚠️ Önce tüm adımları tamamlayın');
+      return;
+    }
   }
 
   try {
@@ -1675,139 +1761,139 @@ function generatePDF() {
       if (lineTotal) { grandTotal += lineTotal; hasAdet = true; }
 
       return `
-      <tr style="background-color:${i % 2 === 0 ? '#eef2fa' : '#ffffff'};">
-        <td style="padding:6px;border:1px solid #ccc;text-align:center;">${i+1}</td>
-        <td style="padding:6px;border:1px solid #ccc;">${item.urunIsmi}</td>
-      <td style="padding:6px;border:1px solid #ccc;">${item.kutuOlcusu ? item.kutuOlcusu + ' mm' : '—'}</td>
-      <td style="padding:6px;border:1px solid #ccc;">${item.levhaEn} × ${item.levhaBoy} mm</td>
-      <td style="padding:6px;border:1px solid #ccc;">${wave}${kaliteRest ? ' · ' + kaliteRest : ''}${item.kutuTipi ? '<br><span style="font-size:7pt;color:#666;">' + item.kutuTipi + '</span>' : ''}</td>
-      <td style="padding:6px;border:1px solid #ccc;font-weight:bold;color:#2b4d8c;">${item.unitPrice.toLocaleString('tr-TR',{minimumFractionDigits:2})} TL${item.adet ? '<br><span style="font-size:7pt;color:#666;font-weight:normal;">' + item.adet.toLocaleString('tr-TR') + ' adet</span>' : ''}</td>
-    </tr>`;
-  }).join('');
+      <tr style="background-color:${i % 2 === 0 ? '#f2f5fb' : '#ffffff'};">
+        <td style="padding:6px 8px;border:1px solid #c8d0df;font-weight:bold;font-size:8pt;">${item.urunIsmi}</td>
+        <td style="padding:6px 8px;border:1px solid #c8d0df;white-space:nowrap;font-size:8pt;">${item.levhaEn} × ${item.levhaBoy} mm</td>
+        <td style="padding:6px 8px;border:1px solid #c8d0df;white-space:nowrap;font-size:8pt;">${item.area ? item.area.toFixed(3) + ' m²' : '—'}</td>
+        <td style="padding:6px 8px;border:1px solid #c8d0df;white-space:nowrap;font-size:8pt;">${wave}</td>
+        <td style="padding:6px 8px;border:1px solid #c8d0df;font-size:8pt;">${kaliteRest}</td>
+        <td style="padding:6px 8px;border:1px solid #c8d0df;white-space:nowrap;font-size:8pt;">${item.nakliyeVar !== false ? 'Nakliye Dahil' : 'Nakliye Hariç'}</td>
+        <td style="padding:6px 8px;border:1px solid #c8d0df;border-left:3px solid #1e3a6e;font-weight:bold;color:#1e3a6e;white-space:nowrap;font-size:9pt;text-align:right;">${item.unitPrice.toLocaleString('tr-TR',{minimumFractionDigits:2})} TL + KDV${item.adet ? '<br><span style="font-size:7.5pt;color:#555;font-weight:normal;">' + item.adet.toLocaleString('tr-TR') + ' adet</span>' : ''}</td>
+      </tr>`;
+    }).join('');
 
   const html = `<!DOCTYPE html>
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Günkar Teklif - ${teklifNo}</title>
+<title>Gunkar Teklif - ${teklifNo}</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: Arial, sans-serif; font-size: 9pt; color: #222; background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  @page { size: A4; margin: 10mm 14mm; }
-  @media print { * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } }
-  table { border-collapse: collapse; width: 100%; }
-  .pb { page-break-after: always; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:Arial,sans-serif; font-size:9pt; color:#1a1a1a; background:white; -webkit-print-color-adjust:exact; print-color-adjust:exact; line-height:1.4; }
+  @page { size:A4; margin:15mm 17mm; }
+  @media print { * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; } }
+  table { border-collapse:collapse; width:100%; }
+  .pb { page-break-after:always; }
 </style>
 </head>
 <body>
 
 <!-- HEADER -->
-<div style="background-color:#2b4d8c;color:white;padding:14px 16px;text-align:center;margin-bottom:0;">
-  <div style="font-size:17pt;font-weight:bold;color:#ffffff;letter-spacing:1px;margin-bottom:3px;">GÜNKAR AMBALAJ</div>
-  <div style="font-size:10pt;font-style:italic;color:#c8a84b;margin-bottom:5px;">"Kutunun Her Hali"</div>
-  <div style="border-top:1px solid #c8a84b;padding-top:6px;font-size:11pt;font-weight:bold;color:#ffffff;margin-bottom:5px;">RESMİ FİYAT TEKLİFİ</div>
-  <div style="font-size:7.5pt;color:#cccccc;line-height:1.7;">
-    GÜNKAR AMBALAJ SAN. ve TİC. LTD. ŞTİ.<br>
-    Acidere Mah. 6679 Sk. 2 Blok No: 3 Sarıçam / ADANA<br>
-    Tic. Sic. No: 102995 &nbsp;|&nbsp; Yüreğir V.D.: 4380868058 &nbsp;|&nbsp; Mersis No: 0438086805800001<br>
-    Tel: +90 507 221 82 37 &nbsp;|&nbsp; info@gunkarambalaj.com
-  </div>
-</div>
+<table style="width:100%;margin-bottom:10px;">
+  <tr>
+    <td style="width:55%;vertical-align:top;padding-right:16px;">
+      <div style="font-size:16pt;font-weight:900;color:#1e3a6e;letter-spacing:0.3px;margin-bottom:1px;white-space:nowrap;">GÜNKAR AMBALAJ</div>
+      <div style="font-size:10pt;font-style:italic;color:#666;margin-bottom:7px;">"Kutunun Her Hali"</div>
+      <div style="font-size:8pt;font-weight:bold;color:#1a1a1a;margin-bottom:2px;">GÜNKAR AMBALAJ SAN. VE TİC. LTD. ŞTİ.</div>
+      <div style="font-size:7.5pt;color:#333;line-height:1.65;">
+        Acidere Mah. 6679 Sk. 2 Blok No: 3 Sarıçam / ADANA<br>
+        Tic. Sic. No: 102995 &nbsp;|&nbsp; Yüreğir V.D.: 4380868058<br>
+        Mersis No: 0438086805800001<br>
+        Tel: +90 507 221 82 37 &nbsp;|&nbsp; E-posta: info@gunkarambalaj.com
+      </div>
+    </td>
+    <td style="width:45%;vertical-align:top;">
+      <table style="width:100%;border:1px solid #aab4c8;font-size:9pt;">
+        <tr style="border-bottom:1px solid #aab4c8;"><td style="padding:6px 10px;"><span style="font-weight:bold;">Tarih:</span> ${today}</td></tr>
+        <tr style="border-bottom:1px solid #aab4c8;"><td style="padding:6px 10px;"><span style="font-weight:bold;">Teklif No:</span> ${teklifNo}</td></tr>
+        <tr style="border-bottom:1px solid #aab4c8;"><td style="padding:5px 10px 2px;font-weight:bold;">Müşteri:</td></tr>
+        <tr><td style="padding:3px 10px 7px;font-weight:bold;font-size:9.5pt;color:#1e3a6e;">${customer}</td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
 
-<!-- MÜŞTERİ BİLGİLERİ -->
-<div style="padding:10px 0 6px 0;border-bottom:1px solid #ddd;margin-bottom:8px;display:flex;justify-content:space-between;font-size:8.5pt;">
-  <div>
-    <div style="margin-bottom:3px;"><span style="font-weight:bold;color:#2b4d8c;">Müşteri:</span> ${customer}</div>
-    <div><span style="font-weight:bold;color:#2b4d8c;">Konu:</span> Oluklu Mukavva Koli Fiyat Teklifi</div>
-  </div>
-  <div style="text-align:right;">
-    <div style="margin-bottom:3px;"><span style="font-weight:bold;color:#2b4d8c;">Tarih:</span> ${today}</div>
-    <div><span style="font-weight:bold;color:#2b4d8c;">Teklif No:</span> ${teklifNo}</div>
-  </div>
-</div>
+<div style="border-top:1.5px solid #1e3a6e;margin-bottom:10px;"></div>
+<div style="text-align:center;font-size:13pt;font-weight:bold;color:#1e3a6e;letter-spacing:1px;margin-bottom:12px;">RESMİ FİYAT TEKLİFİ</div>
 
-<!-- GİRİŞ METNİ -->
-<div style="font-size:8pt;color:#444;line-height:1.6;margin-bottom:10px;">
-  <div style="font-weight:bold;margin-bottom:4px;">Sayın Yetkili,</div>
-  Oluklu mukavva koli ve kutu ihtiyacınıza yönelik hazırladığımız teknik özellikler ve birim fiyat alanlarını içeren resmi fiyat teklifimiz aşağıda bilgilerinize sunulmuştur:
-</div>
+<p style="font-size:9pt;margin-bottom:10px;"><strong>Sayın Yetkili,</strong></p>
+<p style="font-size:9pt;color:#222;line-height:1.55;margin-bottom:14px;">Oluklu mukavva koli ve kutu ihtiyacınıza yönelik hazırladığımız teknik özellikler, birim fiyat, nakliye durumu ve ticari şartları içeren resmi fiyat teklifimiz aşağıda bilgilerinize sunulmuştur:</p>
 
-<!-- ÜRÜN TABLOSU -->
-<table style="width:100%;border-collapse:collapse;margin-bottom:12px;font-size:7.5pt;">
+<div style="border-left:4px solid #1e3a6e;padding-left:8px;font-size:10pt;font-weight:bold;color:#1e3a6e;margin-bottom:8px;">1. Ürün ve Fiyatlandırma Bilgileri</div>
+
+<table style="width:100%;font-size:7.5pt;margin-bottom:14px;">
   <thead>
-    <tr>
-      <th style="background-color:#3a63ab;color:#ffffff;padding:5px 4px;text-align:center;border:1px solid #3a63ab;width:24px;">NO</th>
-      <th style="background-color:#3a63ab;color:#ffffff;padding:5px 6px;text-align:left;border:1px solid #3a63ab;">Ürün İsmi</th>
-      <th style="background-color:#3a63ab;color:#ffffff;padding:5px 6px;text-align:left;border:1px solid #3a63ab;">Kutu Ölçüsü<br>(En×Boy×Yük)</th>
-      <th style="background-color:#3a63ab;color:#ffffff;padding:5px 6px;text-align:left;border:1px solid #3a63ab;">Levha Ölçüsü<br>(En×Boy)</th>
-      <th style="background-color:#3a63ab;color:#ffffff;padding:5px 6px;text-align:left;border:1px solid #3a63ab;">Dalga / Kalite</th>
-      <th style="background-color:#3a63ab;color:#ffffff;padding:5px 6px;text-align:left;border:1px solid #3a63ab;">Birim Fiyat</th>
+    <tr style="background-color:#1e3a6e;color:#ffffff;">
+      <th style="padding:5px 6px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;font-size:7.5pt;">Ürün Adı</th>
+      <th style="padding:5px 6px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;white-space:nowrap;font-size:7.5pt;">Açık Ölçü (En×Boy)</th>
+      <th style="padding:5px 6px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;font-size:7.5pt;white-space:nowrap;">Plaka Alanı</th>
+      <th style="padding:5px 6px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;font-size:7.5pt;white-space:nowrap;">Dalga Cinsi</th>
+      <th style="padding:5px 6px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;font-size:7.5pt;">Kalite Yapısı</th>
+      <th style="padding:5px 6px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;font-size:7.5pt;white-space:nowrap;">Teslimat</th>
+      <th style="padding:5px 6px;text-align:right;border:1px solid #1e3a6e;border-left:3px solid #6a8cc0;font-weight:bold;font-size:7.5pt;white-space:nowrap;">Birim Fiyat</th>
     </tr>
   </thead>
   <tbody>
     ${productRows}
-    ${hasAdet ? `<tr>
-      <td colspan="5" style="padding:6px;border:1px solid #ccc;text-align:right;font-weight:bold;color:#2b4d8c;">GENEL TOPLAM (Nakliye Dahil)</td>
-      <td style="padding:6px;border:1px solid #ccc;font-weight:bold;color:#2b4d8c;font-size:9pt;">${grandTotal.toLocaleString('tr-TR',{minimumFractionDigits:2})} TL</td>
-    </tr>` : ''}
+    ${hasAdet ? `<tr style="background-color:#e6ecf5;"><td colspan="6" style="padding:6px 8px;border:1px solid #b8c4d8;text-align:right;font-weight:bold;color:#1e3a6e;">GENEL TOPLAM</td><td style="padding:6px 8px;border:1px solid #b8c4d8;border-left:3px solid #1e3a6e;font-weight:bold;color:#1e3a6e;text-align:right;">${grandTotal.toLocaleString('tr-TR',{minimumFractionDigits:2})} TL + KDV</td></tr>` : ''}
   </tbody>
 </table>
 
-<!-- TİCARİ ŞARTLAR BAŞLIĞI -->
-<div style="background-color:#2b4d8c;color:#ffffff;font-weight:bold;font-size:9pt;padding:5px 8px;margin-bottom:8px;">TİCARİ ŞARTLAR VE KOŞULLAR</div>
-
-<div style="margin-bottom:5px;font-size:8pt;line-height:1.6;color:#333;"><span style="font-weight:bold;color:#2b4d8c;">Fiyat Tanımı:</span> Belirtilen koli birim fiyatlarına KDV dahil olmayıp, faturalandırma tarihinde yürürlükte olan yasal oran eklenecektir. Fiyatlara nakliye maliyeti dahildir.</div>
-<div style="margin-bottom:5px;font-size:8pt;line-height:1.6;color:#333;"><span style="font-weight:bold;color:#2b4d8c;">Ödeme Koşulu:</span> Ödeme planı ve vadelendirme şartları, tarafların karşılıklı mutabakatı esasına göre netleştirilecektir.</div>
-<div style="margin-bottom:5px;font-size:8pt;line-height:1.6;color:#333;"><span style="font-weight:bold;color:#2b4d8c;">Tolerans Sınırları:</span> Üretim prosesinin doğal yapısı gereği, üretilen mamullerin gramaj, boyut ve hammadde özelliklerinde küçük endüstriyel sapmalar (± %5) görülebilir.</div>
-<div style="margin-bottom:10px;font-size:8pt;line-height:1.6;color:#333;"><span style="font-weight:bold;color:#2b4d8c;">Teklif Geçerlilik Süresi:</span> Hammadde ve piyasa hareketlilikleri sebebiyle, işbu fiyat teklifi verildiği tarihten itibaren 15 (on beş) takvim günü geçerlidir.</div>
-
-<div style="text-align:right;font-size:7.5pt;color:#888;border-top:1px solid #eee;padding-top:4px;">Tel: +90 507 221 82 37 &nbsp;|&nbsp; info@gunkarambalaj.com &nbsp;&nbsp; Sayfa 1 / 2</div>
-
-<!-- SAYFA 2 -->
+<div style="text-align:right;font-size:7.5pt;color:#888;padding-top:8px;border-top:1px solid #ddd;">Sayfa 1 / 2</div>
 <div class="pb"></div>
 
-<div style="background-color:#2b4d8c;color:#ffffff;padding:8px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;">
-  <span style="font-weight:bold;font-size:10pt;">GÜNKAR AMBALAJ SAN. ve TİC. LTD. ŞTİ.</span>
-  <span style="font-size:8pt;color:#c8a84b;">${teklifNo} &nbsp;|&nbsp; ${today}</span>
-</div>
+<div style="border-left:4px solid #1e3a6e;padding-left:8px;font-size:10pt;font-weight:bold;color:#1e3a6e;margin-bottom:10px;">2. Ticari ve Mali Şartlar</div>
 
-<div style="font-weight:bold;font-size:11pt;color:#2b4d8c;text-align:center;border-bottom:2px solid #c8a84b;padding-bottom:6px;margin-bottom:24px;">ONAY VE İMZA</div>
+<p style="font-size:8.5pt;color:#222;line-height:1.65;margin-bottom:5px;">&#x2022; <strong>Fiyat Tanımı:</strong> Belirtilen koli birim fiyatlarına KDV dahil olmayıp, faturalandırma tarihinde yürürlükte olan yasal oran eklenecektir. Fiyatlara nakliye maliyeti dahildir.</p>
+<p style="font-size:8.5pt;color:#222;line-height:1.65;margin-bottom:5px;">&#x2022; <strong>Ödeme Koşulu:</strong> Ödeme planı ve vadelendirme şartları, tarafların karşılıklı mutabakatı esasına göre netleştirilecektir.</p>
+<p style="font-size:8.5pt;color:#222;line-height:1.65;margin-bottom:5px;">&#x2022; <strong>Tolerans Sınırları:</strong> Üretim prosesinin doğal yapısı gereği, üretilen mamullerin gramaj, boyut ve hammadde özelliklerinde küçük endüstriyel sapmalar (± %5) görülebilir.</p>
+<p style="font-size:8.5pt;color:#222;line-height:1.65;margin-bottom:5px;">&#x2022; <strong>Numune Tedariği:</strong> Seri üretim öncesinde firmamızdan fiziksel numune talep edilerek incelenmesi, olası hatalı imalatların önüne geçilmesi adına önemle tavsiye edilmektedir.</p>
+<p style="font-size:8.5pt;color:#222;line-height:1.65;margin-bottom:14px;">&#x2022; <strong>Teklif Geçerlilik Süresi:</strong> Hammadde ve piyasa hareketlilikleri sebebiyle, işbu fiyat teklifi verildiği tarihten itibaren 15 (on beş) takvim günü geçerlidir.</p>
 
-<div style="display:flex;gap:20px;">
-  <div style="flex:1;border:1px solid #ccc;">
-    <div style="background-color:#2b4d8c;color:#ffffff;font-weight:bold;font-size:8.5pt;padding:7px 10px;text-align:center;">Müşteri Onayı</div>
-    <div style="padding:14px 12px;min-height:90px;font-size:8pt;color:#333;line-height:2;">
-      ${customer}<br><br>
-      Yetkili İmza / Kaşe<br>
-      <div style="border-top:1px solid #999;margin:8px 0;"></div>
-      Tarih: .... / .... / 2026
-    </div>
-  </div>
-  <div style="flex:1;border:1px solid #ccc;">
-    <div style="background-color:#2b4d8c;color:#ffffff;font-weight:bold;font-size:8.5pt;padding:7px 10px;text-align:center;">Satış ve Pazarlama Departmanı</div>
-    <div style="padding:14px 12px;min-height:90px;font-size:8pt;color:#333;line-height:2;">
-      Günkar Ambalaj San. ve Tic. Ltd. Şti.<br><br>
-      Yetkili İmza / Kaşe<br>
-      <div style="border-top:1px solid #999;margin:8px 0;"></div>
-      Tarih: ${today}
-    </div>
-  </div>
-</div>
+<p style="font-size:8.5pt;color:#222;line-height:1.6;margin-bottom:5px;">Sektördeki standartlarımız, zamanında teslimat güvencemiz ve üretim altyapımızla hizmet vermekten memnuniyet duyacağımızı belirtir, teklifimizin olumlu değerlendirilmesini dileriz.</p>
+<p style="font-size:8.5pt;color:#222;line-height:1.6;margin-bottom:28px;">Teklife istinaden verilecek tüm yazılı yanıtların resmi kayıt takibi amacıyla <strong>info@gunkarambalaj.com</strong> adresi üzerinden iletilmesini rica ederiz.</p>
 
-<div style="text-align:right;font-size:7.5pt;color:#888;margin-top:40px;border-top:1px solid #eee;padding-top:4px;">Tel: +90 507 221 82 37 &nbsp;|&nbsp; info@gunkarambalaj.com &nbsp;&nbsp; Sayfa 2 / 2</div>
+<table style="width:100%;">
+  <tr>
+    <td style="width:48%;vertical-align:top;padding-right:20px;">
+      <div style="font-size:9pt;font-weight:bold;color:#333;margin-bottom:4px;">Müşteri Onayı</div>
+      <div style="font-size:8.5pt;color:#444;margin-bottom:18px;">${customer}</div>
+      <div style="border-bottom:1px solid #888;height:34px;margin-bottom:5px;"></div>
+      <div style="font-size:8pt;color:#555;">Yetkili İmza / Kaşe</div>
+      <div style="font-size:8pt;color:#555;margin-top:3px;">Tarih: .... / .... / 2026</div>
+    </td>
+    <td style="width:48%;vertical-align:top;">
+      <div style="font-size:9pt;font-weight:bold;color:#333;margin-bottom:4px;">Satış ve Pazarlama Departmanı</div>
+      <div style="font-size:8.5pt;color:#444;margin-bottom:18px;">Günkar Ambalaj San. ve Tic. Ltd. Şti.</div>
+      <div style="border-bottom:1px solid #888;height:34px;margin-bottom:5px;"></div>
+      <div style="font-size:8pt;color:#555;">Yetkili İmza / Kaşe</div>
+      <div style="font-size:8pt;color:#555;margin-top:3px;">Tarih: ${today}</div>
+    </td>
+  </tr>
+</table>
+
+<div style="text-align:right;font-size:7.5pt;color:#888;margin-top:28px;border-top:1px solid #ddd;padding-top:6px;">Tel: +90 507 221 82 37 &nbsp;|&nbsp; info@gunkarambalaj.com &nbsp;&nbsp; Sayfa 2 / 2</div>
 
 </body>
 </html>`;
 
-  const frame = document.getElementById('pdfFrame');
-  document.getElementById('pdfModal').classList.add('open');
   state.lastPdfHtml = html;
   state.lastTeklifNo = teklifNo;
   state.lastCustomer = customer;
-  frame.srcdoc = html;
+
+  const printDiv = document.getElementById('pdfPrintContent');
+  const bodyContent = html
+    .replace(/<!DOCTYPE[^>]*>/i,'')
+    .replace(/<\/?html[^>]*>/gi,'')
+    .replace(/<head>[\s\S]*?<\/head>/i,'')
+    .replace(/<\/?body[^>]*>/gi,'');
+  printDiv.innerHTML = bodyContent;
+  printDiv.style.display = 'block';
+  window.print();
+  printDiv.style.display = 'none';
+
   } catch (err) {
-    console.error('PDF oluşturma hatası:', err);
-    showToast('⚠️ PDF oluşturulamadı, tekrar deneyin');
+    showToast('⚠️ Hata: ' + err.message);
   }
 }
 
@@ -1816,34 +1902,22 @@ function closePDFModal() {
 }
 
 function printPDF() {
-  const frame = document.getElementById('pdfFrame');
+  openPDFPage();
+}
+
+function downloadPDF() {
+  openPDFPage();
+}
+
+function openPDFPage() {
   if (!state.lastPdfHtml) {
     showToast('⚠️ Önce teklifi görüntüleyin');
     return;
   }
-  try {
-    if (frame.contentWindow && frame.contentDocument && frame.contentDocument.body && frame.contentDocument.body.innerHTML.trim()) {
-      frame.contentWindow.focus();
-      frame.contentWindow.print();
-    } else {
-      // İçerik henüz hazır değilse yeniden yükleyip kısa bekleme sonrası yazdır
-      frame.srcdoc = state.lastPdfHtml;
-      frame.onload = () => {
-        frame.contentWindow.focus();
-        frame.contentWindow.print();
-      };
-    }
-  } catch (err) {
-    console.error('Yazdırma hatası:', err);
-    showToast('⚠️ Yazdırma açılamadı, sayfayı yenileyip tekrar deneyin');
-  }
-}
-
-// ─── PDF İNDİRME / PAYLAŞMA (native yazdırma tabanlı, kütüphanesiz) ────────
-function downloadPDF() {
-  // Tarayıcının native "PDF olarak kaydet" özelliğini kullanır — kütüphane gerekmez, her cihazda çalışır
-  printPDF();
-  showToast('📄 Yazdır ekranından "PDF olarak kaydet" seçin');
+  // Teklifi data URI olarak aç - Safari'de çalışır, kullanıcı paylaş > PDF kaydet yapabilir
+  const encoded = encodeURIComponent(state.lastPdfHtml);
+  const dataUri = 'data:text/html;charset=utf-8,' + encoded;
+  window.location.href = dataUri;
 }
 
 async function sharePDF() {
@@ -1899,6 +1973,7 @@ function resetApp() {
   document.getElementById('nextBtn1').disabled = true;
   document.getElementById('nextBtn2').disabled = true;
   document.getElementById('nextBtn3').disabled = true;
+  document.getElementById('nextBtnIskonto').disabled = true;
   document.getElementById('nextBtn5').disabled = true;
   document.querySelectorAll('.firm-card').forEach(c => c.classList.remove('selected'));
   goTo('screen0');
@@ -2014,5 +2089,9 @@ function showToast(msg) {
 
 init();
 </script>
+
+<!-- PDF Print Content - yazdırırken burası görünür -->
+<div id="pdfPrintContent" style="display:none;"></div>
+
 </body>
 </html>
