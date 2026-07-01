@@ -1769,9 +1769,9 @@ function generatePDF() {
         <td style="padding:5px 6px;border:1px solid #b0bcd0;font-size:7.5pt;vertical-align:top;font-weight:bold;">${item.urunIsmi}</td>
         <td style="padding:5px 6px;border:1px solid #b0bcd0;font-size:7.5pt;vertical-align:top;">${item.adet ? item.adet.toLocaleString('tr-TR') : '—'}</td>
         <td style="padding:5px 6px;border:1px solid #b0bcd0;font-size:7.5pt;vertical-align:top;">${wave}</td>
+        <td style="padding:5px 6px;border:1px solid #b0bcd0;font-size:7.5pt;vertical-align:top;">${kaliteRest || '—'}</td>
         <td style="padding:5px 6px;border:1px solid #b0bcd0;font-size:7.5pt;vertical-align:top;white-space:nowrap;">${item.kutuOlcusu ? item.kutuOlcusu + ' mm' : '—'}</td>
         <td style="padding:5px 6px;border:1px solid #b0bcd0;font-size:7.5pt;vertical-align:top;white-space:nowrap;">${item.levhaEn && item.levhaBoy ? item.levhaEn + ' × ' + item.levhaBoy + ' mm' : '—'}</td>
-        <td style="padding:5px 6px;border:1px solid #b0bcd0;font-size:7.5pt;vertical-align:top;">${kaliteRest || '—'}</td>
         <td style="padding:5px 6px;border:1px solid #b0bcd0;font-size:7.5pt;vertical-align:top;">${item.nakliyeVar !== false ? 'Nakliye Dahil' : 'Nakliye Hariç'}</td>
         <td style="padding:5px 6px;border:1px solid #b0bcd0;font-weight:bold;font-size:7.5pt;vertical-align:top;text-align:right;background-color:#ffc200;color:#1a1a1a;">${item.unitPrice.toLocaleString('tr-TR',{minimumFractionDigits:2})} TL + KDV</td>
       </tr>`;
@@ -1835,9 +1835,9 @@ function generatePDF() {
       <th style="padding:5px 6px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;">ÜRÜN ADI</th>
       <th style="padding:5px 6px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;">ADET</th>
       <th style="padding:5px 6px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;">DALGA</th>
+      <th style="padding:5px 6px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;">KALİTE CİNSİ</th>
       <th style="padding:5px 6px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;">KUTU ÖLÇÜSÜ</th>
       <th style="padding:5px 6px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;">LEVHA ÖLÇÜSÜ</th>
-      <th style="padding:5px 6px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;">DALGA CİNSİ / KALİTE YAPISI</th>
       <th style="padding:5px 6px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;">TESLİMAT</th>
       <th style="padding:5px 6px;text-align:right;border:1px solid #1e3a6e;font-weight:bold;">GÜNCEL FİYAT</th>
     </tr>
