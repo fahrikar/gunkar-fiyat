@@ -1858,8 +1858,8 @@ function generatePDF() {
   </tbody>
 </table>
 
-<div style="text-align:right;font-size:7pt;color:#888;border-top:1px solid #ddd;padding-top:4px;">Sayfa 1 / 2</div>
-<div class="pb"></div>
+
+
 
 <div style="font-size:9pt;font-weight:bold;margin-bottom:6px;">TİCARİ VE MALİ ŞARTLAR</div>
 <p style="font-size:8.5pt;line-height:1.65;margin-bottom:4px;">• <strong>Özel Üretim Notu:</strong> Üretim sürecinde dikiş kullanılacak olan tüm ürünlerde, yüksek mukavemet ve kalite standartlarımız gereği simetrik yönlü (çift dikiş) uygulaması standart olarak yapılacaktır.</p>
@@ -1890,7 +1890,7 @@ function generatePDF() {
   </tr>
 </table>
 
-<div style="text-align:right;font-size:7pt;color:#888;margin-top:30px;border-top:1px solid #ddd;padding-top:4px;">Sayfa 2 / 2</div>
+
 
 </body>
 </html>`;
@@ -1930,22 +1930,25 @@ function closePDFModal() {
 }
 
 function printPDF() {
-  openPDFPage();
+  openPrintWindow();
 }
 
 function downloadPDF() {
-  openPDFPage();
+  openPrintWindow();
 }
 
-function openPDFPage() {
-  if (!state.lastPdfHtml) {
-    showToast('⚠️ Önce teklifi görüntüleyin');
-    return;
+function openPrintWindow() {
+  if (!state.lastPdfHtml) { showToast('⚠️ Önce teklifi oluşturun'); return; }
+  const printWin = window.open('', '_blank', 'width=900,height=700');
+  if (printWin) {
+    printWin.document.write(state.lastPdfHtml);
+    printWin.document.close();
+    printWin.focus();
+    setTimeout(() => { printWin.print(); }, 600);
+    showToast('📄 Yazdır ekranında "Üstbilgi ve Altbilgiler" seçeneğini kapatın');
+  } else {
+    showToast('⚠️ Popup engellendi — tarayıcı izin verin');
   }
-  // Teklifi data URI olarak aç - Safari'de çalışır, kullanıcı paylaş > PDF kaydet yapabilir
-  const encoded = encodeURIComponent(state.lastPdfHtml);
-  const dataUri = 'data:text/html;charset=utf-8,' + encoded;
-  window.location.href = dataUri;
 }
 
 async function sharePDF() {
