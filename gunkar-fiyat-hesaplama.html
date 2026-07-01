@@ -1766,8 +1766,10 @@ function generatePDF() {
 
       return `
       <tr style="background-color:${i % 2 === 0 ? '#f5f7fb' : '#ffffff'};">
-        <td style="padding:6px 8px;border:1px solid #b0bcd0;font-size:8.5pt;vertical-align:top;">${item.urunIsmi}${item.adet ? '<br><span style="font-size:7.5pt;color:#555;">' + item.adet.toLocaleString('tr-TR') + ' adet</span>' : ''}</td>
-        <td style="padding:6px 8px;border:1px solid #b0bcd0;font-size:8.5pt;vertical-align:top;">Dalga Cinsi: ${wave}<br>Kalite Bilgisi: ${kaliteRest || 'Standart'}${item.levhaEn ? '<br>Levha: ' + item.levhaEn + ' × ' + item.levhaBoy + ' mm' : ''}</td>
+        <td style="padding:6px 8px;border:1px solid #b0bcd0;font-size:8.5pt;vertical-align:top;">${item.urunIsmi}</td>
+        <td style="padding:6px 8px;border:1px solid #b0bcd0;font-size:8.5pt;vertical-align:top;">${item.adet ? item.adet.toLocaleString('tr-TR') : '—'}</td>
+        <td style="padding:6px 8px;border:1px solid #b0bcd0;font-size:8.5pt;vertical-align:top;">${item.levhaEn && item.levhaBoy ? item.levhaEn + ' × ' + item.levhaBoy + ' mm' : '—'}</td>
+        <td style="padding:6px 8px;border:1px solid #b0bcd0;font-size:8.5pt;vertical-align:top;">Dalga Cinsi: ${wave}<br>Kalite Bilgisi: ${kaliteRest || 'Standart'}</td>
         <td style="padding:6px 8px;border:1px solid #b0bcd0;font-size:8.5pt;vertical-align:top;">${item.nakliyeVar !== false ? 'Nakliye Dahil' : 'Nakliye Hariç'}</td>
         <td style="padding:6px 8px;border:1px solid #b0bcd0;font-weight:bold;font-size:8.5pt;vertical-align:top;text-align:right;background-color:#fef9e7;color:#1a1a1a;">${item.unitPrice.toLocaleString('tr-TR',{minimumFractionDigits:2})} TL + KDV</td>
       </tr>`;
@@ -1828,8 +1830,10 @@ function generatePDF() {
 <table style="width:100%;font-size:8.5pt;margin-bottom:12px;border:1px solid #1e3a6e;">
   <thead>
     <tr style="background-color:#1e3a6e;color:#ffffff;">
-      <th style="padding:5px 8px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;width:25%;">Urun Adi</th>
-      <th style="padding:5px 8px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;width:40%;">Teknik Ozellikler</th>
+      <th style="padding:5px 8px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;width:18%;">Urun Adi</th>
+      <th style="padding:5px 8px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;width:8%;">Adet</th>
+      <th style="padding:5px 8px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;width:14%;">Levha Olcusu</th>
+      <th style="padding:5px 8px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;width:25%;">Teknik Ozellikler</th>
       <th style="padding:5px 8px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;width:15%;">Teslimat Durumu</th>
       <th style="padding:5px 8px;text-align:right;border:1px solid #1e3a6e;font-weight:bold;width:20%;">Birim Fiyat</th>
     </tr>
