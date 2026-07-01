@@ -1768,9 +1768,10 @@ function generatePDF() {
       <tr style="background-color:${i % 2 === 0 ? '#f5f7fb' : '#ffffff'};">
         <td style="padding:5px 6px;border:1px solid #b0bcd0;font-size:7.5pt;vertical-align:top;font-weight:bold;">${item.urunIsmi}</td>
         <td style="padding:5px 6px;border:1px solid #b0bcd0;font-size:7.5pt;vertical-align:top;">${item.adet ? item.adet.toLocaleString('tr-TR') : '—'}</td>
+        <td style="padding:5px 6px;border:1px solid #b0bcd0;font-size:7.5pt;vertical-align:top;">${wave}</td>
         <td style="padding:5px 6px;border:1px solid #b0bcd0;font-size:7.5pt;vertical-align:top;white-space:nowrap;">${item.kutuOlcusu ? item.kutuOlcusu + ' mm' : '—'}</td>
         <td style="padding:5px 6px;border:1px solid #b0bcd0;font-size:7.5pt;vertical-align:top;white-space:nowrap;">${item.levhaEn && item.levhaBoy ? item.levhaEn + ' × ' + item.levhaBoy + ' mm' : '—'}</td>
-        <td style="padding:5px 6px;border:1px solid #b0bcd0;font-size:7.5pt;vertical-align:top;">${wave}${kaliteRest ? '<br>' + kaliteRest : ''}</td>
+        <td style="padding:5px 6px;border:1px solid #b0bcd0;font-size:7.5pt;vertical-align:top;">${kaliteRest || '—'}</td>
         <td style="padding:5px 6px;border:1px solid #b0bcd0;font-size:7.5pt;vertical-align:top;">${item.nakliyeVar !== false ? 'Nakliye Dahil' : 'Nakliye Hariç'}</td>
         <td style="padding:5px 6px;border:1px solid #b0bcd0;font-weight:bold;font-size:7.5pt;vertical-align:top;text-align:right;background-color:#ffc200;color:#1a1a1a;">${item.unitPrice.toLocaleString('tr-TR',{minimumFractionDigits:2})} TL + KDV</td>
       </tr>`;
@@ -1833,6 +1834,7 @@ function generatePDF() {
     <tr style="background-color:#1e3a6e;color:#ffffff;">
       <th style="padding:5px 6px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;">ÜRÜN ADI</th>
       <th style="padding:5px 6px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;">ADET</th>
+      <th style="padding:5px 6px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;">DALGA</th>
       <th style="padding:5px 6px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;">KUTU ÖLÇÜSÜ</th>
       <th style="padding:5px 6px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;">LEVHA ÖLÇÜSÜ</th>
       <th style="padding:5px 6px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;">DALGA CİNSİ / KALİTE YAPISI</th>
@@ -1892,16 +1894,26 @@ function generatePDF() {
   state.lastTeklifNo = teklifNo;
   state.lastCustomer = customer;
 
-  const printDiv = document.getElementById('pdfPrintContent');
-  const bodyContent = html
-    .replace(/<!DOCTYPE[^>]*>/i,'')
-    .replace(/<\/?html[^>]*>/gi,'')
-    .replace(/<head>[\s\S]*?<\/head>/i,'')
-    .replace(/<\/?body[^>]*>/gi,'');
-  printDiv.innerHTML = bodyContent;
-  printDiv.style.display = 'block';
-  window.print();
-  printDiv.style.display = 'none';
+  // Yeni pencerede aç ve yazdır — charset ve stiller korunur
+  const printWin = window.open('', '_blank', 'width=800,height=600');
+  if (printWin) {
+    printWin.document.write(html);
+    printWin.document.close();
+    printWin.focus();
+    setTimeout(() => { printWin.print(); }, 800);
+  } else {
+    // Popup engellenirse iframe yöntemi
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:0;height:0;border:none;';
+    document.body.appendChild(iframe);
+    iframe.contentDocument.write(html);
+    iframe.contentDocument.close();
+    setTimeout(() => {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+      setTimeout(() => document.body.removeChild(iframe), 2000);
+    }, 800);
+  }
 
   } catch (err) {
     showToast('⚠️ Hata: ' + err.message);
