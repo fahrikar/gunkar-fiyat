@@ -1766,12 +1766,13 @@ function generatePDF() {
 
       return `
       <tr style="background-color:${i % 2 === 0 ? '#f5f7fb' : '#ffffff'};">
-        <td style="padding:6px 8px;border:1px solid #b0bcd0;font-size:8.5pt;vertical-align:top;">${item.urunIsmi}</td>
-        <td style="padding:6px 8px;border:1px solid #b0bcd0;font-size:8.5pt;vertical-align:top;">${item.adet ? item.adet.toLocaleString('tr-TR') : '—'}</td>
-        <td style="padding:6px 8px;border:1px solid #b0bcd0;font-size:8.5pt;vertical-align:top;">${item.levhaEn && item.levhaBoy ? item.levhaEn + ' × ' + item.levhaBoy + ' mm' : '—'}</td>
-        <td style="padding:6px 8px;border:1px solid #b0bcd0;font-size:8.5pt;vertical-align:top;">Dalga Cinsi: ${wave}<br>Kalite Bilgisi: ${kaliteRest || 'Standart'}</td>
-        <td style="padding:6px 8px;border:1px solid #b0bcd0;font-size:8.5pt;vertical-align:top;">${item.nakliyeVar !== false ? 'Nakliye Dahil' : 'Nakliye Hariç'}</td>
-        <td style="padding:6px 8px;border:1px solid #b0bcd0;font-weight:bold;font-size:8.5pt;vertical-align:top;text-align:right;background-color:#fef9e7;color:#1a1a1a;">${item.unitPrice.toLocaleString('tr-TR',{minimumFractionDigits:2})} TL + KDV</td>
+        <td style="padding:5px 6px;border:1px solid #b0bcd0;font-size:7.5pt;vertical-align:top;font-weight:bold;">${item.urunIsmi}</td>
+        <td style="padding:5px 6px;border:1px solid #b0bcd0;font-size:7.5pt;vertical-align:top;">${item.adet ? item.adet.toLocaleString('tr-TR') : '—'}</td>
+        <td style="padding:5px 6px;border:1px solid #b0bcd0;font-size:7.5pt;vertical-align:top;white-space:nowrap;">${item.kutuOlcusu ? item.kutuOlcusu + ' mm' : '—'}</td>
+        <td style="padding:5px 6px;border:1px solid #b0bcd0;font-size:7.5pt;vertical-align:top;white-space:nowrap;">${item.levhaEn && item.levhaBoy ? item.levhaEn + ' × ' + item.levhaBoy + ' mm' : '—'}</td>
+        <td style="padding:5px 6px;border:1px solid #b0bcd0;font-size:7.5pt;vertical-align:top;">${wave}${kaliteRest ? '<br>' + kaliteRest : ''}</td>
+        <td style="padding:5px 6px;border:1px solid #b0bcd0;font-size:7.5pt;vertical-align:top;">${item.nakliyeVar !== false ? 'Nakliye Dahil' : 'Nakliye Hariç'}</td>
+        <td style="padding:5px 6px;border:1px solid #b0bcd0;font-weight:bold;font-size:7.5pt;vertical-align:top;text-align:right;background-color:#ffc200;color:#1a1a1a;">${item.unitPrice.toLocaleString('tr-TR',{minimumFractionDigits:2})} TL + KDV</td>
       </tr>`;
     }).join('');
 
@@ -1787,99 +1788,102 @@ function generatePDF() {
   @media print { * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; } }
   table { border-collapse:collapse; width:100%; }
   .pb { page-break-after:always; }
-  p { margin:0; }
+  p { margin:0 0 5px 0; }
 </style>
 </head>
 <body>
 
 <!-- HEADER -->
-<div style="margin-bottom:10px;">
-  <div style="font-size:20pt;font-weight:900;color:#1e3a6e;line-height:1.1;margin-bottom:1px;">GUNKAR AMBALAJ</div>
-  <div style="font-size:9pt;font-style:italic;color:#555;margin-bottom:5px;">"Kutunun Her Hali"</div>
-  <div style="font-size:7.5pt;font-weight:bold;color:#1a1a1a;margin-bottom:1px;">GUNKAR AMBALAJ SAN. ve TIC. LTD. STI.</div>
+<div style="margin-bottom:8px;">
+  <div style="font-size:20pt;font-weight:900;color:#1e3a6e;line-height:1.1;margin-bottom:2px;">GÜNKAR AMBALAJ</div>
+  <div style="font-size:8.5pt;font-style:italic;color:#555;letter-spacing:3px;margin-bottom:4px;">" K U T U N U N &nbsp; H E R &nbsp; H A L I "</div>
+  <div style="font-size:7.5pt;font-weight:bold;color:#1a1a1a;margin-bottom:1px;">GÜNKAR AMBALAJ SAN. ve TİC. LTD. ŞTİ.</div>
   <div style="font-size:7.5pt;color:#333;line-height:1.6;">
-    Acidere Mah. 6679 Sk. 2 Blok No: 3 Saricam/ ADANA<br>
-    Tic. Sic. No: 102995 &nbsp;|&nbsp; Yureğir V.D.: 4380868058 &nbsp;|&nbsp; Mersis No: 0438086805800001<br>
+    Acidere Mah. 6679 Sk. 2 Blok No: 3 Sarıçam / ADANA<br>
+    Tic. Sic. No: 102995 &nbsp;|&nbsp; Yüreğir V.D.: 4380868058 &nbsp;|&nbsp; Mersis No: 0438086805800001<br>
     Tel: +90 507 221 82 37 &nbsp;|&nbsp; E-posta: info@gunkarambalaj.com
   </div>
 </div>
 
-<!-- MÜŞTERİ + TEKLİF NO SATIRI -->
-<table style="width:100%;margin-bottom:8px;">
-  <tr>
-    <td style="width:50%;vertical-align:top;padding-right:10px;">
-      <div style="font-size:8pt;font-weight:bold;color:#1e3a6e;margin-bottom:2px;">MUSTERI/ALICI</div>
-      <div style="font-size:9pt;font-weight:bold;color:#1a1a1a;">${customer}</div>
-    </td>
-    <td style="width:50%;vertical-align:top;text-align:right;">
-      <div style="font-size:8pt;font-weight:bold;color:#1e3a6e;margin-bottom:2px;">RESMI FIYAT TEKLIFI</div>
-      <div style="font-size:8pt;font-weight:bold;color:#1a1a1a;">TARIH/TEKLIF NO:</div>
-      <div style="font-size:8pt;color:#1a1a1a;">${today} / ${teklifNo}</div>
-    </td>
-  </tr>
-</table>
+<!-- TARİH / TEKLİF NO -->
+<div style="text-align:right;font-size:8pt;color:#1a1a1a;margin-bottom:6px;line-height:1.7;">
+  Tarih: ${today}<br>
+  Teklif No: ${teklifNo}
+</div>
 
 <div style="border-top:1.5px solid #1e3a6e;margin-bottom:8px;"></div>
 
+<!-- RESMİ FİYAT TEKLİFİ -->
+<div style="text-align:center;font-size:11pt;font-weight:bold;color:#1e3a6e;letter-spacing:1px;margin-bottom:8px;">RESMİ FİYAT TEKLİFİ</div>
+
+<!-- MÜŞTERİ -->
+<div style="margin-bottom:8px;">
+  <div style="font-size:8pt;font-weight:bold;color:#1a1a1a;margin-bottom:2px;">MÜŞTERİ</div>
+  <div style="font-size:9pt;font-weight:bold;color:#1e3a6e;">${customer}</div>
+</div>
+
 <!-- GİRİŞ -->
-<p style="font-size:8.5pt;color:#1a1a1a;line-height:1.55;margin-bottom:10px;"><strong>Sayin Yetkili,</strong><br>Oluklu mukavva koli ve kutu ihtiyaciniza yonelik hazirladigimiz teknik ozellikler, birim fiyat, nakliye durumu ve ticari sartlari iceren resmi fiyat teklifimiz asagida bilgilerinize sunulmustur:</p>
+<p style="font-size:8.5pt;color:#1a1a1a;line-height:1.55;margin-bottom:10px;"><strong>Sayın Yetkili,</strong><br>Oluklu mukavva koli ve kutu ihtiyacınıza yönelik hazırladığımız teknik özellikler, birim fiyat, nakliye durumu ve ticari şartları içeren resmi fiyat teklifimiz aşağıda bilgilerinize sunulmuştur:</p>
 
-<!-- BÖLÜM 1 -->
-<div style="font-size:8.5pt;font-weight:bold;color:#1e3a6e;margin-bottom:5px;">1. URUN VE FIYATLANDIRMA BILGILERI</div>
+<!-- ÜRÜN TABLOSU -->
+<div style="font-size:8.5pt;font-weight:bold;color:#1a1a1a;margin-bottom:4px;">ÜRÜN VE FİYATLANDIRMA BİLGİLERİ</div>
 
-<table style="width:100%;font-size:8.5pt;margin-bottom:12px;border:1px solid #1e3a6e;">
+<table style="width:100%;font-size:7.5pt;margin-bottom:12px;border:1px solid #1e3a6e;">
   <thead>
     <tr style="background-color:#1e3a6e;color:#ffffff;">
-      <th style="padding:5px 8px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;width:18%;">Urun Adi</th>
-      <th style="padding:5px 8px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;width:8%;">Adet</th>
-      <th style="padding:5px 8px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;width:14%;">Levha Olcusu</th>
-      <th style="padding:5px 8px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;width:25%;">Teknik Ozellikler</th>
-      <th style="padding:5px 8px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;width:15%;">Teslimat Durumu</th>
-      <th style="padding:5px 8px;text-align:right;border:1px solid #1e3a6e;font-weight:bold;width:20%;">Birim Fiyat</th>
+      <th style="padding:5px 6px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;">ÜRÜN ADI</th>
+      <th style="padding:5px 6px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;">ADET</th>
+      <th style="padding:5px 6px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;">KUTU ÖLÇÜSÜ</th>
+      <th style="padding:5px 6px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;">LEVHA ÖLÇÜSÜ</th>
+      <th style="padding:5px 6px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;">DALGA CİNSİ / KALİTE YAPISI</th>
+      <th style="padding:5px 6px;text-align:left;border:1px solid #1e3a6e;font-weight:bold;">TESLİMAT</th>
+      <th style="padding:5px 6px;text-align:right;border:1px solid #1e3a6e;font-weight:bold;">GÜNCEL FİYAT</th>
     </tr>
   </thead>
   <tbody>
     ${productRows}
+    ${hasAdet && grandTotal > 0 ? `<tr style="background-color:#e8ecf4;"><td colspan="6" style="padding:5px 6px;border:1px solid #b0bcd0;text-align:right;font-weight:bold;font-size:7.5pt;">GENEL TOPLAM</td><td style="padding:5px 6px;border:1px solid #b0bcd0;font-weight:bold;font-size:7.5pt;text-align:right;background-color:#ffc200;color:#1a1a1a;">${grandTotal.toLocaleString('tr-TR',{minimumFractionDigits:2})} TL + KDV</td></tr>` : ''}
   </tbody>
 </table>
 
-<!-- BÖLÜM 2 -->
-<div style="font-size:8.5pt;font-weight:bold;color:#1e3a6e;margin-bottom:5px;">2. TICARI VE MALI SARTLAR</div>
-
-<p style="font-size:8.5pt;color:#1a1a1a;line-height:1.6;margin-bottom:4px;"><strong>Teslimat Kosulu:</strong> Fiyatlarimiza nakliye maliyeti dahildir. Urunler belirtilen adrese firmamiz tarafindan sevk edilecektir.</p>
-<p style="font-size:8.5pt;color:#1a1a1a;line-height:1.6;margin-bottom:4px;"><strong>Odeme Kosulu:</strong> Odeme plani ve vadelendirme sartlari, taraflarin karsilikli mutabakati esasina gore netlestirilecektir.</p>
-<p style="font-size:8.5pt;color:#1a1a1a;line-height:1.6;margin-bottom:4px;"><strong>Tolerans Sinirlari:</strong> Uretim prosesinin dogal yapisi geregi, uretilen mamullerin gramaj, boyut ve hammadde ozelliklerinde kucuk endustriyel sapmalar (&#xB1; %5) gorulebilir.</p>
-<p style="font-size:8.5pt;color:#1a1a1a;line-height:1.6;margin-bottom:4px;"><strong>Numune Tedarigi:</strong> Seri uretim oncesinde firmamizdan fiziksel numune talep edilerek incelenmesi, olasi hatali imalatlarin onune gecilmesi adina onemle tavsiye edilmektedir.</p>
-<p style="font-size:8.5pt;color:#1a1a1a;line-height:1.6;margin-bottom:10px;"><strong>Teklif Gecerlilik Suresi:</strong> Hammadde ve piyasa hareketlilikleri sebebiyle, isbu fiyat teklifi verildigi tarihten itibaren 15 (on bes) takvim gunu gecerlidir.</p>
-
-<p style="font-size:8.5pt;color:#1a1a1a;line-height:1.6;margin-bottom:20px;">Sektordeki standartlarimiz, zamaninda teslimat guvencemiz ve uretim altyapimizla hizmet vermekten memnuniyet duyacagimizi belirtir, teklifimizin olumlu degerlendirilmesini dileriz. Teklife istinaden verilecek tum yazili yanitlarin resmi kayit takibi amaciyla <strong>info@gunkarambalaj.com</strong> adresi uzerinden iletilmesini rica ederiz.</p>
-
-<div style="text-align:right;font-size:7.5pt;color:#888;border-top:1px solid #ddd;padding-top:5px;">Sayfa 1/2</div>
+<div style="text-align:right;font-size:7pt;color:#888;border-top:1px solid #ddd;padding-top:5px;margin-bottom:0;">Sayfa 1 / 2</div>
 
 <!-- SAYFA 2 -->
 <div class="pb"></div>
 
-<table style="width:100%;margin-top:20px;">
+<div style="font-size:8.5pt;font-weight:bold;color:#1a1a1a;margin-bottom:6px;">TİCARİ VE MALİ ŞARTLAR</div>
+
+<p style="font-size:8.5pt;color:#1a1a1a;line-height:1.6;margin-bottom:4px;">• <strong>Özel Üretim Notu:</strong> Üretim sürecinde dikiş kullanılacak olan tüm ürünlerde, yüksek mukavemet ve kalite standartlarımız gereği simetrik yönlü (çift dikiş) uygulaması standart olarak yapılacaktır.</p>
+<p style="font-size:8.5pt;color:#1a1a1a;line-height:1.6;margin-bottom:4px;">• <strong>Fiyat Tanımı:</strong> Belirtilen koli birim fiyatlarına KDV dahil olmayıp, faturalandırma tarihinde yürürlükte olan yasal oran eklenecektir. Fiyatlara nakliye maliyeti dahildir.</p>
+<p style="font-size:8.5pt;color:#1a1a1a;line-height:1.6;margin-bottom:4px;">• <strong>Ödeme Koşulu:</strong> Ödeme planı ve vadelendirme şartları, tarafların karşılıklı mutabakatı esasına göre netleştirilecektir.</p>
+<p style="font-size:8.5pt;color:#1a1a1a;line-height:1.6;margin-bottom:4px;">• <strong>Tolerans Sınırları:</strong> Üretim prosesinin doğal yapısı gereği, üretilen mamullerin gramaj, boyut ve hammadde özelliklerinde küçük endüstriyel sapmalar (± %5) görülebilir.</p>
+<p style="font-size:8.5pt;color:#1a1a1a;line-height:1.6;margin-bottom:4px;">• <strong>Numune Tedariği:</strong> Seri üretim öncesinde firmamızdan fiziksel numune talep edilerek incelenmesi, olası hatalı imalatların önüne geçilmesi adına önemle tavsiye edilmektedir.</p>
+<p style="font-size:8.5pt;color:#1a1a1a;line-height:1.6;margin-bottom:12px;">• <strong>Teklif Geçerlilik Süresi:</strong> Hammadde ve piyasa hareketlilikleri sebebiyle, işbu fiyat teklifi verildiği tarihten itibaren 15 (on beş) takvim günü geçerlidir.</p>
+
+<p style="font-size:8.5pt;color:#1a1a1a;line-height:1.6;margin-bottom:4px;">Sektördeki standartlarımız, zamanında teslimat güvencemiz ve üretim altyapımızla hizmet vermekten memnuniyet duyacağımızı belirtir, teklifimizin olumlu değerlendirilmesini dileriz.</p>
+<p style="font-size:8.5pt;color:#1a1a1a;line-height:1.6;margin-bottom:28px;">Teklife istinaden verilecek tüm yazılı yanıtların resmi kayıt takibi amacıyla <strong>info@gunkarambalaj.com</strong> adresi üzerinden iletilmesini rica ederiz.</p>
+
+<!-- İMZA -->
+<table style="width:100%;">
   <tr>
-    <td style="width:48%;vertical-align:top;padding-right:12px;">
-      <div style="font-size:9pt;font-weight:bold;color:#1a1a1a;margin-bottom:4px;">Musteri Onayi</div>
-      <div style="font-size:8.5pt;color:#1a1a1a;margin-bottom:24px;">${customer}</div>
+    <td style="width:48%;vertical-align:top;padding-right:16px;">
+      <div style="font-size:8.5pt;font-weight:bold;color:#1a1a1a;margin-bottom:3px;">MÜŞTERİ ONAYI</div>
+      <div style="font-size:8.5pt;color:#1a1a1a;margin-bottom:22px;">${customer}</div>
       <div style="border-bottom:1px solid #555;margin-bottom:4px;"></div>
-      <div style="font-size:8.5pt;color:#1a1a1a;">Yetkili Imza / Kase</div>
-      <div style="font-size:8.5pt;color:#1a1a1a;margin-top:3px;">Tarih: ..../...../ 2026</div>
+      <div style="font-size:8pt;color:#1a1a1a;">Yetkili İmza / Kaşe</div>
+      <div style="font-size:8pt;color:#1a1a1a;margin-top:2px;">Tarih: .... / .... / 2026</div>
     </td>
-    <td style="width:4%;"></td>
     <td style="width:48%;vertical-align:top;">
-      <div style="font-size:9pt;font-weight:bold;color:#1a1a1a;margin-bottom:4px;">Satis ve Pazarlama Departmani</div>
-      <div style="font-size:8.5pt;color:#1a1a1a;margin-bottom:24px;">Gunkar Ambalaj San. ve Tic. Ltd. St.</div>
+      <div style="font-size:8.5pt;font-weight:bold;color:#1a1a1a;margin-bottom:3px;">SATIŞ VE PAZARLAMA DEPARTMANI</div>
+      <div style="font-size:8.5pt;color:#1a1a1a;margin-bottom:22px;">Günkar Ambalaj San. ve Tic. Ltd. Şti.</div>
       <div style="border-bottom:1px solid #555;margin-bottom:4px;"></div>
-      <div style="font-size:8.5pt;color:#1a1a1a;">Yetkili Imza / Kase</div>
-      <div style="font-size:8.5pt;color:#1a1a1a;margin-top:3px;">Tarih: ${today}</div>
+      <div style="font-size:8pt;color:#1a1a1a;">Yetkili İmza / Kaşe</div>
+      <div style="font-size:8pt;color:#1a1a1a;margin-top:2px;">Tarih: ${today}</div>
     </td>
   </tr>
 </table>
 
-<div style="text-align:right;font-size:7.5pt;color:#888;margin-top:40px;border-top:1px solid #ddd;padding-top:5px;">Sayfa 2/2</div>
+<div style="text-align:right;font-size:7pt;color:#888;margin-top:30px;border-top:1px solid #ddd;padding-top:5px;">Sayfa 2 / 2</div>
 
 </body>
 </html>`;
