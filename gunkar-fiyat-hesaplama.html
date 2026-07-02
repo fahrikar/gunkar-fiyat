@@ -1495,11 +1495,16 @@ function calcShipping() {
   const nakliyeInput = document.getElementById('nakliyeInput');
   const nakliye = parseFloat(nakliyeInput.value) || 0;
   state.nakliye = nakliye;
+  
+  // İskonto uygulanmış levha maliyeti kullan (ham liste değil)
   const rawListPrice = state.area * state.qualityPrice;
-  const total = rawListPrice + nakliye;
+  const iskontoOrani = getIskontoOrani();
+  const netLevha = rawListPrice * (1 - iskontoOrani);
+  const total = netLevha + nakliye;
+  
   document.getElementById('shippingResult').textContent = total.toFixed(2) + ' TL';
   document.getElementById('shippingDetail').textContent =
-    `${rawListPrice.toFixed(2)} TL (levha) + ${nakliye.toFixed(2)} TL (nakliye)`;
+    `${netLevha.toFixed(2)} TL (levha) + ${nakliye.toFixed(2)} TL (nakliye)`;
 }
 
 // ─── SCREEN 6 (TEKLİF) ───────────────────────────────────────────────────────
@@ -1772,7 +1777,7 @@ function generatePDF() {
         <td style="padding:5px 7px;border:1px solid #c8d0df;font-size:8pt;vertical-align:middle;white-space:nowrap;">${item.area ? item.area.toFixed(3) + ' m²' : '—'}</td>
         <td style="padding:5px 7px;border:1px solid #c8d0df;font-size:8pt;vertical-align:middle;">${wave} Dalga${kaliteRest ? '<br><span style="font-size:7.5pt;color:#444;">' + kaliteRest + '</span>' : ''}</td>
         <td style="padding:5px 7px;border:1px solid #c8d0df;font-size:8pt;vertical-align:middle;white-space:nowrap;">${item.nakliyeVar !== false ? 'Nakliye Dahil' : 'Nakliye Hariç'}</td>
-        <td style="padding:5px 7px;border:1px solid #c8d0df;font-size:8pt;vertical-align:middle;text-align:right;font-weight:bold;color:#1e3a6e;background-color:#ffc200;white-space:nowrap;">${item.unitPrice.toLocaleString('tr-TR',{minimumFractionDigits:2})} TL + KDV</td>
+        <td style="padding:5px 6px;border:1px solid #c8d0df;font-size:8pt;vertical-align:middle;text-align:right;font-weight:bold;white-space:nowrap;"><span style="color:#e6a800;">${item.unitPrice.toLocaleString('tr-TR',{minimumFractionDigits:2})} TL</span> + KDV</td>
       </tr>`;
     }).join('');
 
@@ -1798,6 +1803,7 @@ function generatePDF() {
   @media print {
     * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
     body { padding:20px 28px; }
+    @page { margin-top:0; margin-bottom:0; }
   }
   table { border-collapse:collapse; width:100%; }
   .pb { page-break-after:always; }
@@ -1854,7 +1860,7 @@ function generatePDF() {
   </thead>
   <tbody>
     ${productRows}
-    ${hasAdet && grandTotal > 0 ? `<tr style="background:#e8ecf4;"><td colspan="6" style="padding:5px 6px;border:1px solid #c8d0df;text-align:right;font-weight:bold;">GENEL TOPLAM</td><td style="padding:5px 6px;border:1px solid #c8d0df;font-weight:bold;text-align:right;background:#ffc200;">${grandTotal.toLocaleString('tr-TR',{minimumFractionDigits:2})} TL + KDV</td></tr>` : ''}
+    ${hasAdet && grandTotal > 0 ? `<tr style="background:#e8ecf4;"><td colspan="6" style="padding:5px 6px;border:1px solid #c8d0df;text-align:right;font-weight:bold;">GENEL TOPLAM</td><td style="padding:5px 6px;border:1px solid #c8d0df;font-weight:bold;text-align:right;"><span style="color:#e6a800;">${grandTotal.toLocaleString('tr-TR',{minimumFractionDigits:2})} TL</span> + KDV</td></tr>` : ''}
   </tbody>
 </table>
 
