@@ -1777,7 +1777,7 @@ function generatePDF() {
         <td style="padding:5px 7px;border:1px solid #c8d0df;font-size:8pt;vertical-align:middle;white-space:nowrap;">${item.area ? item.area.toFixed(3) + ' m²' : '—'}</td>
         <td style="padding:5px 7px;border:1px solid #c8d0df;font-size:8pt;vertical-align:middle;">${wave} Dalga${kaliteRest ? '<br><span style="font-size:7.5pt;color:#444;">' + kaliteRest + '</span>' : ''}</td>
         <td style="padding:5px 7px;border:1px solid #c8d0df;font-size:8pt;vertical-align:middle;white-space:nowrap;font-weight:bold;color:#000000;">${item.nakliyeVar !== false ? 'Nakliye Dahil' : 'Nakliye Hariç'}</td>
-        <td style="padding:5px 6px;border:1px solid #c8d0df;font-size:8pt;vertical-align:middle;text-align:right;font-weight:bold;white-space:nowrap;"><span style="color:#ffe600;">${item.unitPrice.toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2})} TL + KDV</span></td>
+        <td style="padding:5px 6px;border:1px solid #c8d0df;font-size:8pt;vertical-align:middle;text-align:right;font-weight:bold;white-space:nowrap;"><span style="background-color:#ffe600;color:#1a1a1a;padding:2px 4px;">${item.unitPrice.toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2})} TL + KDV</span></td>
       </tr>`;
     }).join('');
 
@@ -1860,7 +1860,7 @@ function generatePDF() {
   </thead>
   <tbody>
     ${productRows}
-    ${hasAdet && grandTotal > 0 ? `<tr style="background:#e8ecf4;"><td colspan="6" style="padding:5px 6px;border:1px solid #c8d0df;text-align:right;font-weight:bold;">GENEL TOPLAM</td><td style="padding:5px 6px;border:1px solid #c8d0df;font-weight:bold;text-align:right;"><span style="color:#ffe600;">${grandTotal.toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2})} TL + KDV</span></td></tr>` : ''}
+    ${hasAdet && grandTotal > 0 ? `<tr style="background:#e8ecf4;"><td colspan="6" style="padding:5px 6px;border:1px solid #c8d0df;text-align:right;font-weight:bold;">GENEL TOPLAM</td><td style="padding:5px 6px;border:1px solid #c8d0df;font-weight:bold;text-align:right;"><span style="background-color:#ffe600;color:#1a1a1a;padding:2px 4px;">${grandTotal.toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2})} TL + KDV</span></td></tr>` : ''}
   </tbody>
 </table>
 
