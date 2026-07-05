@@ -796,6 +796,7 @@
       <div class="rc-sub" id="areaCalcDetail">En × Boy ÷ 1.000.000</div>
     </div>
     <button class="btn-primary" id="nextBtn1" onclick="goTo('screen2')" disabled>Devam Et →</button>
+    <button class="btn-primary" onclick="skipOlcu()" style="background:var(--gray-200);color:var(--gray-700);margin-top:10px;">Ölçü Girmeden Atla →</button>
   </div>
 
   <!-- SCREEN 2: FİRMA SEÇ -->
@@ -870,7 +871,7 @@
     <div id="nakliyeInputWrap" style="display:none;">
       <div class="input-group">
         <label>Nakliye Bedeli (TL)</label>
-        <input type="number" id="nakliyeInput" placeholder="Örn: 1500" inputmode="numeric" value="0" oninput="calcShipping()">
+        <input type="number" id="nakliyeInput" placeholder="Örn: 1500" inputmode="decimal" step="0.01" value="0" oninput="calcShipping()">
         <div class="unit">Toplam sipariş için nakliye maliyeti (TL)</div>
       </div>
       <div class="result-card" id="shippingCard">
@@ -1307,6 +1308,14 @@ function calcArea() {
   }
 }
 
+function skipOlcu() {
+  // Ölçü girmeden geç - alan bilgisi olmayacak
+  state.en = null;
+  state.boy = null;
+  state.area = null;
+  goTo('screen2');
+}
+
 // ─── SCREEN 2 ────────────────────────────────────────────────────────────────
 function renderFirms() {
   const grid = document.getElementById('firmGrid');
@@ -1410,10 +1419,11 @@ function selectIskonto(tip) {
 
 function showIskontoResult() {
   const firm = firms.find(f => f.id === state.firmId);
-  if (!firm || !state.qualityPrice || !state.area) return;
+  if (!firm || !state.qualityPrice) return;
   const po = firm.paymentOptions;
   const oran = state.odemeSekli === 'cek' ? po.cek : po.pesin;
-  const listPrice = state.area * state.qualityPrice;
+  const area = state.area || 1;
+  const listPrice = area * state.qualityPrice;
   const netPrice = listPrice * (1 - oran);
   const card = document.getElementById('iskontoResultCard');
   card.style.display = 'block';
@@ -1424,7 +1434,7 @@ function showIskontoResult() {
 
 // ─── SCREEN 5 ────────────────────────────────────────────────────────────────
 function fillPriceScreen() {
-  document.getElementById('s4Area').textContent = state.area.toFixed(4) + ' m²';
+  document.getElementById('s4Area').textContent = state.area ? state.area.toFixed(4) + ' m²' : 'Ölçü girilmedi';
   document.getElementById('s4UnitPrice').textContent = state.qualityPrice.toFixed(2) + ' TL/m²';
   calcFinal();
 }
@@ -1461,7 +1471,9 @@ function calcFinal() {
   state.margin = margin;
 
   const iskontoOrani = getIskontoOrani();
-  const rawListPrice = state.area * state.qualityPrice;
+  // Alan yoksa m² başına fiyat kullan (1 m² varsayımı)
+  const area = state.area || 1;
+  const rawListPrice = area * state.qualityPrice;
   const raw = rawListPrice * (1 - iskontoOrani);
   const nakliye = state.nakliye || 0;
   const totalCost = raw + nakliye;
@@ -1504,7 +1516,8 @@ function calcShipping() {
   state.nakliye = nakliye;
   
   // İskonto uygulanmış levha maliyeti kullan (ham liste değil)
-  const rawListPrice = state.area * state.qualityPrice;
+  const area = state.area || 1;
+  const rawListPrice = area * state.qualityPrice;
   const iskontoOrani = getIskontoOrani();
   const netLevha = rawListPrice * (1 - iskontoOrani);
   const total = netLevha + nakliye;
