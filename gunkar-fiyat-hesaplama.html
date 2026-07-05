@@ -871,7 +871,7 @@
     <div id="nakliyeInputWrap" style="display:none;">
       <div class="input-group">
         <label>Nakliye Bedeli (TL)</label>
-        <input type="number" id="nakliyeInput" placeholder="Örn: 1500" inputmode="decimal" step="0.01" value="0" oninput="calcShipping()">
+        <input type="text" id="nakliyeInput" placeholder="Örn: 1500 veya 0,50" inputmode="decimal" value="0" oninput="calcShipping()">
         <div class="unit">Toplam sipariş için nakliye maliyeti (TL)</div>
       </div>
       <div class="result-card" id="shippingCard">
@@ -1512,7 +1512,8 @@ function setNakliyeVar(hasShipping) {
 
 function calcShipping() {
   const nakliyeInput = document.getElementById('nakliyeInput');
-  const nakliye = parseFloat(nakliyeInput.value) || 0;
+  // Virgülü noktaya çevir (Türkçe klavye desteği)
+  const nakliye = parseFloat((nakliyeInput.value || '').replace(',', '.')) || 0;
   state.nakliye = nakliye;
   
   // İskonto uygulanmış levha maliyeti kullan (ham liste değil)
