@@ -915,8 +915,12 @@
     </div>
     <div class="final-price-card">
       <div class="fpc-label">Müşteri Satış Fiyatı (Birim Koli)</div>
-      <div class="fpc-price" id="finalPrice">—</div>
-      <div class="fpc-sub">KDV hariç · Nakliye dahil</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin:4px 0;">
+        <input type="text" id="finalPriceInput" inputmode="decimal" oninput="onFinalPriceEdit()"
+          style="width:160px;background:transparent;border:none;border-bottom:2px solid rgba(255,255,255,0.4);color:#c8a84b;font-size:36px;font-weight:800;text-align:center;font-family:'Inter',sans-serif;outline:none;padding:2px 0;">
+        <span style="color:#c8a84b;font-size:24px;font-weight:700;">TL</span>
+      </div>
+      <div class="fpc-sub">KDV hariç · Nakliye dahil · <span style="opacity:0.8;">elle değiştirilebilir</span></div>
     </div>
     <button class="btn-primary btn-gold" onclick="goTo('screen6')">Devam Et →</button>
   </div>
@@ -1492,7 +1496,15 @@ function calcFinal() {
 
   const final = totalCost / (1 - margin / 100);
   state.finalPrice = final;
-  document.getElementById('finalPrice').textContent = final.toFixed(2) + ' TL';
+  document.getElementById('finalPriceInput').value = final.toFixed(2);
+}
+
+// Kullanıcı satış fiyatını elle değiştirdiğinde
+function onFinalPriceEdit() {
+  const val = parseFloat((document.getElementById('finalPriceInput').value || '').replace(',', '.'));
+  if (!isNaN(val) && val > 0) {
+    state.finalPrice = val;
+  }
 }
 
 // ─── SCREEN 4 (NAKLİYE) ──────────────────────────────────────────────────────
