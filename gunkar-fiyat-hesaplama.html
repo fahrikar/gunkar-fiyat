@@ -12,6 +12,10 @@
 <meta name="theme-color" content="#1a3a2a">
 <title>Günkar Fiyat Hesaplama</title>
 
+<!-- Firebase SDK (compat sürüm - tek dosyada çalışır) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
@@ -636,6 +640,7 @@
       <h1>Günkar Fiyat Hesaplama</h1>
     </div>
     <div class="subtitle">Günkar Ambalaj San. ve Tic. Ltd. Şti.</div>
+    <div id="bulutDurum" style="font-size:10px;letter-spacing:0.3px;margin-top:4px;color:#9ca3af;">☁️ Bağlanıyor...</div>
   </div>
 
   <!-- PROGRESS -->
@@ -1017,8 +1022,31 @@
     <div class="admin-firm-tab" id="adminTabs"></div>
     <div class="admin-quality-list" id="adminQualityList"></div>
     <button class="save-admin-btn" onclick="saveAdminPrices()">💾 Kaydet</button>
+    <button class="close-modal-btn" style="background:#e8f0fd;color:#1e3a6e;margin-top:8px;" onclick="openGecmis()">📋 Teklif Geçmişi ve Müşteriler</button>
     <button class="close-modal-btn" onclick="closeAdmin()">Kapat</button>
     <button class="close-modal-btn" style="background:#fde8e8;color:#b91c1c;margin-top:8px;" onclick="resetAllFirmData()">🔄 Tüm Fiyat Verilerini Sıfırla (Varsayılana Dön)</button>
+  </div>
+</div>
+
+<!-- TEKLİF GEÇMİŞİ / MÜŞTERİLER -->
+<div class="modal-overlay" id="gecmisModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Teklif Geçmişi</div>
+    <div class="modal-sub">Buluta kaydedilen tüm teklifler ve müşteriler.</div>
+
+    <div style="display:flex;gap:8px;margin-bottom:14px;">
+      <button id="gecmisTabTeklif" onclick="gecmisSekme('teklif')"
+        style="flex:1;padding:10px;border:none;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;background:#1a3a2a;color:#fff;font-family:'Inter',sans-serif;">Teklifler</button>
+      <button id="gecmisTabMusteri" onclick="gecmisSekme('musteri')"
+        style="flex:1;padding:10px;border:none;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;background:#e8e8e8;color:#555;font-family:'Inter',sans-serif;">Müşteriler</button>
+    </div>
+
+    <div id="gecmisIcerik" style="max-height:50vh;overflow-y:auto;">
+      <div style="text-align:center;color:#9a9a9a;padding:24px;font-size:14px;">Yükleniyor...</div>
+    </div>
+
+    <button class="close-modal-btn" onclick="closeGecmis()" style="margin-top:12px;">Kapat</button>
   </div>
 </div>
 
@@ -1084,6 +1112,157 @@ const DEFAULT_FIRMS = [
   }
 ];
 
+// ═══════════════════════════════════════════════════════════════════════════
+// FIREBASE / FIRESTORE SENKRONİZASYON
+// ═══════════════════════════════════════════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyDQeCLGHQUxO0uQx42ypa4pqXuWOaWsI2I",
+  authDomain: "gulgun-siparis.firebaseapp.com",
+  projectId: "gulgun-siparis",
+  storageBucket: "gulgun-siparis.firebasestorage.app",
+  messagingSenderId: "936393876926",
+  appId: "1:936393876926:web:3979b2869b7a7f717fc5ef"
+};
+
+let db = null;
+let bulutAktif = false;
+
+// Koleksiyon isimleri (Günkar'a özel önek - diğer projelerle karışmaz)
+const COL_AYAR    = 'gunkar_ayarlar';   // fiyat listesi tek doküman
+const COL_TEKLIF  = 'gunkar_teklifler'; // üretilen teklifler
+const COL_MUSTERI = 'gunkar_musteriler';// müşteri kayıtları
+
+function initFirebase() {
+  try {
+    if (typeof firebase === 'undefined') { bulutAktif = false; return; }
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
+    bulutAktif = true;
+  } catch (e) {
+    bulutAktif = false;
+  }
+}
+
+function setBulutDurum(durum, mesaj) {
+  const el = document.getElementById('bulutDurum');
+  if (!el) return;
+  const renkler = { ok: '#4ade80', bekle: '#fbbf24', hata: '#f87171', kapali: '#9ca3af' };
+  const ikonlar = { ok: '☁️', bekle: '⏳', hata: '⚠️', kapali: '📴' };
+  el.style.color = renkler[durum] || '#9ca3af';
+  el.textContent = (ikonlar[durum] || '') + ' ' + mesaj;
+}
+
+// ─── FİYAT LİSTESİ SENKRONU ────────────────────────────────────────────────
+async function fiyatlariBulutaKaydet() {
+  if (!bulutAktif || !db) return false;
+  try {
+    setBulutDurum('bekle', 'Kaydediliyor...');
+    await db.collection(COL_AYAR).doc('fiyatlar').set({
+      firms: firms,
+      guncelleyen: 'Günkar Fiyat Uygulaması',
+      guncellemeTarihi: new Date().toISOString()
+    });
+    setBulutDurum('ok', 'Buluta kaydedildi');
+    return true;
+  } catch (e) {
+    setBulutDurum('hata', 'Kaydedilemedi');
+    return false;
+  }
+}
+
+async function fiyatlariBuluttanYukle() {
+  if (!bulutAktif || !db) { setBulutDurum('kapali', 'Çevrimdışı'); return false; }
+  try {
+    setBulutDurum('bekle', 'Yükleniyor...');
+    const doc = await db.collection(COL_AYAR).doc('fiyatlar').get();
+    if (doc.exists && doc.data().firms) {
+      firms = doc.data().firms;
+      localStorage.setItem('gunkar_firms', JSON.stringify(firms));
+      const t = doc.data().guncellemeTarihi;
+      const tarihStr = t ? new Date(t).toLocaleDateString('tr-TR') : '';
+      setBulutDurum('ok', 'Buluttan yüklendi' + (tarihStr ? ' · ' + tarihStr : ''));
+      return true;
+    }
+    // Bulutta yoksa mevcut listeyi yükle
+    await fiyatlariBulutaKaydet();
+    return false;
+  } catch (e) {
+    setBulutDurum('hata', 'Bağlanamadı (yerel veriler kullanılıyor)');
+    return false;
+  }
+}
+
+// ─── TEKLİF KAYDI ──────────────────────────────────────────────────────────
+async function teklifiBulutaKaydet(teklifNo, musteri, urunler, toplam) {
+  if (!bulutAktif || !db) return false;
+  try {
+    await db.collection(COL_TEKLIF).doc(teklifNo).set({
+      teklifNo: teklifNo,
+      musteri: musteri,
+      urunler: urunler,
+      genelToplam: toplam || 0,
+      tarih: new Date().toISOString(),
+      tarihGoruntu: new Date().toLocaleDateString('tr-TR')
+    });
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+async function teklifleriGetir(limit) {
+  if (!bulutAktif || !db) return [];
+  try {
+    const snap = await db.collection(COL_TEKLIF)
+      .orderBy('tarih', 'desc')
+      .limit(limit || 50)
+      .get();
+    return snap.docs.map(d => d.data());
+  } catch (e) {
+    return [];
+  }
+}
+
+// ─── MÜŞTERİ KAYDI ─────────────────────────────────────────────────────────
+async function musteriKaydet(isim) {
+  if (!bulutAktif || !db || !isim) return false;
+  const temizIsim = isim.trim();
+  if (!temizIsim || temizIsim === '...') return false;
+  // Doküman ID'si için güvenli anahtar üret
+  const anahtar = temizIsim.toLowerCase().replace(/[^a-z0-9ğüşiöç]/gi, '_').slice(0, 80);
+  try {
+    const ref = db.collection(COL_MUSTERI).doc(anahtar);
+    const mevcut = await ref.get();
+    if (mevcut.exists) {
+      await ref.update({
+        sonTeklifTarihi: new Date().toISOString(),
+        teklifSayisi: (mevcut.data().teklifSayisi || 0) + 1
+      });
+    } else {
+      await ref.set({
+        isim: temizIsim,
+        ilkKayit: new Date().toISOString(),
+        sonTeklifTarihi: new Date().toISOString(),
+        teklifSayisi: 1
+      });
+    }
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+async function musterileriGetir() {
+  if (!bulutAktif || !db) return [];
+  try {
+    const snap = await db.collection(COL_MUSTERI).orderBy('sonTeklifTarihi', 'desc').get();
+    return snap.docs.map(d => d.data());
+  } catch (e) {
+    return [];
+  }
+}
+
 // STATE
 // Fiyat versiyonu - değişince localStorage sıfırlanır (eski +%6'lı fiyatlar temizlenir)
 const FIYAT_VERSIYONU = '2026-temmuz';
@@ -1127,6 +1306,16 @@ function stepIndexOf(screenId) {
 function init() {
   renderFirms();
   updateProgress('screen0');
+
+  // Firebase başlat, fiyatları buluttan çek
+  initFirebase();
+  if (bulutAktif) {
+    fiyatlariBuluttanYukle().then(yuklendi => {
+      if (yuklendi) renderFirms(); // Bulut fiyatları geldiyse listeyi tazele
+    });
+  } else {
+    setBulutDurum('kapali', 'Çevrimdışı mod');
+  }
 }
 
 // ─── PROGRESS ────────────────────────────────────────────────────────────────
@@ -1938,6 +2127,22 @@ function generatePDF() {
   state.lastTeklifNo = teklifNo;
   state.lastCustomer = customer;
 
+  // Teklifi ve müşteriyi buluta kaydet (arka planda, akışı bekletmez)
+  if (bulutAktif) {
+    const urunKayitlari = cart.map(it => ({
+      urunIsmi: it.urunIsmi || '',
+      adet: it.adet || null,
+      levhaEn: it.levhaEn || null,
+      levhaBoy: it.levhaBoy || null,
+      area: it.area || null,
+      qualityLabel: it.qualityLabel || '',
+      nakliyeVar: it.nakliyeVar !== false,
+      birimFiyat: it.unitPrice || 0
+    }));
+    teklifiBulutaKaydet(teklifNo, customer, urunKayitlari, grandTotal);
+    musteriKaydet(customer);
+  }
+
   // Yeni pencerede aç ve yazdır — charset ve stiller korunur
   const printWin = window.open('', '_blank', 'width=800,height=600');
   if (printWin) {
@@ -2136,9 +2341,102 @@ function saveAdminPrices() {
   }
 
   localStorage.setItem('gunkar_firms', JSON.stringify(firms));
-  showToast('✅ Fiyatlar kaydedildi');
+
+  // Buluta da kaydet - diğer cihazlarda da güncellensin
+  if (bulutAktif) {
+    showToast('💾 Kaydediliyor...');
+    fiyatlariBulutaKaydet().then(ok => {
+      showToast(ok ? '☁️ Fiyatlar tüm cihazlara kaydedildi' : '✅ Kaydedildi (bulut bağlantısı yok)');
+    });
+  } else {
+    showToast('✅ Fiyatlar kaydedildi (bu cihazda)');
+  }
   closeAdmin();
 }
+
+// ─── TEKLİF GEÇMİŞİ / MÜŞTERİLER ───────────────────────────────────────────
+let gecmisAktifSekme = 'teklif';
+
+function openGecmis() {
+  document.getElementById('adminModal').classList.remove('open');
+  document.getElementById('gecmisModal').classList.add('open');
+  gecmisSekme('teklif');
+}
+
+function closeGecmis() {
+  document.getElementById('gecmisModal').classList.remove('open');
+}
+
+function gecmisSekme(sekme) {
+  gecmisAktifSekme = sekme;
+  const tT = document.getElementById('gecmisTabTeklif');
+  const tM = document.getElementById('gecmisTabMusteri');
+  const aktif = 'background:#1a3a2a;color:#fff;';
+  const pasif = 'background:#e8e8e8;color:#555;';
+  const ortak = 'flex:1;padding:10px;border:none;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;font-family:\'Inter\',sans-serif;';
+  tT.style.cssText = ortak + (sekme === 'teklif' ? aktif : pasif);
+  tM.style.cssText = ortak + (sekme === 'musteri' ? aktif : pasif);
+
+  const kutu = document.getElementById('gecmisIcerik');
+  if (!bulutAktif) {
+    kutu.innerHTML = '<div style="text-align:center;color:#9a9a9a;padding:24px;font-size:14px;">📴 Bulut bağlantısı yok.<br>Geçmiş kayıtlar görüntülenemiyor.</div>';
+    return;
+  }
+  kutu.innerHTML = '<div style="text-align:center;color:#9a9a9a;padding:24px;font-size:14px;">Yükleniyor...</div>';
+
+  if (sekme === 'teklif') {
+    teklifleriGetir(50).then(liste => {
+      if (!liste.length) {
+        kutu.innerHTML = '<div style="text-align:center;color:#9a9a9a;padding:24px;font-size:14px;">Henüz kayıtlı teklif yok.</div>';
+        return;
+      }
+      kutu.innerHTML = liste.map(t => {
+        const urunSayisi = (t.urunler || []).length;
+        const ilkUrun = urunSayisi ? t.urunler[0].urunIsmi : '';
+        const toplamStr = t.genelToplam
+          ? t.genelToplam.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' TL'
+          : '—';
+        return `
+        <div style="background:#f7f7f5;border-radius:10px;padding:12px 14px;margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:700;font-size:14px;color:#1a3a2a;">${t.musteri || '—'}</div>
+              <div style="font-size:11px;color:#888;margin-top:2px;">${t.teklifNo || ''} · ${t.tarihGoruntu || ''}</div>
+              <div style="font-size:12px;color:#555;margin-top:4px;">${ilkUrun}${urunSayisi > 1 ? ' +' + (urunSayisi - 1) + ' ürün' : ''}</div>
+            </div>
+            <div style="text-align:right;white-space:nowrap;">
+              <div style="font-weight:800;font-size:14px;color:#c8a84b;">${toplamStr}</div>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    });
+  } else {
+    musterileriGetir().then(liste => {
+      if (!liste.length) {
+        kutu.innerHTML = '<div style="text-align:center;color:#9a9a9a;padding:24px;font-size:14px;">Henüz kayıtlı müşteri yok.</div>';
+        return;
+      }
+      kutu.innerHTML = liste.map(m => {
+        const sonTarih = m.sonTeklifTarihi ? new Date(m.sonTeklifTarihi).toLocaleDateString('tr-TR') : '';
+        return `
+        <div style="background:#f7f7f5;border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;">
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:700;font-size:14px;color:#1a3a2a;">${m.isim || '—'}</div>
+            <div style="font-size:11px;color:#888;margin-top:2px;">Son teklif: ${sonTarih}</div>
+          </div>
+          <div style="background:#1a3a2a;color:#fff;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;white-space:nowrap;">
+            ${m.teklifSayisi || 1} teklif
+          </div>
+        </div>`;
+      }).join('');
+    });
+  }
+}
+
+document.getElementById('gecmisModal').addEventListener('click', function(e) {
+  if (e.target === this) closeGecmis();
+});
 
 function resetAllFirmData() {
   if (!confirm('Tüm fiyat listeleri ve iskonto oranları varsayılana dönecek. Emin misiniz?')) return;
