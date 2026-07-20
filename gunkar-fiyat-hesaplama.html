@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Günkar Fiyat">
-<meta name="theme-color" content="#1a3a2a">
+<meta name="theme-color" content="#0E0D0B">
 <title>Günkar Fiyat Hesaplama</title>
 
 <!-- Firebase SDK (compat sürüm - tek dosyada çalışır) -->
@@ -17,7 +17,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap&subset=latin-ext');
 
   @media print {
     body { background:white !important; }
@@ -27,41 +27,58 @@
   }
 
   :root {
-    --green-dark: #1a3a2a;
-    --green-mid: #2d5a40;
-    --green-accent: #3d7a56;
-    --green-light: #5a9e72;
-    --gold: #c8a84b;
-    --gold-light: #e2c97e;
-    --cream: #f8f5ee;
-    --white: #ffffff;
-    --gray-100: #f4f4f4;
-    --gray-200: #e8e8e8;
-    --gray-400: #9a9a9a;
-    --gray-700: #444;
-    --text: #1a1a1a;
-    --radius: 16px;
-    --radius-sm: 10px;
-    --shadow: 0 4px 24px rgba(0,0,0,0.10);
-    --shadow-lg: 0 8px 40px rgba(0,0,0,0.16);
+    /* Marka — Altın */
+    --gold-700:#8F5E12; --gold-600:#A86F14; --gold-500:#B8791B;
+    --gold-400:#D19A45; --gold-300:#E3BC77; --gold-100:#F6EBD3;
+    /* Marka — Kraft */
+    --kraft-600:#96703F; --kraft-500:#B4885A; --kraft-300:#D9BC93; --kraft-100:#EFE3CE;
+    /* Marka — Siyah & Krem */
+    --obsidian:#0E0D0B; --ink:#1C1913; --ivory:#FAF6EE; --paper:#F3ECDD;
+    /* Semantik */
+    --success:#3E7C4F; --warning:#C9861F; --error:#B5432C; --info:#5A7188;
+    /* Yüzey & metin (açık tema) */
+    --bg:#FAF6EE; --surface:#FFFFFF; --surface-2:#F3ECDD; --surface-3:#EADFC9;
+    --border:#E5D9C1; --border-strong:#CDBB99;
+    --text:#1C1913; --text-2:#6E6353; --text-3:#9C8F79;
+    --accent:#A86F14; --accent-strong:#8F5E12; --on-accent:#FFFDF7;
+    /* Ölçüler */
+    --r-sm:8px; --r-md:14px; --r-lg:20px; --r-xl:28px;
+    --grad-gold:linear-gradient(135deg,#8F5E12 0%,#C9953B 55%,#8F5E12 120%);
+    --grad-gold-btn:linear-gradient(135deg,#9A6614 0%,#CE9A3F 100%);
+    --shadow:0 10px 28px rgba(60,44,16,.12);
+    --shadow-lg:0 20px 48px rgba(60,44,16,.18);
+    --glow:rgba(168,111,20,.35); --glow-soft:rgba(168,111,20,.16);
+    --card-glow:radial-gradient(120% 90% at 15% 0%, rgba(168,111,20,.06), transparent 55%);
+    --underglow:radial-gradient(60% 100% at 50% 100%, rgba(184,121,27,.12), transparent 70%);
+    --e-micro:150ms ease-out;
+    --e-card:250ms cubic-bezier(.2,.8,.2,1);
+    --e-page:320ms cubic-bezier(.2,.8,.2,1);
+    /* Geriye dönük uyum */
+    --gray-100:var(--surface-2); --gray-200:var(--border); --gray-400:var(--text-3);
+    --gray-500:var(--text-2); --gray-700:var(--text-2);
+    --radius:var(--r-lg); --radius-sm:var(--r-md);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
   body {
-    font-family: 'Inter', sans-serif;
-    background: var(--green-dark);
+    font-family: 'Manrope', system-ui, sans-serif;
+    background: var(--obsidian);
     min-height: 100vh;
     color: var(--text);
+    line-height: 1.6;
     overflow-x: hidden;
   }
+  ::selection { background: var(--gold-400); color:#14100A; }
 
   /* APP SHELL */
   #app {
     max-width: 480px;
     margin: 0 auto;
     min-height: 100vh;
-    background: var(--cream);
+    background:
+      radial-gradient(140% 60% at 50% 0%, rgba(184,121,27,.05), transparent 52%),
+      var(--bg);
     position: relative;
     display: flex;
     flex-direction: column;
@@ -69,564 +86,718 @@
 
   /* HEADER */
   .app-header {
-    background: var(--green-dark);
-    color: white;
-    padding: 52px 20px 20px;
+    background: var(--obsidian);
+    color: var(--on-accent);
+    padding: 52px 20px 22px;
     text-align: center;
     position: relative;
     flex-shrink: 0;
+    overflow: hidden;
+  }
+  .app-header::before {
+    content:""; position:absolute; inset:0;
+    background: radial-gradient(120% 90% at 15% 0%, rgba(209,154,69,.14), transparent 58%);
+    pointer-events:none;
+  }
+  .app-header::after {
+    content:""; position:absolute; left:0; right:0; bottom:-1px; height:64px;
+    background: radial-gradient(60% 100% at 50% 100%, rgba(209,154,69,.20), transparent 72%);
+    pointer-events:none;
   }
   .app-header .logo-row {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    margin-bottom: 4px;
-  }
-  .app-header .logo-icon {
-    width: 36px; height: 36px;
-    background: var(--gold);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px;
+    gap: 12px;
+    position: relative;
   }
   .app-header h1 {
-    font-size: 18px;
-    font-weight: 700;
-    letter-spacing: 0.3px;
-    color: var(--white);
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -.01em;
+    color: #F5EFE4;
   }
+  .app-header h1 em {
+    font-style: italic;
+    background: var(--grad-gold);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .logo-cube { width: 38px; height: 38px; flex: none; filter: drop-shadow(0 6px 14px rgba(209,154,69,.35)); }
   .app-header .subtitle {
-    font-size: 11px;
-    color: var(--gold-light);
-    letter-spacing: 1px;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: .24em;
     text-transform: uppercase;
-    font-weight: 500;
+    color: var(--gold-300);
+    margin-top: 9px;
+    position: relative;
   }
+  .app-header .subtitle::before,
+  .app-header .subtitle::after {
+    content:""; display:inline-block; vertical-align:middle;
+    width:22px; height:1px; margin:0 10px;
+    background: linear-gradient(90deg, transparent, var(--gold-400));
+  }
+  .app-header .subtitle::after {
+    background: linear-gradient(90deg, var(--gold-400), transparent);
+  }
+
   .back-btn {
     position: absolute;
-    left: 16px;
-    top: 52px;
-    background: rgba(255,255,255,0.1);
-    border: none;
-    color: white;
-    width: 36px; height: 36px;
+    left: 16px; top: 48px;
+    width: 38px; height: 38px;
     border-radius: 50%;
-    font-size: 18px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    display: none;
+    background: rgba(227,188,119,.12);
+    border: 1px solid rgba(227,188,119,.24);
+    color: var(--gold-300);
+    display: none; align-items: center; justify-content: center;
+    font-size: 17px; cursor: pointer;
+    transition: .2s;
+    z-index: 2;
   }
+  .back-btn:active { background: rgba(227,188,119,.22); }
   .back-btn.visible { display: flex; }
 
   /* PROGRESS */
   .progress-bar {
-    background: var(--green-mid);
-    padding: 12px 20px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    display: flex; align-items: center; gap: 6px;
+    padding: 14px 20px;
+    background: var(--ink);
     flex-shrink: 0;
   }
   .progress-step {
-    flex: 1;
-    height: 4px;
-    background: rgba(255,255,255,0.2);
-    border-radius: 2px;
-    transition: background 0.3s;
+    flex: 1; height: 3px;
+    border-radius: 999px;
+    background: rgba(227,188,119,.16);
+    transition: background .3s ease;
   }
-  .progress-step.active { background: var(--gold); }
-  .progress-step.done { background: var(--green-light); }
+  .progress-step.active { background: var(--gold-400); box-shadow: 0 0 10px rgba(209,154,69,.55); }
+  .progress-step.done { background: var(--gold-600); }
   .progress-label {
     font-size: 11px;
-    color: var(--gold-light);
-    font-weight: 500;
+    font-weight: 800;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--gold-300);
+    margin-left: 10px;
     white-space: nowrap;
   }
 
-  /* SCREEN */
+  /* SCREENS */
   .screen {
     display: none;
     flex-direction: column;
+    padding: 26px 20px 32px;
     flex: 1;
-    padding: 24px 20px;
-    overflow-y: auto;
+    animation: fadeIn 320ms cubic-bezier(.2,.8,.2,1);
   }
   .screen.active { display: flex; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
 
   .screen-title {
-    font-size: 22px;
-    font-weight: 800;
-    color: var(--green-dark);
-    margin-bottom: 4px;
+    font-family: 'Fraunces', serif;
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -.01em;
+    color: var(--text);
+    margin-bottom: 6px;
+    position: relative;
+    padding-top: 14px;
+  }
+  .screen-title::before {
+    content:""; position:absolute; top:0; left:0;
+    width:34px; height:3px; border-radius:999px;
+    background: var(--grad-gold);
   }
   .screen-desc {
-    font-size: 13px;
-    color: var(--gray-400);
-    margin-bottom: 24px;
-    font-weight: 400;
+    font-size: 14px;
+    color: var(--text-2);
+    margin-bottom: 26px;
+    line-height: 1.5;
   }
 
   /* INPUTS */
-  .input-group {
-    margin-bottom: 16px;
-  }
+  .input-group { margin-bottom: 18px; }
   .input-group label {
     display: block;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--green-dark);
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    margin-bottom: 8px;
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    color: var(--text-2);
+    margin-bottom: 7px;
   }
   .input-group input {
     width: 100%;
-    padding: 16px 18px;
-    border: 2px solid var(--gray-200);
-    border-radius: var(--radius-sm);
-    font-size: 18px;
-    font-family: 'Inter', sans-serif;
+    height: 52px;
+    padding: 0 16px;
+    border: 1.5px solid var(--border-strong);
+    border-radius: var(--r-md);
+    background: var(--surface);
+    font-family: 'Manrope', sans-serif;
+    font-size: 16px;
     font-weight: 600;
     color: var(--text);
-    background: white;
     outline: none;
-    transition: border-color 0.2s;
+    transition: .2s;
     -webkit-appearance: none;
   }
-  .input-group input:focus { border-color: var(--green-accent); }
+  .input-group input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(168,111,20,.14);
+  }
+  .input-group input::placeholder { color: var(--text-3); font-weight: 400; }
   .input-group .unit {
-    font-size: 12px;
-    color: var(--gray-400);
+    font-size: 11.5px;
+    color: var(--text-3);
     margin-top: 6px;
-    padding-left: 2px;
+    line-height: 1.45;
   }
 
   /* RESULT CARD */
   .result-card {
-    background: var(--green-dark);
-    color: white;
-    border-radius: var(--radius);
-    padding: 20px;
-    margin: 8px 0 24px;
+    background: var(--obsidian);
+    border: 1px solid rgba(227,188,119,.14);
+    border-radius: var(--r-lg);
+    padding: 22px;
+    margin-bottom: 22px;
+    position: relative;
+    overflow: visible;
+    box-shadow: var(--shadow);
+  }
+  .result-card::after {
+    content:""; position:absolute; left:8%; right:8%; bottom:-26px; height:26px;
+    background: radial-gradient(50% 100% at 50% 0%, var(--glow-soft), transparent 75%);
+    filter: blur(4px); pointer-events:none;
+  }
+  .result-card::before {
+    content:""; position:absolute; inset:0; border-radius:inherit;
+    background: radial-gradient(120% 90% at 15% 0%, rgba(209,154,69,.12), transparent 55%);
+    pointer-events:none;
   }
   .result-card .rc-label {
     font-size: 11px;
-    color: var(--gold-light);
+    font-weight: 800;
+    letter-spacing: .22em;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 600;
-    margin-bottom: 6px;
+    color: var(--gold-300);
+    margin-bottom: 8px;
+    position: relative;
   }
   .result-card .rc-value {
-    font-size: 32px;
-    font-weight: 800;
-    color: var(--gold);
-    line-height: 1;
+    font-family: 'Fraunces', serif;
+    font-size: 36px;
+    font-weight: 600;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    background: linear-gradient(135deg, #E3BC77 0%, #D19A45 55%, #B8791B 120%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    position: relative;
   }
   .result-card .rc-sub {
-    font-size: 13px;
-    color: rgba(255,255,255,0.6);
-    margin-top: 4px;
+    font-size: 12px;
+    color: rgba(245,239,228,.62);
+    margin-top: 8px;
+    position: relative;
   }
 
   /* FIRM CARDS */
   .firm-grid { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
   .firm-card {
-    background: white;
-    border: 2px solid var(--gray-200);
-    border-radius: var(--radius);
-    padding: 18px 20px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 17px 18px;
+    display: flex; align-items: center; justify-content: space-between;
     cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    transition: border-color var(--e-card), background var(--e-card), box-shadow var(--e-card), transform var(--e-micro);
   }
-  .firm-card:active { transform: scale(0.98); }
-  .firm-card.selected { border-color: var(--green-accent); background: #f0f8f4; }
-  .firm-card .fc-name { font-size: 16px; font-weight: 700; color: var(--green-dark); }
-  .firm-card .fc-sub { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
+  .firm-card:active { transform: scale(0.985); }
+  .firm-card.selected {
+    border-color: var(--accent);
+    background: var(--gold-100);
+    box-shadow: 0 10px 24px -14px var(--glow);
+  }
+  .firm-card .fc-name { font-size: 16px; font-weight: 700; color: var(--text); }
+  .firm-card .fc-sub { font-size: 12px; color: var(--text-3); margin-top: 2px; }
   .firm-card .fc-check {
-    width: 28px; height: 28px;
+    width: 26px; height: 26px;
     border-radius: 50%;
-    border: 2px solid var(--gray-200);
+    border: 1.5px solid var(--border-strong);
     display: flex; align-items: center; justify-content: center;
-    font-size: 14px;
+    font-size: 13px; color: transparent;
     flex-shrink: 0;
-    transition: all 0.2s;
+    transition: .2s;
   }
-  .firm-card.selected .fc-check { background: var(--green-accent); border-color: var(--green-accent); color: white; }
+  .firm-card.selected .fc-check {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--on-accent);
+  }
 
   /* QUALITY LIST */
   .quality-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
   .quality-item {
-    background: white;
-    border: 2px solid var(--gray-200);
-    border-radius: var(--radius-sm);
-    padding: 14px 16px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 13px 15px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
     cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
+    transition: border-color var(--e-card), background var(--e-card), box-shadow var(--e-card), transform var(--e-micro);
   }
-  .quality-item:active { transform: scale(0.98); }
-  .quality-item.selected { border-color: var(--green-accent); background: #f0f8f4; }
+  .quality-item:active { transform: scale(0.985); }
+  .quality-item.selected {
+    border-color: var(--accent);
+    background: var(--gold-100);
+    box-shadow: 0 10px 24px -14px var(--glow);
+  }
   .quality-item .qi-left { flex: 1; min-width: 0; }
-  .quality-item .qi-no { font-size: 10px; font-weight: 700; color: var(--gray-400); letter-spacing: 0.5px; }
-  .quality-item .qi-wave { font-size: 13px; font-weight: 700; color: var(--green-dark); }
-  .quality-item .qi-kalite { font-size: 11px; color: var(--gray-700); }
-  .quality-item .qi-price {
-    font-size: 16px;
-    font-weight: 800;
-    color: var(--green-dark);
-    white-space: nowrap;
-    flex-shrink: 0;
+  .quality-item .qi-no {
+    font-size: 10px; font-weight: 800;
+    letter-spacing: .14em; text-transform: uppercase;
+    color: var(--text-3);
   }
-  .quality-item .qi-price span { font-size: 11px; font-weight: 400; color: var(--gray-400); }
+  .quality-item .qi-wave { font-size: 13.5px; font-weight: 700; color: var(--text); }
+  .quality-item .qi-kalite { font-size: 11.5px; color: var(--text-2); }
+  .quality-item .qi-price {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--accent);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .quality-item .qi-price span { font-size: 11px; font-weight: 500; color: var(--text-3); }
 
-  /* FILTER BAR */
+  /* FILTER CHIPS */
   .filter-bar {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 14px;
+    display: flex; gap: 8px;
     overflow-x: auto;
-    padding-bottom: 4px;
+    padding-bottom: 12px;
+    margin-bottom: 12px;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }
   .filter-bar::-webkit-scrollbar { display: none; }
   .filter-chip {
-    padding: 7px 14px;
-    border-radius: 20px;
-    border: 2px solid var(--gray-200);
-    background: white;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--gray-700);
-    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 1px solid var(--border-strong);
+    background: transparent;
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-2);
     white-space: nowrap;
-    flex-shrink: 0;
-    transition: all 0.2s;
+    cursor: pointer;
+    transition: .2s;
   }
-  .filter-chip.active { background: var(--green-dark); border-color: var(--green-dark); color: white; }
+  .filter-chip.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--on-accent);
+  }
 
-  /* PRICE SCREEN */
+  /* PRICE SUMMARY */
   .price-summary {
-    background: white;
-    border-radius: var(--radius);
-    padding: 20px;
-    margin-bottom: 16px;
-    border: 1px solid var(--gray-200);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 6px 18px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
   }
   .price-summary .ps-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--gray-100);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 13px 0;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
   }
   .price-summary .ps-row:last-child { border-bottom: none; }
-  .price-summary .ps-label { font-size: 13px; color: var(--gray-400); }
-  .price-summary .ps-val { font-size: 14px; font-weight: 600; color: var(--text); }
+  .price-summary .ps-label { font-size: 13px; color: var(--text-2); }
+  .price-summary .ps-val { font-size: 14.5px; font-weight: 700; color: var(--text); white-space: nowrap; font-variant-numeric: tabular-nums; }
 
+  /* MARGIN INPUT */
   .margin-input-row {
-    background: white;
-    border-radius: var(--radius);
-    padding: 20px;
-    margin-bottom: 16px;
-    border: 1px solid var(--gray-200);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 18px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
   }
   .margin-input-row label {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--green-dark);
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
     display: block;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--text-3);
     margin-bottom: 10px;
   }
+  .margin-input-row .unit { font-size: 11.5px; color: var(--text-3); line-height: 1.45; }
   .margin-row { display: flex; gap: 10px; align-items: center; }
   .margin-input {
     flex: 1;
-    padding: 14px 16px;
-    border: 2px solid var(--gray-200);
-    border-radius: var(--radius-sm);
-    font-size: 20px;
-    font-weight: 700;
+    height: 52px;
+    padding: 0 16px;
+    border: 1.5px solid var(--border-strong);
+    border-radius: var(--r-md);
+    background: var(--surface-2);
+    font-family: 'Manrope', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
     color: var(--text);
-    font-family: 'Inter', sans-serif;
-    outline: none;
     text-align: right;
+    outline: none;
+    transition: .2s;
     -webkit-appearance: none;
   }
-  .margin-input:focus { border-color: var(--green-accent); }
-  .margin-symbol { font-size: 20px; font-weight: 700; color: var(--green-dark); }
-
-  .final-price-card {
-    background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
-    border-radius: var(--radius);
-    padding: 24px 20px;
-    margin-bottom: 20px;
-    text-align: center;
-    color: white;
+  .margin-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(168,111,20,.14);
   }
-  .final-price-card .fpc-label { font-size: 12px; color: var(--gold-light); letter-spacing: 1px; text-transform: uppercase; font-weight: 600; margin-bottom: 8px; }
-  .final-price-card .fpc-price { font-size: 44px; font-weight: 800; color: var(--gold); line-height: 1; }
-  .final-price-card .fpc-sub { font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 8px; }
+  .margin-symbol { font-size: 20px; font-weight: 800; color: var(--accent); }
+
+  /* FINAL PRICE */
+  .final-price-card {
+    background: var(--grad-gold);
+    border-radius: var(--r-lg);
+    padding: 28px 22px;
+    text-align: center;
+    margin-bottom: 30px;
+    position: relative;
+    box-shadow: 0 18px 38px -14px var(--glow), var(--shadow);
+  }
+  .final-price-card::before {
+    content:""; position:absolute; left:8%; right:8%; bottom:-30px; height:30px;
+    background: radial-gradient(50% 100% at 50% 0%, var(--glow), transparent 78%);
+    filter: blur(5px); pointer-events:none;
+  }
+  .final-price-card::after {
+    content:""; position:absolute; right:-34px; top:-34px;
+    width:140px; height:140px; border-radius:50%;
+    background: rgba(255,255,255,.10);
+    pointer-events:none;
+  }
+  .final-price-card input { font-variant-numeric: tabular-nums; }
+  .final-price-card .fpc-label {
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: rgba(255,253,246,.88);
+    margin-bottom: 10px;
+    position: relative;
+  }
+  .final-price-card .fpc-sub {
+    font-size: 12px;
+    color: rgba(255,253,246,.78);
+    margin-top: 10px;
+    position: relative;
+  }
 
   /* BUTTONS */
   .btn-primary {
     width: 100%;
-    padding: 18px;
-    background: var(--green-accent);
-    color: white;
+    height: 54px;
     border: none;
-    border-radius: var(--radius-sm);
-    font-size: 16px;
+    border-radius: var(--r-md);
+    background: var(--ink);
+    color: var(--on-accent);
+    font-family: 'Manrope', sans-serif;
+    font-size: 15.5px;
     font-weight: 700;
-    font-family: 'Inter', sans-serif;
     cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
     margin-top: auto;
+    transition: .2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
   }
-  .btn-primary:active { transform: scale(0.98); background: var(--green-mid); }
-  .btn-primary:disabled { background: var(--gray-200); color: var(--gray-400); cursor: not-allowed; }
-
+  .btn-primary { transition: transform var(--e-micro), filter var(--e-micro), background var(--e-micro); }
+  .btn-primary:active { transform: scale(0.985); }
+  .btn-primary:disabled {
+    background: var(--surface-3);
+    color: var(--text-3);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
   .btn-gold {
-    background: var(--gold);
-    color: var(--green-dark);
+    background: var(--grad-gold-btn);
+    color: #FFFDF6;
+    box-shadow: 0 14px 28px -10px var(--glow), 0 24px 44px -18px var(--glow-soft);
   }
-  .btn-gold:active { background: var(--gold-light); }
+  .btn-gold:active { filter: brightness(1.06); }
+  .btn-gold:disabled { background: var(--surface-3); box-shadow: none; }
 
+  /* SHARE */
   .share-buttons { display: flex; gap: 12px; margin-top: 12px; }
   .share-btn {
     flex: 1;
-    padding: 16px;
+    height: 50px;
     border: none;
-    border-radius: var(--radius-sm);
+    border-radius: var(--r-md);
+    font-family: 'Manrope', sans-serif;
     font-size: 14px;
     font-weight: 700;
-    font-family: 'Inter', sans-serif;
     cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+    transition: .2s;
   }
   .share-btn:active { transform: scale(0.97); }
   .share-btn.whatsapp { background: #25D366; color: white; }
-  .share-btn.mail { background: var(--green-dark); color: white; }
+  .share-btn.mail { background: var(--ink); color: var(--on-accent); }
 
-  /* ADMIN PANEL */
+  /* ADMIN TOGGLE */
   .admin-toggle {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 48px; height: 48px;
-    background: var(--green-dark);
-    border: none;
+    bottom: 22px; right: 22px;
+    width: 52px; height: 52px;
     border-radius: 50%;
-    color: white;
-    font-size: 20px;
-    cursor: pointer;
-    box-shadow: var(--shadow-lg);
+    background: var(--ink);
+    border: 1px solid rgba(227,188,119,.28);
+    color: var(--gold-300);
     display: flex; align-items: center; justify-content: center;
+    font-size: 21px;
+    cursor: pointer;
+    box-shadow: var(--shadow-lg), 0 10px 26px -8px var(--glow-soft);
     z-index: 100;
+    transition: transform var(--e-micro), box-shadow var(--e-micro);
   }
+  .admin-toggle:active { transform: scale(0.94); }
 
+  /* MODAL */
   .modal-overlay {
-    display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 200;
+    background: rgba(14,13,11,.62);
+    backdrop-filter: blur(6px);
+    display: none;
     align-items: flex-end;
     justify-content: center;
+    z-index: 200;
   }
   .modal-overlay.open { display: flex; }
   .modal-sheet {
-    background: var(--cream);
-    border-radius: 24px 24px 0 0;
+    background: var(--bg);
     width: 100%;
     max-width: 480px;
-    max-height: 85vh;
+    max-height: 88vh;
+    border-radius: var(--r-xl) var(--r-xl) 0 0;
+    padding: 14px 20px 30px;
     overflow-y: auto;
-    padding: 20px;
+    animation: slideUp 380ms cubic-bezier(.22,.9,.3,1);
   }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: none; } }
+  .modal-sheet { animation-duration: 380ms; }
   .modal-handle {
-    width: 40px; height: 4px;
-    background: var(--gray-200);
-    border-radius: 2px;
-    margin: 0 auto 20px;
+    width: 42px; height: 4px;
+    border-radius: 999px;
+    background: var(--border-strong);
+    margin: 0 auto 18px;
   }
-  .modal-title { font-size: 18px; font-weight: 800; color: var(--green-dark); margin-bottom: 4px; }
-  .modal-sub { font-size: 12px; color: var(--gray-400); margin-bottom: 20px; }
+  .modal-title {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+    position: relative;
+    padding-top: 12px;
+  }
+  .modal-title::before {
+    content:""; position:absolute; top:0; left:0;
+    width:30px; height:3px; border-radius:999px;
+    background: var(--grad-gold);
+  }
+  .modal-sub { font-size: 12.5px; color: var(--text-2); margin-bottom: 20px; }
 
+  /* ADMIN */
   .admin-firm-tab {
-    display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto;
+    display: flex; gap: 8px;
+    overflow-x: auto;
+    margin-bottom: 16px;
     scrollbar-width: none;
   }
   .admin-firm-tab::-webkit-scrollbar { display: none; }
   .atab {
     padding: 8px 16px;
-    border-radius: 20px;
-    border: 2px solid var(--gray-200);
-    background: white;
-    font-size: 12px; font-weight: 600;
-    cursor: pointer; white-space: nowrap;
-    flex-shrink: 0;
-    transition: all 0.2s;
+    border-radius: 999px;
+    border: 1px solid var(--border-strong);
+    background: transparent;
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-2);
+    white-space: nowrap;
+    cursor: pointer;
+    transition: .2s;
   }
-  .atab.active { background: var(--green-dark); border-color: var(--green-dark); color: white; }
+  .atab.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 
   .admin-quality-list { display: flex; flex-direction: column; gap: 8px; }
   .admin-qi {
-    background: white;
-    border-radius: var(--radius-sm);
-    padding: 12px 14px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border: 1px solid var(--gray-200);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 11px 13px;
+    display: flex; align-items: center; gap: 10px;
   }
-  .admin-qi .aqi-info { flex: 1; }
-  .admin-qi .aqi-wave { font-size: 12px; font-weight: 700; color: var(--green-dark); }
-  .admin-qi .aqi-kalite { font-size: 11px; color: var(--gray-400); }
+  .admin-qi .aqi-info { flex: 1; min-width: 0; }
+  .admin-qi .aqi-wave { font-size: 12.5px; font-weight: 700; color: var(--text); }
+  .admin-qi .aqi-kalite { font-size: 11px; color: var(--text-3); }
   .admin-qi input {
-    width: 90px;
-    padding: 8px 10px;
-    border: 2px solid var(--gray-200);
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 700;
-    font-family: 'Inter', sans-serif;
+    width: 92px;
+    height: 42px;
+    padding: 0 10px;
+    border: 1.5px solid var(--border-strong);
+    border-radius: var(--r-sm);
+    background: var(--surface-2);
+    font-family: 'Manrope', sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--text);
     text-align: right;
     outline: none;
+    transition: .2s;
     -webkit-appearance: none;
   }
-  .admin-qi input:focus { border-color: var(--green-accent); }
+  .admin-qi input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(168,111,20,.14);
+  }
 
   .save-admin-btn {
     width: 100%;
-    padding: 16px;
-    background: var(--green-accent);
-    color: white;
+    height: 54px;
+    margin-top: 18px;
     border: none;
-    border-radius: var(--radius-sm);
-    font-size: 15px;
+    border-radius: var(--r-md);
+    background: var(--grad-gold-btn);
+    color: #FFFDF6;
+    font-family: 'Manrope', sans-serif;
+    font-size: 15.5px;
     font-weight: 700;
-    font-family: 'Inter', sans-serif;
     cursor: pointer;
-    margin-top: 16px;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
+    box-shadow: 0 14px 28px -10px var(--glow);
+    transition: .2s;
   }
+  .save-admin-btn:active { filter: brightness(1.06); }
   .close-modal-btn {
     width: 100%;
-    padding: 14px;
-    background: var(--gray-200);
-    color: var(--gray-700);
-    border: none;
-    border-radius: var(--radius-sm);
-    font-size: 15px;
-    font-weight: 600;
-    font-family: 'Inter', sans-serif;
+    height: 48px;
+    margin-top: 10px;
+    border: 1.5px solid var(--border-strong);
+    border-radius: var(--r-md);
+    background: transparent;
+    color: var(--text-2);
+    font-family: 'Manrope', sans-serif;
+    font-size: 14.5px;
+    font-weight: 700;
     cursor: pointer;
-    margin-top: 8px;
+    transition: .2s;
   }
+  .close-modal-btn:active { background: var(--surface-2); }
 
   .tag-new {
-    background: var(--gold);
-    color: var(--green-dark);
-    font-size: 9px;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 11.5px;
     font-weight: 800;
-    padding: 2px 6px;
-    border-radius: 4px;
-    letter-spacing: 0.5px;
-    margin-left: 6px;
-    vertical-align: middle;
+    letter-spacing: .04em;
+    background: var(--gold-100);
+    color: var(--accent-strong);
   }
 
   /* OFFER PREVIEW */
   #offerPreview {
-    background: white;
-    border-radius: var(--radius);
-    padding: 20px;
-    margin-bottom: 16px;
-    border: 1px solid var(--gray-200);
-    font-size: 12px;
-    line-height: 1.7;
-    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    font-size: 12.5px;
+    color: var(--text-2);
+    box-shadow: var(--shadow);
   }
   #offerPreview .op-header { text-align: center; margin-bottom: 12px; }
-  #offerPreview .op-company { font-size: 16px; font-weight: 800; color: var(--green-dark); }
-  #offerPreview .op-slogan { font-size: 11px; color: var(--gray-400); font-style: italic; }
-  #offerPreview hr { border: none; border-top: 1px solid var(--gray-200); margin: 10px 0; }
+  #offerPreview .op-company {
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  #offerPreview .op-slogan { font-size: 11px; color: var(--text-3); font-style: italic; }
+  #offerPreview hr { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
   #offerPreview .op-table { width: 100%; border-collapse: collapse; margin: 8px 0; }
-  #offerPreview .op-table td { padding: 6px 4px; border-bottom: 1px solid var(--gray-100); }
-  #offerPreview .op-table td:last-child { text-align: right; font-weight: 700; }
-  #offerPreview .op-total { font-size: 14px; font-weight: 800; color: var(--green-dark); }
+  #offerPreview .op-table td { padding: 6px 4px; border-bottom: 1px solid var(--border); }
+  #offerPreview .op-table td:last-child { text-align: right; font-weight: 700; color: var(--text); }
+  #offerPreview .op-total { font-size: 14.5px; font-weight: 800; color: var(--accent); }
 
   .customer-input {
-    background: white;
-    border-radius: var(--radius);
-    padding: 16px;
-    margin-bottom: 12px;
-    border: 1px solid var(--gray-200);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 18px;
+    margin-bottom: 18px;
+    box-shadow: var(--shadow);
   }
   .customer-input label {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--green-dark);
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
     display: block;
-    margin-bottom: 8px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 9px;
   }
   .customer-input input {
     width: 100%;
-    padding: 12px 14px;
-    border: 2px solid var(--gray-200);
-    border-radius: 8px;
-    font-size: 14px;
-    font-family: 'Inter', sans-serif;
+    height: 50px;
+    padding: 0 15px;
+    border: 1.5px solid var(--border-strong);
+    border-radius: var(--r-md);
+    background: var(--surface-2);
+    font-family: 'Manrope', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
     outline: none;
+    transition: .2s;
     -webkit-appearance: none;
   }
-  .customer-input input:focus { border-color: var(--green-accent); }
+  .customer-input input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(168,111,20,.14);
+  }
 
+  /* TOAST */
   .toast {
     position: fixed;
-    bottom: 80px;
+    bottom: 92px;
     left: 50%;
     transform: translateX(-50%) translateY(20px);
-    background: var(--green-dark);
-    color: white;
-    padding: 12px 24px;
-    border-radius: 100px;
-    font-size: 13px;
-    font-weight: 600;
+    background: var(--ink);
+    color: var(--on-accent);
+    padding: 13px 22px;
+    border-radius: 999px;
+    font-size: 13.5px;
+    font-weight: 700;
+    box-shadow: var(--shadow-lg);
     opacity: 0;
-    transition: all 0.3s;
-    z-index: 300;
     pointer-events: none;
-    white-space: nowrap;
+    transition: .3s;
+    z-index: 300;
+    max-width: 90%;
+    text-align: center;
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-  @media (min-width: 480px) {
-    #app { box-shadow: var(--shadow-lg); }
-    body { display: flex; align-items: center; justify-content: center; padding: 20px; }
-    body { min-height: 100vh; }
-    .admin-toggle { right: calc(50% - 240px + 12px); bottom: 24px; }
-  }
 </style>
 </head>
 <body>
@@ -636,10 +807,15 @@
   <div class="app-header">
     <button class="back-btn" id="backBtn" onclick="goBack()">←</button>
     <div class="logo-row">
-      <div class="logo-icon">📦</div>
-      <h1>Günkar Fiyat Hesaplama</h1>
+      <svg class="logo-cube" viewBox="0 0 100 100" aria-hidden="true">
+        <polygon points="50,8 92,30 50,52 8,30" fill="#C99A55"/>
+        <polygon points="8,30 50,52 50,96 8,74" fill="#A87B42"/>
+        <polygon points="92,30 50,52 50,96 92,74" fill="#14120E"/>
+        <path d="M62 52 L84 41 L84 62 L72 68 L72 60 L78 57 L78 51 L62 59 Z" fill="#C99A55" opacity=".9"/>
+      </svg>
+      <h1>Fiyat <em>Hesaplama</em></h1>
     </div>
-    <div class="subtitle">Günkar Ambalaj San. ve Tic. Ltd. Şti.</div>
+    <div class="subtitle">GÜNKAR AMBALAJ</div>
     <div id="bulutDurum" style="font-size:10px;letter-spacing:0.3px;margin-top:4px;color:#9ca3af;">☁️ Bağlanıyor...</div>
   </div>
 
@@ -651,9 +827,7 @@
     <div class="progress-step" id="ps3"></div>
     <div class="progress-step" id="ps4"></div>
     <div class="progress-step" id="ps5"></div>
-    <div class="progress-step" id="ps6"></div>
-    <div class="progress-step" id="ps7"></div>
-    <span class="progress-label" id="progressLabel">Adım 1 / 8</span>
+    <span class="progress-label" id="progressLabel">Adım 1 / 6</span>
   </div>
 
   <!-- SCREEN 0: KUTU TİPİ SEÇİMİ (OPSİYONEL) -->
@@ -806,25 +980,23 @@
 
   <!-- SCREEN 2: FİRMA SEÇ -->
   <div class="screen" id="screen2">
-    <div class="screen-title">Levha Firması</div>
-    <div class="screen-desc">Hangi firmadan levha alıyorsunuz?</div>
+    <div class="screen-title">Levha Seçimi</div>
+    <div class="screen-desc">Firmayı ve kullanacağınız levha kalitesini seçin.</div>
     <div class="firm-grid" id="firmGrid"></div>
-    <button class="btn-primary" id="nextBtn2" onclick="goTo('screen3')" disabled>Devam Et →</button>
-  </div>
 
-  <!-- SCREEN 3: KALİTE SEÇ -->
-  <div class="screen" id="screen3">
-    <div class="screen-title">Kalite Seçimi</div>
-    <div class="screen-desc">Kullanmak istediğiniz levha kalitesini seçin.</div>
-    <div class="filter-bar" id="filterBar"></div>
-    <div class="quality-list" id="qualityList"></div>
-    <button class="btn-primary" id="nextBtn3" onclick="goTo('screenIskonto')" disabled>Devam Et →</button>
+    <div id="kaliteBolumu" style="display:none;margin-top:18px;">
+      <div style="font-size:12px;font-weight:700;letter-spacing:0.6px;color:var(--gray-500);text-transform:uppercase;margin-bottom:10px;">Kalite</div>
+      <div class="filter-bar" id="filterBar"></div>
+      <div class="quality-list" id="qualityList"></div>
+    </div>
+
+    <button class="btn-primary" id="nextBtn2" onclick="goTo('screenIskonto')" disabled>Devam Et →</button>
   </div>
 
   <!-- SCREEN İSKONTO: ÖDEME ŞEKLİ -->
   <div class="screen" id="screenIskonto">
-    <div class="screen-title">Ödeme Şekli</div>
-    <div class="screen-desc">Ankutsan'dan hangi ödeme şekliyle alım yapıyorsunuz?</div>
+    <div class="screen-title">Ödeme ve Nakliye</div>
+    <div class="screen-desc">İskonto oranını ve nakliye durumunu belirleyin.</div>
 
     <div id="iskontoEkranWrap">
       <div class="firm-grid">
@@ -853,13 +1025,7 @@
       </div>
     </div>
 
-    <button class="btn-primary" id="nextBtnIskonto" onclick="goTo('screen4')" disabled>Devam Et →</button>
-  </div>
-
-  <!-- SCREEN 4: NAKLİYE FİYATI -->
-  <div class="screen" id="screen4">
-    <div class="screen-title">Nakliye Fiyatı</div>
-    <div class="screen-desc">Bu teklife nakliye bedeli eklenecek mi?</div>
+    <div style="border-top:1px solid var(--gray-200);margin:20px 0 16px;"></div>
 
     <div class="input-group">
       <label>Nakliye Dahil mi?</label>
@@ -886,7 +1052,13 @@
       </div>
     </div>
 
-    <button class="btn-primary" id="nextBtn5" onclick="goTo('screen5')" disabled>Devam Et →</button>
+    <div class="input-group" style="margin-top:20px;">
+      <label>Palet Bedeli (birim koli başına)</label>
+      <input type="text" id="paletInput" placeholder="Örn: 2 veya 1,50" inputmode="decimal" value="0" oninput="onPaletChange()">
+      <div class="unit">İsteğe bağlı. Maliyete eklenir, kâr marjı bunun üzerinden de hesaplanır.</div>
+    </div>
+
+    <button class="btn-primary" id="nextBtnIskonto" onclick="goTo('screen5')" disabled>Devam Et →</button>
   </div>
 
   <!-- SCREEN 5: FİYAT HESAPLAMA -->
@@ -909,9 +1081,10 @@
       <div class="ps-row" id="s4IskontoRow" style="display:none;"><span class="ps-label">Uygulanan İskonto</span><span class="ps-val" id="s4Iskonto">—</span></div>
       <div class="ps-row"><span class="ps-label">Ham Maliyet (levha)</span><span class="ps-val" id="s4RawCost">—</span></div>
       <div class="ps-row"><span class="ps-label">Nakliye Bedeli</span><span class="ps-val" id="s4Nakliye">—</span></div>
-      <div class="ps-row"><span class="ps-label">Toplam Maliyet (Levha+Nakliye)</span><span class="ps-val" id="s4TotalCost">—</span></div>
+      <div class="ps-row" id="s4PaletRow" style="display:none;"><span class="ps-label">Palet Bedeli</span><span class="ps-val" id="s4Palet">—</span></div>
+      <div class="ps-row"><span class="ps-label">Toplam Maliyet</span><span class="ps-val" id="s4TotalCost">—</span></div>
     </div>
-    <div class="margin-input-row">
+    <div class="margin-input-row" style="margin-top:12px;">
       <label>Kâr Marjı</label>
       <div class="margin-row">
         <input type="number" class="margin-input" id="marginInput" placeholder="20" inputmode="numeric" value="20" oninput="calcFinal()">
@@ -922,8 +1095,8 @@
       <div class="fpc-label">Müşteri Satış Fiyatı (Birim Koli)</div>
       <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin:4px 0;">
         <input type="text" id="finalPriceInput" inputmode="decimal" oninput="onFinalPriceEdit()"
-          style="width:160px;background:transparent;border:none;border-bottom:2px solid rgba(255,255,255,0.4);color:#c8a84b;font-size:36px;font-weight:800;text-align:center;font-family:'Inter',sans-serif;outline:none;padding:2px 0;">
-        <span style="color:#c8a84b;font-size:24px;font-weight:700;">TL</span>
+          style="width:170px;background:transparent;border:none;border-bottom:2px solid rgba(255,253,246,0.45);color:#FFFDF6;font-family:'Fraunces',serif;font-size:38px;font-weight:600;text-align:center;outline:none;padding:2px 0;position:relative;">
+        <span style="color:#FFFDF6;font-family:'Fraunces',serif;font-size:25px;font-weight:600;position:relative;">TL</span>
       </div>
       <div class="fpc-sub">KDV hariç · Nakliye dahil · <span style="opacity:0.8;">elle değiştirilebilir</span></div>
     </div>
@@ -935,31 +1108,33 @@
     <div class="screen-title">Ürünü Sepete Ekle</div>
     <div class="screen-desc">Bu ürünü teklife ekleyin, isterseniz başka ürün daha ekleyin.</div>
 
-    <div class="customer-input">
-      <label>Ürün İsmi</label>
-      <input type="text" id="urunIsmiInput" placeholder="Örn: 25 Desi Özçete Baskılı">
-    </div>
-    <div class="customer-input">
-      <label>Adet (İsteğe Bağlı)</label>
-      <input type="number" id="urunAdetInput" placeholder="Örn: 1000" inputmode="numeric">
-    </div>
+    <div id="urunFormWrap">
+      <div class="customer-input">
+        <label>Ürün İsmi</label>
+        <input type="text" id="urunIsmiInput" placeholder="Örn: 25 Desi Özçete Baskılı">
+      </div>
+      <div class="customer-input">
+        <label>Adet (İsteğe Bağlı)</label>
+        <input type="number" id="urunAdetInput" placeholder="Örn: 1000" inputmode="numeric">
+      </div>
 
-    <div class="price-summary" style="margin-bottom:14px;">
-      <div class="ps-row"><span class="ps-label">Kutu Ölçüsü</span><span class="ps-val" id="cartBoxSize">—</span></div>
-      <div class="ps-row"><span class="ps-label">Levha Ölçüsü</span><span class="ps-val" id="cartSheetSize">—</span></div>
-      <div class="ps-row"><span class="ps-label">Dalga / Kalite</span><span class="ps-val" id="cartKalite">—</span></div>
-      <div class="ps-row"><span class="ps-label">Birim Fiyat</span><span class="ps-val" id="cartUnitPrice">—</span></div>
-    </div>
+      <div class="price-summary" style="margin-bottom:14px;">
+        <div class="ps-row"><span class="ps-label">Kutu Ölçüsü</span><span class="ps-val" id="cartBoxSize">—</span></div>
+        <div class="ps-row"><span class="ps-label">Levha Ölçüsü</span><span class="ps-val" id="cartSheetSize">—</span></div>
+        <div class="ps-row"><span class="ps-label">Dalga / Kalite</span><span class="ps-val" id="cartKalite">—</span></div>
+        <div class="ps-row"><span class="ps-label">Birim Fiyat</span><span class="ps-val" id="cartUnitPrice">—</span></div>
+      </div>
 
-    <button class="btn-primary btn-gold" onclick="addToCart()" style="margin-bottom:10px;">➕ Bu Ürünü Sepete Ekle</button>
-    <button class="btn-primary" style="background:var(--gray-200);color:var(--gray-700);margin-bottom:18px;" onclick="resetForNewProduct()">🔁 Farklı Bir Ürün Daha Hesapla</button>
+      <button class="btn-primary btn-gold" onclick="addToCart()" style="margin-bottom:18px;">➕ Bu Ürünü Sepete Ekle</button>
+    </div>
 
     <div id="cartListWrap" style="display:none;">
-      <div class="screen-title" style="font-size:16px;margin-bottom:10px;">Sepetteki Ürünler (<span id="cartCount">0</span>)</div>
+      <div class="screen-title" style="font-size:17px;padding-top:0;margin-bottom:12px;">Sepetteki Ürünler (<span id="cartCount">0</span>)</div>
       <div id="cartList" style="margin-bottom:18px;"></div>
     </div>
 
-    <button class="btn-primary" style="background:var(--green-dark);" onclick="goToFinalOffer()">📋 Teklifi Tamamla →</button>
+    <button class="btn-primary" style="background:var(--surface);color:var(--text);border:1.5px solid var(--border-strong);margin-bottom:10px;" onclick="yeniUrunHesapla()">🔁 Yeni Ürün Hesapla</button>
+    <button class="btn-primary btn-gold" id="teklifTamamlaBtn" onclick="goToFinalOffer()">📋 Teklifi Tamamla →</button>
   </div>
 
   <!-- SCREEN 7: SON TEKLİF -->
@@ -971,7 +1146,7 @@
       <input type="text" id="customerName" placeholder="Örn: Özçete Otomotiv San. ve Tic. A.Ş." oninput="buildOffer()">
     </div>
     <div id="offerPreview"></div>
-    <button class="btn-primary" style="background:var(--gray-200);color:var(--gray-700);margin-bottom:10px;" onclick="goTo('screen6')">← Sepete Dön / Ürün Ekle</button>
+    <button class="btn-primary" style="background:var(--surface);color:var(--text);border:1.5px solid var(--border-strong);margin-bottom:10px;" onclick="goTo('screen6')">← Sepete Dön / Ürün Ekle</button>
     <button class="btn-primary btn-gold" onclick="generatePDF()" style="margin-bottom:10px">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
       PDF Oluştur &amp; İndir
@@ -986,7 +1161,7 @@
         E-posta
       </button>
     </div>
-    <button class="btn-primary" style="margin-top:12px;background:var(--green-dark)" onclick="resetApp()">🔄 Yeni Teklif Başlat</button>
+    <button class="btn-primary" id="anaEkranBtn" style="margin-top:14px;" onclick="anaEkranaDon()">🏠 Ana Ekrana Dön / Yeni Teklif</button>
   </div>
 
 </div>
@@ -995,13 +1170,13 @@
 
 <div class="modal-overlay" id="pdfModal" style="align-items:stretch;z-index:500;">
   <div style="background:white;width:100%;height:100%;overflow:hidden;display:flex;flex-direction:column;">
-    <div style="background:#1a3a2a;color:white;padding:12px 16px;padding-top:max(12px, env(safe-area-inset-top));flex-shrink:0;">
+    <div style="background:var(--obsidian);color:var(--on-accent);padding:12px 16px;padding-top:max(12px, env(safe-area-inset-top));flex-shrink:0;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
         <span style="font-weight:700;font-size:15px;">📄 Fiyat Teklifi</span>
         <button onclick="closePDFModal()" style="background:rgba(255,255,255,0.15);color:white;border:none;width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
       </div>
       <div style="display:flex;gap:8px;">
-        <button onclick="downloadPDF()" style="flex:1;background:#c8a84b;color:#1a3a2a;border:none;padding:10px 12px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;">⬇️ İndir</button>
+        <button onclick="downloadPDF()" style="flex:1;background:var(--grad-gold-btn);color:#FFFDF6;border:none;padding:10px 12px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;">⬇️ İndir</button>
         <button onclick="sharePDF()" style="flex:1;background:#25D366;color:white;border:none;padding:10px 12px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;">📲 Paylaş</button>
         <button onclick="printPDF()" style="flex:1;background:rgba(255,255,255,0.15);color:white;border:none;padding:10px 12px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;">🖨️ Yazdır</button>
       </div>
@@ -1037,9 +1212,9 @@
 
     <div style="display:flex;gap:8px;margin-bottom:14px;">
       <button id="gecmisTabTeklif" onclick="gecmisSekme('teklif')"
-        style="flex:1;padding:10px;border:none;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;background:#1a3a2a;color:#fff;font-family:'Inter',sans-serif;">Teklifler</button>
+        style="flex:1;padding:10px;border:1px solid var(--accent);border-radius:999px;font-weight:700;font-size:13px;cursor:pointer;background:var(--accent);color:var(--on-accent);font-family:'Manrope',sans-serif;">Teklifler</button>
       <button id="gecmisTabMusteri" onclick="gecmisSekme('musteri')"
-        style="flex:1;padding:10px;border:none;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;background:#e8e8e8;color:#555;font-family:'Inter',sans-serif;">Müşteriler</button>
+        style="flex:1;padding:10px;border:1px solid var(--border-strong);border-radius:999px;font-weight:700;font-size:13px;cursor:pointer;background:transparent;color:var(--text-2);font-family:'Manrope',sans-serif;">Müşteriler</button>
     </div>
 
     <div id="gecmisIcerik" style="max-height:50vh;overflow-y:auto;">
@@ -1294,11 +1469,11 @@ let currentScreen = 'screen0';
 let adminActiveFirm = 0;
 
 // Adım sırası: 8 görsel adım. screenABox/screenTeleskopik aynı adımı (2. adım) paylaşır.
-const screenOrder = ['screen0', 'screenABox', 'screen1', 'screen2', 'screen3', 'screenIskonto', 'screen4', 'screen5', 'screen6', 'screen7'];
-const TOTAL_STEPS = 8;
+const screenOrder = ['screen0', 'screenABox', 'screen1', 'screen2', 'screenIskonto', 'screen5', 'screen6', 'screen7'];
+const TOTAL_STEPS = 6;
 function stepIndexOf(screenId) {
   if (screenId === 'screenTeleskopik') return screenOrder.indexOf('screenABox');
-  if (screenId === 'screen7') return screenOrder.indexOf('screen6');
+  if (screenId === 'screen6' || screenId === 'screen7') return TOTAL_STEPS - 1;
   return screenOrder.indexOf(screenId);
 }
 
@@ -1323,7 +1498,7 @@ function updateProgress(screenId) {
   currentScreen = screenId;
   const stepIndex = stepIndexOf(screenId);
 
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < TOTAL_STEPS; i++) {
     const el = document.getElementById('ps' + i);
     if (!el) continue;
     el.className = 'progress-step' + (i < stepIndex ? ' done' : i === stepIndex ? ' active' : '');
@@ -1336,6 +1511,11 @@ function goTo(screenId) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(screenId).classList.add('active');
   updateProgress(screenId);
+  if (screenId === 'screen2') {
+    const kb = document.getElementById('kaliteBolumu');
+    kb.style.display = state.firmId ? 'block' : 'none';
+    document.getElementById('nextBtn2').disabled = !state.qualityNo;
+  }
   if (screenId === 'screenIskonto') fillIskontoScreen();
   if (screenId === 'screen5') fillPriceScreen();
   if (screenId === 'screen6') { fillCartScreen(); }
@@ -1526,10 +1706,12 @@ function renderFirms() {
 function selectFirm(id) {
   state.firmId = id;
   state.qualityNo = null; state.qualityPrice = null; state.qualityLabel = null;
-  document.querySelectorAll('.firm-card').forEach(c => c.classList.remove('selected'));
+  // Sadece firma kartlarını temizle (iskonto/nakliye kartlarına dokunma)
+  document.querySelectorAll('#firmGrid .firm-card').forEach(c => c.classList.remove('selected'));
   document.getElementById('fc_' + id).classList.add('selected');
-  document.getElementById('nextBtn2').disabled = false;
   renderQualities(id);
+  document.getElementById('kaliteBolumu').style.display = 'block';
+  document.getElementById('nextBtn2').disabled = true; // kalite seçilmeden geçilemez
 }
 
 // ─── SCREEN 3 ────────────────────────────────────────────────────────────────
@@ -1562,7 +1744,7 @@ function selectQuality(no, price, label) {
   state.qualityLabel = label;
   document.querySelectorAll('.quality-item').forEach(i => i.classList.remove('selected'));
   event.currentTarget.classList.add('selected');
-  document.getElementById('nextBtn3').disabled = false;
+  document.getElementById('nextBtn2').disabled = false;
 }
 
 // ─── SCREEN İSKONTO ──────────────────────────────────────────────────────────
@@ -1576,7 +1758,7 @@ function fillIskontoScreen() {
     document.getElementById('iskontoEkranWrap').style.display = 'none';
     document.getElementById('iskontoYokWrap').style.display = 'block';
     state.odemeSekli = null;
-    nextBtn.disabled = false;
+    updateIskontoNextBtn();
     return;
   }
 
@@ -1589,11 +1771,25 @@ function fillIskontoScreen() {
 
   if (state.odemeSekli) {
     showIskontoResult();
-    nextBtn.disabled = false;
   } else {
     document.getElementById('iskontoResultCard').style.display = 'none';
-    nextBtn.disabled = true;
   }
+  updateIskontoNextBtn();
+}
+
+function onPaletChange() {
+  state.palet = parseFloat((document.getElementById('paletInput').value || '').replace(',', '.')) || 0;
+  calcShipping();
+}
+
+// Birleşik ekran: hem iskonto hem nakliye seçilince ilerlenebilir
+function updateIskontoNextBtn() {
+  const firm = firms.find(f => f.id === state.firmId);
+  const po = firm && firm.paymentOptions;
+  const iskontoGerekli = po && (po.cek > 0 || po.pesin > 0);
+  const iskontoTamam = !iskontoGerekli || !!state.odemeSekli;
+  const nakliyeTamam = state.nakliyeVar !== null && state.nakliyeVar !== undefined;
+  document.getElementById('nextBtnIskonto').disabled = !(iskontoTamam && nakliyeTamam);
 }
 
 function selectIskonto(tip) {
@@ -1601,7 +1797,7 @@ function selectIskonto(tip) {
   document.getElementById('iskcek').classList.toggle('selected', tip === 'cek');
   document.getElementById('iskpesin').classList.toggle('selected', tip === 'pesin');
   showIskontoResult();
-  document.getElementById('nextBtnIskonto').disabled = false;
+  updateIskontoNextBtn();
 
   // Fiyat ekranındaki butonları da güncelle
   const cekEl = document.getElementById('cekOraniInput');
@@ -1669,7 +1865,9 @@ function calcFinal() {
   const rawListPrice = area * state.qualityPrice;
   const raw = rawListPrice * (1 - iskontoOrani);
   const nakliye = state.nakliye || 0;
-  const totalCost = raw + nakliye;
+  // Palet bedeli maliyete dahil - önceki ekranda girilir
+  const palet = state.palet || 0;
+  const totalCost = raw + nakliye + palet;
 
   const iskontoRow = document.getElementById('s4IskontoRow');
   if (iskontoOrani > 0) {
@@ -1682,6 +1880,14 @@ function calcFinal() {
   document.getElementById('s4RawCost').textContent = raw.toFixed(2) + ' TL';
   document.getElementById('s4Nakliye').textContent = nakliye.toFixed(2) + ' TL';
   document.getElementById('s4TotalCost').textContent = totalCost.toFixed(2) + ' TL';
+
+  const paletRow = document.getElementById('s4PaletRow');
+  if (palet > 0) {
+    paletRow.style.display = 'flex';
+    document.getElementById('s4Palet').textContent = palet.toFixed(2) + ' TL';
+  } else {
+    paletRow.style.display = 'none';
+  }
 
   const final = totalCost / (1 - margin / 100);
   state.finalPrice = final;
@@ -1702,7 +1908,7 @@ function setNakliyeVar(hasShipping) {
   document.getElementById('nakliyeYes').classList.toggle('selected', hasShipping);
   document.getElementById('nakliyeNo').classList.toggle('selected', !hasShipping);
   document.getElementById('nakliyeInputWrap').style.display = hasShipping ? 'block' : 'none';
-  document.getElementById('nextBtn5').disabled = false;
+  updateIskontoNextBtn();
   if (!hasShipping) {
     state.nakliye = 0;
     document.getElementById('nakliyeInput').value = 0;
@@ -1722,22 +1928,45 @@ function calcShipping() {
   const rawListPrice = area * state.qualityPrice;
   const iskontoOrani = getIskontoOrani();
   const netLevha = rawListPrice * (1 - iskontoOrani);
-  const total = netLevha + nakliye;
-  
+  const palet = state.palet || 0;
+  const total = netLevha + nakliye + palet;
+
   document.getElementById('shippingResult').textContent = total.toFixed(2) + ' TL';
   document.getElementById('shippingDetail').textContent =
-    `${netLevha.toFixed(2)} TL (levha) + ${nakliye.toFixed(2)} TL (nakliye)`;
+    `${netLevha.toFixed(2)} TL (levha) + ${nakliye.toFixed(2)} TL (nakliye)` +
+    (palet > 0 ? ` + ${palet.toFixed(2)} TL (palet)` : '');
 }
 
 // ─── SCREEN 6 (TEKLİF) ───────────────────────────────────────────────────────
 // ─── SEPET (ÇOKLU ÜRÜN) ──────────────────────────────────────────────────────
 function fillCartScreen() {
-  document.getElementById('cartBoxSize').textContent = state.kutuOlcusu ? (state.kutuOlcusu + ' mm') : '—';
-  document.getElementById('cartSheetSize').textContent = `${state.en} × ${state.boy} mm`;
-  document.getElementById('cartKalite').textContent = state.qualityLabel || '—';
-  document.getElementById('cartUnitPrice').textContent = state.finalPrice ? state.finalPrice.toFixed(2) + ' TL' : '—';
-  document.getElementById('urunIsmiInput').value = '';
-  document.getElementById('urunAdetInput').value = '';
+  const hesapVar = !!(state.finalPrice && state.qualityLabel);
+  document.getElementById('urunFormWrap').style.display = hesapVar ? 'block' : 'none';
+
+  if (hesapVar) {
+    document.getElementById('cartBoxSize').textContent = state.kutuOlcusu ? (state.kutuOlcusu + ' mm') : '—';
+    document.getElementById('cartSheetSize').textContent =
+      (state.en && state.boy) ? `${state.en} × ${state.boy} mm` : '—';
+    document.getElementById('cartKalite').textContent = state.qualityLabel || '—';
+    document.getElementById('cartUnitPrice').textContent = state.finalPrice.toFixed(2) + ' TL';
+    document.getElementById('urunIsmiInput').value = '';
+    document.getElementById('urunAdetInput').value = '';
+  }
+
+  // Başlık sepet doluluğuna göre
+  const scr = document.getElementById('screen6');
+  const baslik = scr.querySelector('.screen-title');
+  const aciklama = scr.querySelector('.screen-desc');
+  if (hesapVar) {
+    baslik.textContent = 'Ürünü Sepete Ekle';
+    aciklama.textContent = 'Bu ürünü teklife ekleyin, isterseniz başka ürün daha ekleyin.';
+  } else {
+    baslik.textContent = 'Teklif Sepeti';
+    aciklama.textContent = cart.length
+      ? 'Yeni ürün ekleyebilir veya teklifi tamamlayabilirsiniz.'
+      : 'Henüz ürün yok. Yeni ürün hesaplayarak başlayın.';
+  }
+
   renderCartList();
 }
 
@@ -1760,11 +1989,24 @@ function addToCart() {
     qualityLabel: state.qualityLabel,
     nakliyeVar: state.nakliyeVar,
     nakliye: state.nakliye || 0,
+    palet: state.palet || 0,
     unitPrice: state.finalPrice
   });
 
   showToast('✅ "' + urunIsmi + '" sepete eklendi');
-  resetForNewProduct();
+
+  // Hesap state'ini temizle ama sepet ekranında kal
+  temizleHesapState();
+  document.getElementById('urunFormWrap').style.display = 'none';
+  renderCartList();
+  window.scrollTo(0, 0);
+}
+
+// Sepete eklendikten sonra yeni ürün hesaplamaya başla
+function yeniUrunHesapla() {
+  temizleHesapState();
+  temizleFormAlanlari();
+  goTo('screen0');
 }
 
 function removeFromCart(idx) {
@@ -1773,6 +2015,11 @@ function removeFromCart(idx) {
 }
 
 function renderCartList() {
+  const tBtn = document.getElementById('teklifTamamlaBtn');
+  if (tBtn) {
+    const hazir = cart.length > 0 || !!(state.finalPrice && state.qualityLabel);
+    tBtn.disabled = !hazir;
+  }
   const wrap = document.getElementById('cartListWrap');
   const list = document.getElementById('cartList');
   document.getElementById('cartCount').textContent = cart.length;
@@ -1798,13 +2045,22 @@ function renderCartList() {
 }
 
 function resetForNewProduct() {
-  // Sadece ürün hesaplama state'ini sıfırla, sepeti koru
+  temizleHesapState();
+  temizleFormAlanlari();
+  goTo('screen0');
+}
+
+// Sadece hesaplama state'ini sıfırlar (sepete dokunmaz)
+function temizleHesapState() {
   state.en = null; state.boy = null; state.area = null;
   state.firmId = null; state.qualityNo = null; state.qualityPrice = null; state.qualityLabel = null;
-  state.finalPrice = null; state.margin = 20; state.nakliye = 0; state.nakliyeVar = null;
+  state.finalPrice = null; state.margin = 20; state.nakliye = 0; state.nakliyeVar = null; state.palet = 0;
   state.odemeSekli = null; state.kutuOlcusu = null; state.kutuTipi = null;
   aboxResult = null; teleskopikResult = null; kutuTipi = null;
+}
 
+// Ekrandaki giriş alanlarını temizler
+function temizleFormAlanlari() {
   document.getElementById('kutuTipiABox').classList.remove('selected');
   document.getElementById('kutuTipiTeleskopik').classList.remove('selected');
   document.getElementById('aboxL').value = '';
@@ -1826,18 +2082,16 @@ function resetForNewProduct() {
   document.getElementById('enInput').value = '';
   document.getElementById('boyInput').value = '';
   document.getElementById('nakliyeInput').value = '0';
+  document.getElementById('paletInput').value = '0';
+  document.getElementById('kaliteBolumu').style.display = 'none';
   document.getElementById('nakliyeInputWrap').style.display = 'none';
   document.getElementById('nakliyeYes').classList.remove('selected');
   document.getElementById('nakliyeNo').classList.remove('selected');
   document.getElementById('areaCard').style.display = 'none';
   document.getElementById('nextBtn1').disabled = true;
   document.getElementById('nextBtn2').disabled = true;
-  document.getElementById('nextBtn3').disabled = true;
   document.getElementById('nextBtnIskonto').disabled = true;
-  document.getElementById('nextBtn5').disabled = true;
   document.querySelectorAll('.firm-card').forEach(c => c.classList.remove('selected'));
-
-  goTo('screen0');
 }
 
 function goToFinalOffer() {
@@ -1858,7 +2112,9 @@ function goToFinalOffer() {
         levhaBoy: state.boy,
         area: state.area,
         qualityLabel: state.qualityLabel,
+        nakliyeVar: state.nakliyeVar,
         nakliye: state.nakliye || 0,
+        palet: state.palet || 0,
         unitPrice: state.finalPrice
       });
     } else {
@@ -1968,6 +2224,7 @@ function generatePDF() {
         qualityLabel: state.qualityLabel,
         nakliyeVar: state.nakliyeVar,
         nakliye: state.nakliye || 0,
+        palet: state.palet || 0,
         unitPrice: state.finalPrice
       });
     } else {
@@ -2190,6 +2447,9 @@ function openPrintWindow() {
     printWin.focus();
     setTimeout(() => { printWin.print(); }, 600);
     showToast('📄 Yazdır ekranında "Üstbilgi ve Altbilgiler" seçeneğini kapatın');
+    // PDF penceresi kapanınca kullanıcı burada kalır; ana ekran butonunu vurgula
+    const anaBtn = document.getElementById('anaEkranBtn');
+    if (anaBtn) anaBtn.classList.add('btn-gold');
   } else {
     showToast('⚠️ Popup engellendi — tarayıcı izin verin');
   }
@@ -2211,8 +2471,22 @@ async function sharePDF() {
   }
 }
 
+function anaEkranaDon() {
+  if (cart.length > 0) {
+    if (!confirm('Yeni teklife başlanacak. Sepetteki ürünler silinecek. Devam edilsin mi?')) return;
+  }
+  try {
+    resetApp();
+  } catch (e) {
+    // Bir alan bulunamazsa bile ana ekrana dön
+    cart = [];
+    goTo('screen0');
+  }
+  showToast('🏠 Yeni teklife hazır');
+}
+
 function resetApp() {
-  state = { en:null, boy:null, area:null, firmId:null, qualityNo:null, qualityPrice:null, qualityLabel:null, finalPrice:null, margin:20, nakliye:0, nakliyeVar:null, odemeSekli:null, kutuOlcusu:null, kutuTipi:null, teklifNo:null };
+  state = { en:null, boy:null, area:null, firmId:null, qualityNo:null, qualityPrice:null, qualityLabel:null, finalPrice:null, margin:20, nakliye:0, nakliyeVar:null, palet:0, odemeSekli:null, kutuOlcusu:null, kutuTipi:null, teklifNo:null };
   cart = [];
   aboxResult = null;
   teleskopikResult = null;
@@ -2238,6 +2512,8 @@ function resetApp() {
   document.getElementById('enInput').value = '';
   document.getElementById('boyInput').value = '';
   document.getElementById('nakliyeInput').value = '0';
+  document.getElementById('paletInput').value = '0';
+  document.getElementById('kaliteBolumu').style.display = 'none';
   document.getElementById('nakliyeInputWrap').style.display = 'none';
   document.getElementById('nakliyeYes').classList.remove('selected');
   document.getElementById('nakliyeNo').classList.remove('selected');
@@ -2247,9 +2523,7 @@ function resetApp() {
   document.getElementById('areaCard').style.display = 'none';
   document.getElementById('nextBtn1').disabled = true;
   document.getElementById('nextBtn2').disabled = true;
-  document.getElementById('nextBtn3').disabled = true;
   document.getElementById('nextBtnIskonto').disabled = true;
-  document.getElementById('nextBtn5').disabled = true;
   document.querySelectorAll('.firm-card').forEach(c => c.classList.remove('selected'));
   goTo('screen0');
 }
@@ -2294,12 +2568,12 @@ function renderAdminQualities() {
         <div style="flex:1;">
           <label style="font-size:11px;color:var(--gray-400);display:block;margin-bottom:4px;">Çek (%)</label>
           <input type="number" id="adminCekIskonto" value="${((po.cek||0)*100).toFixed(0)}" inputmode="decimal" step="1"
-            style="width:100%;padding:8px 10px;border:2px solid var(--gray-200);border-radius:8px;font-size:14px;font-weight:700;font-family:'Inter',sans-serif;text-align:center;outline:none;-webkit-appearance:none;">
+            style="width:100%;padding:9px 10px;border:1.5px solid var(--border-strong);border-radius:var(--r-sm);background:var(--surface-2);color:var(--text);font-size:14px;font-weight:700;font-family:'Manrope',sans-serif;text-align:center;outline:none;-webkit-appearance:none;">
         </div>
         <div style="flex:1;">
           <label style="font-size:11px;color:var(--gray-400);display:block;margin-bottom:4px;">Peşin (%)</label>
           <input type="number" id="adminPesinIskonto" value="${((po.pesin||0)*100).toFixed(0)}" inputmode="decimal" step="1"
-            style="width:100%;padding:8px 10px;border:2px solid var(--gray-200);border-radius:8px;font-size:14px;font-weight:700;font-family:'Inter',sans-serif;text-align:center;outline:none;-webkit-appearance:none;">
+            style="width:100%;padding:9px 10px;border:1.5px solid var(--border-strong);border-radius:var(--r-sm);background:var(--surface-2);color:var(--text);font-size:14px;font-weight:700;font-family:'Manrope',sans-serif;text-align:center;outline:none;-webkit-appearance:none;">
         </div>
       </div>
     </div>
@@ -2371,9 +2645,9 @@ function gecmisSekme(sekme) {
   gecmisAktifSekme = sekme;
   const tT = document.getElementById('gecmisTabTeklif');
   const tM = document.getElementById('gecmisTabMusteri');
-  const aktif = 'background:#1a3a2a;color:#fff;';
-  const pasif = 'background:#e8e8e8;color:#555;';
-  const ortak = 'flex:1;padding:10px;border:none;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;font-family:\'Inter\',sans-serif;';
+  const aktif = 'background:var(--accent);border:1px solid var(--accent);color:var(--on-accent);';
+  const pasif = 'background:transparent;border:1px solid var(--border-strong);color:var(--text-2);';
+  const ortak = 'flex:1;padding:10px;border-radius:999px;font-weight:700;font-size:13px;cursor:pointer;font-family:\'Manrope\',sans-serif;';
   tT.style.cssText = ortak + (sekme === 'teklif' ? aktif : pasif);
   tM.style.cssText = ortak + (sekme === 'musteri' ? aktif : pasif);
 
@@ -2397,15 +2671,15 @@ function gecmisSekme(sekme) {
           ? t.genelToplam.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' TL'
           : '—';
         return `
-        <div style="background:#f7f7f5;border-radius:10px;padding:12px 14px;margin-bottom:8px;">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:12px 14px;margin-bottom:8px;">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
             <div style="flex:1;min-width:0;">
-              <div style="font-weight:700;font-size:14px;color:#1a3a2a;">${t.musteri || '—'}</div>
+              <div style="font-weight:700;font-size:14px;color:var(--text);">${t.musteri || '—'}</div>
               <div style="font-size:11px;color:#888;margin-top:2px;">${t.teklifNo || ''} · ${t.tarihGoruntu || ''}</div>
               <div style="font-size:12px;color:#555;margin-top:4px;">${ilkUrun}${urunSayisi > 1 ? ' +' + (urunSayisi - 1) + ' ürün' : ''}</div>
             </div>
             <div style="text-align:right;white-space:nowrap;">
-              <div style="font-weight:800;font-size:14px;color:#c8a84b;">${toplamStr}</div>
+              <div style="font-weight:800;font-size:14px;color:var(--accent);">${toplamStr}</div>
             </div>
           </div>
         </div>`;
@@ -2420,12 +2694,12 @@ function gecmisSekme(sekme) {
       kutu.innerHTML = liste.map(m => {
         const sonTarih = m.sonTeklifTarihi ? new Date(m.sonTeklifTarihi).toLocaleDateString('tr-TR') : '';
         return `
-        <div style="background:#f7f7f5;border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;">
           <div style="flex:1;min-width:0;">
-            <div style="font-weight:700;font-size:14px;color:#1a3a2a;">${m.isim || '—'}</div>
+            <div style="font-weight:700;font-size:14px;color:var(--text);">${m.isim || '—'}</div>
             <div style="font-size:11px;color:#888;margin-top:2px;">Son teklif: ${sonTarih}</div>
           </div>
-          <div style="background:#1a3a2a;color:#fff;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;white-space:nowrap;">
+          <div style="background:var(--accent);color:var(--on-accent);border-radius:999px;padding:4px 12px;font-size:12px;font-weight:700;white-space:nowrap;">
             ${m.teklifSayisi || 1} teklif
           </div>
         </div>`;
